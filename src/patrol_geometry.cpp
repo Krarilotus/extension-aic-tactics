@@ -58,7 +58,8 @@ int wingPatrolStations(TilePoint first, TilePoint keep, TilePoint second, int sp
 
 int mirrorPatrolStations(TilePoint first, TilePoint keep, TilePoint home, TilePoint out[2])
 {
-    if (patrolDistance(first, keep) < 4) return 0;
+    const int distance = patrolDistance(first, keep);
+    if (distance < 4 || distance > MirrorPatrolRadius) return 0;
     const int axis = patrolOctant(home.x - keep.x, home.y - keep.y);
     if (axis < 0) return 0;
     const int vx = first.x - keep.x, vy = first.y - keep.y;

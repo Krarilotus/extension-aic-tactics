@@ -24,7 +24,9 @@ int wingPatrolStations(TilePoint first, TilePoint keep, TilePoint second, int sp
 // Mirror: the first group's offset from the target keep reflected across the
 // compass axis nearest the target-to-home direction; the point reflection
 // through the keep is the alternative. A group within four tiles of the keep
-// has no meaningful mirror.
+// has no meaningful mirror; one farther than MirrorPatrolRadius is still
+// marching, and keeps the native search until it closes in.
+const int MirrorPatrolRadius = 48;
 int mirrorPatrolStations(TilePoint first, TilePoint keep, TilePoint home, TilePoint out[2]);
 
 } // namespace AicTactics

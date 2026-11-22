@@ -65,6 +65,9 @@ static void mirror()
     // Too close to the keep, or no home direction.
     assert(mirrorPatrolStations(at(202, 201), at(200, 200), at(200, 300), out) == 0);
     assert(mirrorPatrolStations(at(170, 190), at(200, 200), at(200, 200), out) == 0);
+    // Still marching from far away: no mirror yet.
+    assert(mirrorPatrolStations(at(151, 200), at(200, 200), at(200, 300), out) == 0);
+    assert(mirrorPatrolStations(at(152, 200), at(200, 200), at(200, 300), out) == 2);
 }
 
 int main()
