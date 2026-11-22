@@ -74,6 +74,14 @@ function M.new(native, legacyInterval, fingerprint)
       .. core.readString(native.configuration + 352, configurationBytes)
       .. core.readString(native.game.aicRecords, aicBytes)
   end
+  -- Multiplayer peers must also agree on settings that keep no saved state.
+  -- Those settings stay out of save admission: a save reloads with changed
+  -- patrol settings and simply follows them from the next native decision.
+  local function matchIdentity()
+    return identity() .. core.readString(native.patrolOrders + 4, 16 * 4)
+      .. core.readString(native.patrolFormation + 4, 16 * 4)
+      .. core.readString(native.patrolSpacing + 4, 16 * 4)
+  end
   local function capture()
     local result = {identity(), word(core.readInteger(native.defenseCensusTick)),
       word(core.readInteger(native.defenseCensusValid))}
@@ -164,6 +172,7 @@ function M.new(native, legacyInterval, fingerprint)
   end
   return {
     capture = capture, validate = validate, restore = restore, identity = identity,
+    matchIdentity = matchIdentity,
     callbacks = {
       isRequired = active,
       initialize = initialize,

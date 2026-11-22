@@ -3,8 +3,9 @@ local targets = require('config.targets')
 local army = require('config.army')
 local raids = require('config.raids')
 local siege = require('config.siege')
+local attacks = require('config.attacks')
 local M = {fields = {}}
-for _, component in ipairs({recruitment, targets, army, raids, siege}) do
+for _, component in ipairs({recruitment, targets, army, raids, siege, attacks}) do
   for _, field in ipairs(component.fields) do M.fields[#M.fields + 1] = field end
 end
 
@@ -18,6 +19,7 @@ function M.defaults()
   result.AttackPreparation = 'Native'
   for field, value in pairs(raids.defaults()) do result[field] = value end
   for field, value in pairs(siege.defaults()) do result[field] = value end
+  for field, value in pairs(attacks.defaults()) do result[field] = value end
   return result
 end
 
@@ -29,6 +31,7 @@ function M.active(candidate)
     or candidate.CoordinatedSiegeHarassment ~= nil
     or candidate.SiegeHarassMinEngines ~= nil
     or candidate.LargerSiegeForces ~= nil or candidate.SiegeForceMax ~= nil
+    or attacks.active(candidate)
 end
 
 function M.prepare(previous, spec, readNative, resetting)
@@ -40,6 +43,8 @@ function M.prepare(previous, spec, readNative, resetting)
   if armyCompiled == 1 and targetCompiled.commitment == 0 then targetCompiled.commitment = 1 end
   local raidAuthored, raidCompiled = raids.prepare(previous, spec, resetting)
   local siegeAuthored, siegeCompiled = siege.prepare(previous, spec, resetting)
+  local attackAuthored, attackCompiled = attacks.prepare(previous, spec, resetting)
+  for field, value in pairs(attackAuthored) do authored[field] = value end
   for field, value in pairs(raidAuthored) do authored[field] = value end
   authored.AttackPreparation = armyAuthored.AttackPreparation
   authored.SafeSiegePlacement = siegeAuthored.SafeSiegePlacement
@@ -59,8 +64,8 @@ function M.prepare(previous, spec, readNative, resetting)
     assert(used, 'ProvocationRules requires AfterProvocation, LastAggressor or a HomeUnderThreat condition')
   end
   return combine(authored, targetAuthored),
-    {schemaVersion = 9, recruitment = compiled, targeting = targetCompiled, preparation = armyCompiled,
-      raids = raidCompiled, siege = siegeCompiled}
+    {schemaVersion = 10, recruitment = compiled, targeting = targetCompiled, preparation = armyCompiled,
+      raids = raidCompiled, siege = siegeCompiled, attacks = attackCompiled}
 end
 
 function M.copy(candidate)
@@ -73,6 +78,7 @@ function M.copy(candidate)
   result.SiegeHarassMinEngines = candidate.SiegeHarassMinEngines
   result.LargerSiegeForces = candidate.LargerSiegeForces
   result.SiegeForceMax = candidate.SiegeForceMax
+  for field, value in pairs(attacks.copy(candidate)) do result[field] = value end
   return result
 end
 

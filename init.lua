@@ -52,7 +52,7 @@ return {
     self.recruitmentState = require('state').new(native, legacyInterval, identity.sha256)
     protocol:registerMultiplayerAdmission('aic-tactics',function()
       backend.freezeMultiplayer()
-      return sha.sha256(self.recruitmentState.identity())
+      return sha.sha256(self.recruitmentState.matchIdentity())
     end,function(reason)
       -- The existing chat owner displays locally; do not broadcast another
       -- admission message or submit a simulation command for presentation.

@@ -17,6 +17,7 @@ def state():
         siegeHarassPlans=190700,siegeHarassPlanSize=36,
         largeSiegeFallback=191100,siegeForceMaximumFallback=191104,
         largeSiegePolicy=191200,siegeForceMaximum=191300,
+        patrolOrders=191400,patrolFormation=191500,patrolSpacing=191600,
         game={gameTick=0x1FE7DA8,initialDefenseTicks=0x4D34B1,aicRecords=0x23FC8E8+676,unitCapacity=2500,buildingCapacity=2000,tribeMemberWords=157,players=0x115BDF8,tribes=0x1667F78,tribeStride=0x334},
         defenseCensusTick=23000,defenseCensusValid=23004, legacyTargetPolicy=23008,
         incidentSize=2632,combatCensusTick=24000,combatCensusValid=24004,
@@ -250,4 +251,20 @@ def test_native_only_optional_state_does_not_impose_new_package_requirement():
       assert(not pcall(other.callbacks.validate,other.callbacks,reader) and writes==0)
       reader.exists=function()return false end
       assert(not pcall(state.callbacks.validate,state.callbacks,reader) and writes==0)
+    ''')
+
+
+def test_patrol_settings_enter_match_identity_but_not_save_admission():
+    state().execute('''
+      local saveIdentity,matchIdentity=state.identity(),state.matchIdentity()
+      assert(matchIdentity:sub(1,#saveIdentity)==saveIdentity)
+      local bytes=state.capture()
+      memory[native.patrolOrders+4*4]=1
+      memory[native.patrolFormation+4*4]=1
+      memory[native.patrolSpacing+4*4]=14
+      assert(state.identity()==saveIdentity)
+      assert(state.matchIdentity()~=matchIdentity)
+      -- A save made before the change still validates and restores.
+      state.restore(bytes)
+      assert(state.capture()==bytes)
     ''')

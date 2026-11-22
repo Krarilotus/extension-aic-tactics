@@ -1,6 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "aic_tactics/runtime.hpp"
+#include "aic_tactics/patrols.hpp"
 
 typedef char ConfigurationABI[sizeof(AicTactics::SHC141::CharacterConfiguration) == 352 ? 1 : -1];
 typedef char ReserveABI[sizeof(AicTactics::SHC141::ReserveState) == 196 ? 1 : -1];
@@ -47,7 +48,8 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         "siegeHarassMinimum", "siegeHarassPlans", "siegeHarassPlanSize",
         "suppressNativeSiegeHarassMove", "largeSiegeFallback",
         "siegeForceMaximumFallback", "largeSiegePolicy", "siegeForceMaximum",
-        "buildLargerSiegeForce"};
+        "buildLargerSiegeForce", "patrolOrders", "patrolFormation", "patrolSpacing",
+        "dispatchAttackPatrols"};
     const unsigned int values[] = {
         reinterpret_cast<unsigned int>(configurations), sizeof(CharacterConfiguration),
         reinterpret_cast<unsigned int>(observations), sizeof(RecruitmentObservation),
@@ -102,7 +104,12 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         reinterpret_cast<unsigned int>(&siegeForceMaximumFallback),
         reinterpret_cast<unsigned int>(largeSiegePolicy),
         reinterpret_cast<unsigned int>(siegeForceMaximum),
-        reinterpret_cast<unsigned int>(&buildLargerSiegeForce)};
+        reinterpret_cast<unsigned int>(&buildLargerSiegeForce),
+        reinterpret_cast<unsigned int>(patrolOrders),
+        reinterpret_cast<unsigned int>(patrolFormation),
+        reinterpret_cast<unsigned int>(patrolSpacing),
+        reinterpret_cast<unsigned int>(&dispatchAttackPatrols)};
+    typedef char ExportCount[sizeof(names) / sizeof(names[0]) == sizeof(values) / sizeof(values[0]) ? 1 : -1];
     createTable(state, 0, sizeof(names) / sizeof(names[0]));
     for (unsigned int i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {
         pushNumber(state, values[i]);

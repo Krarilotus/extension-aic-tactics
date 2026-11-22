@@ -85,6 +85,13 @@
     "CoordinatedSiegeHarassment": {"type": "boolean", "description": "Gather siege engines and approach reachable targets together; module default OFF."},
     "SiegeHarassMinEngines": {"type": "integer", "minimum": 0, "maximum": 20, "description": "Preferred number of ready harassment engines before departure; module default 3."},
     "LargerSiegeForces": {"type": "boolean", "description": "Repeat the existing assault equipment mix while unassigned attack engineers and native capacity remain; module default OFF."},
-    "SiegeForceMax": {"type": "integer", "minimum": 0, "maximum": 64, "description": "Optional cap on active and pending assault equipment. 0 lets available engineers determine size; module default 0."}
+    "SiegeForceMax": {"type": "integer", "minimum": 0, "maximum": 64, "description": "Optional cap on active and pending assault equipment. 0 lets available engineers determine size; module default 0."},
+    "PatrolGroupOrders": {"enum": ["Native", "AllGroups"], "description": "Native orders only the first attack patrol group. AllGroups also sends the second native patrol group (AttUnitPatrolGroupsCount 2) out of staging on the native patrol cadence."},
+    "PatrolFormation": {"enum": ["Native", "Wing", "Mirror"], "description": "Where the second patrol group goes. Native: its own leader-based search. Wing: beside the first group. Mirror: the other side of the target keep. Requires PatrolGroupOrders AllGroups."},
+    "PatrolSpacing": {"type": "integer", "minimum": 4, "maximum": 40, "description": "Tiles between the two patrol groups in Wing formation; default 12. Requires PatrolFormation Wing."}
+  },
+  "dependentSchemas": {
+    "PatrolFormation": {"properties": {"PatrolGroupOrders": {"const": "AllGroups"}}, "required": ["PatrolGroupOrders"]},
+    "PatrolSpacing": {"properties": {"PatrolFormation": {"const": "Wing"}}, "required": ["PatrolFormation"]}
   }
 }

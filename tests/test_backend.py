@@ -20,6 +20,7 @@ def backend():
         siegeHarassFallback=22300,
         largeSiegePolicy=22400,siegeForceMaximum=22500,
         largeSiegeFallback=22600,
+        patrolOrders=22700,patrolFormation=22800,patrolSpacing=22900,
         game={gameTick=0x1FE7DA8},
         preflight=function()end,activate=function()end,preflightComposition=function()end,activateComposition=function()end,
         preflightCombat=function()end,activateCombat=function()end,
@@ -28,6 +29,8 @@ def backend():
         preflightSiegePayment=function()end,activateSiegePayment=function()end,
         preflightSiegeHarassment=function()end,activateSiegeHarassment=function()end,
         preflightLargerSiegeForce=function()end,activateLargerSiegeForce=function()end,
+        preflightAttackPatrols=function()patrolPreflights=(patrolPreflights or 0)+1 end,
+        activateAttackPatrols=function()patrolActivations=(patrolActivations or 0)+1 end,
         preflightEngineerRoles=function()rolePreflights=rolePreflights+1 end,
         activateEngineerRoles=function()roleActivations=roleActivations+1 end}
       backend=require('config.backend').new(native)
@@ -323,4 +326,52 @@ def test_random_nearby_raids_and_percentage_focus_are_per_ai():
         RaidFocus={Food=60,Industry=50}},function()return 0 end,false))
       assert(not pcall(schema.prepare,nil,{RaidTargetPolicy='NearestReachable',
         RaidFocus={Food=20}},function()return 0 end,false))
+    ''')
+
+
+def test_patrol_orders_are_per_ai_with_native_absent_default():
+    backend().execute('''
+      prepare(4,{}).commit()
+      for _,name in ipairs({'patrolOrders','patrolFormation','patrolSpacing'}) do
+        assert(memory[native[name]+16]==0)
+      end
+      assert(patrolPreflights==nil and patrolActivations==nil)
+      prepare(4,{PatrolGroupOrders='AllGroups'}).commit()
+      assert(memory[native.patrolOrders+16]==1 and memory[native.patrolFormation+16]==0)
+      assert(memory[native.patrolSpacing+16]==0)
+      assert(patrolPreflights==1 and patrolActivations==1)
+      prepare(5,{PatrolGroupOrders='AllGroups',PatrolFormation='Wing',PatrolSpacing=14}).commit()
+      assert(memory[native.patrolOrders+20]==1 and memory[native.patrolFormation+20]==1)
+      assert(memory[native.patrolSpacing+20]==14)
+      prepare(6,{PatrolGroupOrders='AllGroups',PatrolFormation='Mirror'}).commit()
+      assert(memory[native.patrolFormation+24]==2 and memory[native.patrolSpacing+24]==0)
+      local op=prepare(5,{PatrolGroupOrders='Native'})
+      op.commit()
+      assert(memory[native.patrolOrders+20]==0 and memory[native.patrolFormation+20]==0)
+      op.rollback()
+      assert(memory[native.patrolOrders+20]==1 and memory[native.patrolSpacing+20]==14)
+    ''')
+
+
+def test_patrol_dependent_fields_are_rejected_without_their_parent():
+    backend().execute('''
+      assert(not pcall(prepare,4,{PatrolFormation='Wing'}))
+      assert(not pcall(prepare,4,{PatrolGroupOrders='AllGroups',PatrolSpacing=10}))
+      assert(not pcall(prepare,4,{PatrolGroupOrders='AllGroups',PatrolFormation='Mirror',PatrolSpacing=10}))
+      for _,value in ipairs({3,41,10.5,'12',false}) do
+        assert(not pcall(prepare,4,{PatrolGroupOrders='AllGroups',PatrolFormation='Wing',PatrolSpacing=value}))
+      end
+      assert(not pcall(prepare,4,{PatrolGroupOrders='Both'}))
+      assert(not pcall(prepare,4,{PatrolGroupOrders='AllGroups',PatrolFormation='Ring'}))
+      assert(pcall(prepare,4,{PatrolGroupOrders='AllGroups',PatrolFormation='Wing',PatrolSpacing=4}))
+      assert(pcall(prepare,4,{PatrolGroupOrders='AllGroups',PatrolFormation='Wing',PatrolSpacing=40}))
+    ''')
+
+
+def test_patrol_policy_requires_a_fresh_process_like_other_policies():
+    backend().execute('''
+      prepare(4,{PatrolGroupOrders='AllGroups'}).commit()
+      assert(backend.policyActive())
+      memory[native.game.gameTick]=500
+      assert(not pcall(prepare,5,{PatrolGroupOrders='AllGroups'}))
     ''')
