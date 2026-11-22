@@ -16,14 +16,16 @@ int patrolOctant(int dx, int dy);
 void patrolOctantVector(int octant, int& ux, int& uy);
 int patrolDistance(TilePoint a, TilePoint b);
 
-// Wing: two stations `spacing` tiles to either side of the first group's
-// leader, perpendicular to its direction toward the target keep. The side
+// Wing: two stations about `spacing` tiles to either side of the first group's
+// leader, perpendicular to its direction toward the target keep (diagonal
+// steps are shortened by 5/7 so the gap stays close to `spacing`). The side
 // nearer the second group's leader comes first; ties keep the left side first.
 int wingPatrolStations(TilePoint first, TilePoint keep, TilePoint second, int spacing, TilePoint out[2]);
 
-// Mirror: the first group's offset from the target keep reflected across the
-// compass axis nearest the target-to-home direction; the point reflection
-// through the keep is the alternative. A group within four tiles of the keep
+// Mirror: the first group's offset from the target keep entrance reflected
+// across the compass axis nearest the target-to-home direction; the point
+// reflection through the keep is the alternative. Close to that axis the
+// keep's two flanks are used instead. A group within four tiles of the keep
 // has no meaningful mirror; one farther than MirrorPatrolRadius is still
 // marching, and keeps the native search until it closes in.
 const int MirrorPatrolRadius = 48;

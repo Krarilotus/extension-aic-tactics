@@ -5,8 +5,8 @@ The native game recruits up to two attack patrol groups (`AttUnitPatrolGroupsCou
 | Field | Values | Default | Effect |
 | --- | --- | --- | --- |
 | `PatrolGroupOrders` | `Native`, `AllGroups` | `Native` | `AllGroups` sends the second native patrol group out whenever the game re-orders its first patrol (attack states 3–5). |
-| `PatrolFormation` | `Native`, `Wing`, `Mirror` | `Native` | `Native`: the second group searches its own next step from its leader, like the first. `Wing`: it takes a station beside the first group, across its line of advance. `Mirror`: it takes the first group's position reflected to the other side of the target keep. Requires `AllGroups`. |
-| `PatrolSpacing` | 4–40 tiles | 12 | Distance of the `Wing` station from the first group's leader. Requires `Wing`. |
+| `PatrolFormation` | `Native`, `Wing`, `Mirror` | `Native` | `Native`: the second group searches its own next step from its leader, like the first. `Wing`: it takes a station beside the first group, across its line of advance. `Mirror`: once the first group is within 48 tiles of the target keep, it takes the first group's position reflected to the other side of the keep (measured from the keep entrance); when the first group comes straight from home, it takes one of the keep's flanks. Requires `AllGroups`. |
+| `PatrolSpacing` | 4–40 tiles | 12 | Distance of the `Wing` station from the first group's leader (diagonal approaches use an equivalent shorter step). Requires `Wing`. |
 
 A formation station must be reachable for the second group (the game's own tribe path check). Otherwise the other side is tried, then the native search. A group that has reached its station (within three tiles) gets no new order until the first group moves on; while it is still on its way it is re-ordered at the native patrol cadence, like the first group.
 

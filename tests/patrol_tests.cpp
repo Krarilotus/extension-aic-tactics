@@ -39,7 +39,7 @@ static void wing()
     assert(same(out[0], 100, 88) && same(out[1], 100, 112));
     // Diagonal approach uses diagonal flanks.
     assert(wingPatrolStations(at(100, 100), at(150, 150), at(90, 90), 12, out) == 2);
-    assert(same(out[0], 112, 88) && same(out[1], 88, 112));
+    assert(same(out[0], 109, 91) && same(out[1], 91, 109));
     assert(wingPatrolStations(at(100, 100), at(150, 100), at(1, 1), 0, out) == 0);
     assert(wingPatrolStations(at(100, 100), at(100, 100), at(1, 1), 12, out) == 0);
 }
@@ -59,6 +59,10 @@ static void mirror()
     // Home south-west: diagonal y = -x.
     assert(mirrorPatrolStations(at(170, 190), at(200, 200), at(100, 300), out) == 2);
     assert(same(out[0], 210, 230));
+    // Slightly off the home axis: the reflection would sit beside the first
+    // group, so the keep's flanks are used.
+    assert(mirrorPatrolStations(at(203, 170), at(200, 200), at(200, 300), out) == 2);
+    assert(same(out[0], 230, 203) && same(out[1], 170, 197));
     // Approaching along the axis: use both flanks of the keep.
     assert(mirrorPatrolStations(at(200, 170), at(200, 200), at(200, 300), out) == 2);
     assert(same(out[0], 230, 200) && same(out[1], 170, 200));

@@ -22,7 +22,7 @@ Ein Ausfallanteil aktiviert `WeightedRoles` automatisch. Für Situationsregeln, 
 
 - `PatrolGroupOrders`: `Native` befehligt nur die erste Angriffspatrouillengruppe; die zweite wartet an ihrem Sammelpunkt. `AllGroups` schickt bei einem Angriff auch die zweite Gruppe los. Damit sie Truppen hat, braucht sie `AttUnitPatrolGroupsCount` 2.
 - `PatrolFormation`: wohin die zweite Gruppe zieht. `Native` lässt sie ihre Schritte selbst wählen; `Wing` hält sie neben der ersten Gruppe; `Mirror` schickt sie auf die andere Seite des Ziel-Bergfrieds. Benötigt `AllGroups`.
-- `PatrolSpacing` (4–40, Standard 12): Felder Abstand zwischen beiden Gruppen bei `Wing`.
+- `PatrolSpacing` (4–40, Standard 12): Abstand in Feldern zwischen beiden Gruppen bei `Wing`.
 
 Patrouilleneinstellungen speichern keinen eigenen Zustand: Beim Laden eines Spielstands bleiben beide Gruppen in ihren ursprünglichen Gruppenplätzen. `AttUnitPatrol` und `AttUnitPatrolMax` gelten weiter.
 

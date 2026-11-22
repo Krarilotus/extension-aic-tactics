@@ -54,6 +54,7 @@ int patrolTribe(int player, int slot, TilePoint& leader)
     return tribe;
 }
 
+// The keep's entrance tile (BuildingEntryInfo x/y), as the AI's home checks use.
 bool keepPosition(int player, TilePoint& position)
 {
     if (player < 1 || player > 8 || at<int>(playerAddress(player) + 0x94) == 0) return false;

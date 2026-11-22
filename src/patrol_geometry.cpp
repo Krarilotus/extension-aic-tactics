@@ -48,6 +48,8 @@ int wingPatrolStations(TilePoint first, TilePoint keep, TilePoint second, int sp
     int lx, ly, rx, ry;
     patrolOctantVector((direction + 6) % 8, lx, ly);
     patrolOctantVector((direction + 2) % 8, rx, ry);
+    // A diagonal step covers about 1.4 tiles; keep the gap close to `spacing`.
+    if (direction % 2) spacing = (spacing * 5 + 3) / 7;
     const TilePoint left = point(first.x + lx * spacing, first.y + ly * spacing);
     const TilePoint right = point(first.x + rx * spacing, first.y + ry * spacing);
     const bool rightFirst = patrolDistance(right, second) < patrolDistance(left, second);
@@ -70,8 +72,9 @@ int mirrorPatrolStations(TilePoint first, TilePoint keep, TilePoint home, TilePo
     case 1: mx = vy; my = vx; break;    // diagonal y = x
     default: mx = -vy; my = -vx; break; // diagonal y = -x
     }
-    if (patrolDistance(point(mx, my), point(vx, vy)) < 4) {
-        // The first group approaches along the axis itself: use its flanks.
+    // Near the home axis the reflection lands beside the first group (twice
+    // its sideways offset away). Use the keep's flanks instead.
+    if (3 * patrolDistance(point(mx, my), point(vx, vy)) < 2 * distance) {
         out[0] = point(keep.x - vy, keep.y + vx);
         out[1] = point(keep.x + vy, keep.y - vx);
         return 2;
