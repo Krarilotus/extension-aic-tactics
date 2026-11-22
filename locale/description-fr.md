@@ -18,6 +18,14 @@ Une part de sortie active `WeightedRoles` automatiquement. Les règles de situat
 - `AttackActivation` : `AfterProvocation` attend une attaque ennemie suffisante avant de lancer armées et raids ; `Immediate` n’attend pas. Les sorties défensives restent possibles.
 - `ProvocationRules` : reste accepté pour les anciens AIC, `AfterProvocation` et la menace utilisée au recrutement. Pour `LastAggressor`, un nouvel AIC peut placer les valeurs dans `AttackTargetPolicy.Provocation`.
 
+### Patrouilles d’attaque
+
+- `PatrolGroupOrders` : `Native` ne donne d’ordres qu’au premier groupe de patrouille d’attaque ; le second attend à son point de rassemblement. `AllGroups` envoie aussi le second groupe lors d’un assaut. Il lui faut `AttUnitPatrolGroupsCount` 2 pour disposer de troupes.
+- `PatrolFormation` : destination du second groupe. `Native` le laisse choisir ses propres déplacements ; `Wing` le garde à côté du premier groupe ; `Mirror` l’envoie de l’autre côté du donjon ciblé. Exige `AllGroups`.
+- `PatrolSpacing` (4–40, défaut 12) : cases entre les deux groupes en `Wing`.
+
+Les réglages de patrouille ne conservent aucun état sauvegardé : une sauvegarde se recharge avec les deux groupes toujours dans leurs emplacements d’origine. `AttUnitPatrol`, `AttUnitPatrolMax` et `AttUnitPatrolRecommandDelay` restent valables.
+
 ### Raids
 
 - `RaidTargetPolicy` : `Native` garde les raids habituels ; `NearestReachable` vise des bâtiments proches accessibles ; `Opportunistic` tient compte des préférences et du danger ; `RandomNearby` choisit une cible accessible au hasard, puis nettoie les bâtiments proches.

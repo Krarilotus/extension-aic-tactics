@@ -18,6 +18,14 @@ Una proporción de salidas activa `WeightedRoles` automáticamente. Las reglas d
 - `AttackActivation`: `AfterProvocation` espera un ataque enemigo suficiente antes de lanzar ejércitos o incursiones; `Immediate` no espera. Las salidas defensivas siguen disponibles.
 - `ProvocationRules`: sigue disponible para AIC antiguos, `AfterProvocation` y la amenaza usada al reclutar. Para `LastAggressor`, un AIC nuevo puede poner los valores en `AttackTargetPolicy.Provocation`.
 
+### Patrullas de ataque
+
+- `PatrolGroupOrders`: `Native` solo da órdenes al primer grupo de patrulla de ataque; el segundo espera en su punto de reunión. `AllGroups` envía también al segundo grupo durante un asalto. Necesita `AttUnitPatrolGroupsCount` en 2 para tener tropas.
+- `PatrolFormation`: adónde va el segundo grupo. `Native` le deja elegir sus propios pasos; `Wing` lo mantiene junto al primer grupo; `Mirror` lo envía al otro lado de la fortaleza objetivo. Requiere `AllGroups`.
+- `PatrolSpacing` (4–40, predeterminado 12): casillas entre ambos grupos en `Wing`.
+
+Los ajustes de patrulla no guardan estado: al cargar una partida guardada, ambos grupos siguen en sus ranuras originales. `AttUnitPatrol`, `AttUnitPatrolMax` y `AttUnitPatrolRecommandDelay` siguen vigentes.
+
 ### Incursiones
 
 - `RaidTargetPolicy`: `Native` conserva las incursiones; `NearestReachable` elige edificios cercanos accesibles; `Opportunistic` considera preferencias y peligro; `RandomNearby` elige uno accesible al azar y después ataca los edificios cercanos.

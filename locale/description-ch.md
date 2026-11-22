@@ -18,6 +18,14 @@ AIC Tactics 可分别调整每个已安装 AI 的招兵、进攻、袭扰和攻�
 - `AttackActivation`：`AfterProvocation` 等待达到反击条件的敌方进攻后再派出主力军或袭扰部队；`Immediate` 不等待。防御性出击仍可进行。
 - `ProvocationRules`：旧 AIC、`AfterProvocation` 和招兵威胁规则仍可使用。新 AIC 可在 `AttackTargetPolicy.Provocation` 中设置 `LastAggressor` 的门槛。
 
+### 进攻巡逻队
+
+- `PatrolGroupOrders`：`Native` 仅指挥第一支进攻巡逻队，第二支留在集结点待命；`AllGroups` 会在进攻时同时派出第二支队伍。第二支队伍需要 `AttUnitPatrolGroupsCount` 为 2 才有兵力。
+- `PatrolFormation`：第二支队伍的去向。`Native` 让其自行决定行动步骤；`Wing` 让其保持在第一支队伍身旁；`Mirror` 将其派往目标主堡的另一侧。需要启用 `AllGroups`。
+- `PatrolSpacing`（4–40，默认 12）：在 `Wing` 阵型下两支队伍之间的格数。
+
+巡逻设置不保存额外状态：读取存档后，两支队伍仍处于各自原有槽位。原有 `AttUnitPatrol`、`AttUnitPatrolMax` 和 `AttUnitPatrolRecommandDelay` 继续生效。
+
 ### 袭扰
 
 - `RaidTargetPolicy`：`Native` 沿用原有袭扰；`NearestReachable` 选择附近可到达的建筑；`Opportunistic` 考虑偏好和危险；`RandomNearby` 随机选一个可到达的建筑，再清理周边建筑。

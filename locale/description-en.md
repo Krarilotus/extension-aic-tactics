@@ -18,6 +18,14 @@ Sortie shares enable `WeightedRoles` automatically. Situation rules, defense com
 - `AttackActivation`: `AfterProvocation` waits for a qualifying attack before launching armies or raids; `Immediate` does not wait. Defensive sorties remain available.
 - `ProvocationRules`: older AICs, `AfterProvocation` and recruitment threat rules can use this shared threshold field. For `LastAggressor`, new AICs can place overrides inside `AttackTargetPolicy.Provocation`.
 
+### Attack patrols
+
+- `PatrolGroupOrders`: `Native` orders only the first attack patrol group; the second waits at its staging point. `AllGroups` also sends the second group out during an assault. It needs `AttUnitPatrolGroupsCount` 2 to have troops.
+- `PatrolFormation`: where the second group goes. `Native` lets it pick its own steps; `Wing` keeps it beside the first group; `Mirror` sends it to the other side of the target keep. Requires `AllGroups`.
+- `PatrolSpacing` (4–40, default 12): tiles between the two groups in `Wing`.
+
+Patrol settings keep no saved state: a save reloads with both groups still in their native slots. Existing `AttUnitPatrol`, `AttUnitPatrolMax` and `AttUnitPatrolRecommandDelay` still apply.
+
 ### Raids
 
 - `RaidTargetPolicy`: `Native` keeps existing raids; `NearestReachable` picks nearby accessible buildings; `Opportunistic` weighs focus and danger; `RandomNearby` picks a reachable building at random, then clears nearby buildings before drawing again.

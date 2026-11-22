@@ -18,6 +18,14 @@ Ein Ausfallanteil aktiviert `WeightedRoles` automatisch. Für Situationsregeln, 
 - `AttackActivation`: `AfterProvocation` wartet vor Angriffen und Überfällen auf einen ausreichenden feindlichen Angriff; `Immediate` wartet nicht. Defensive Ausfälle bleiben möglich.
 - `ProvocationRules`: bleibt für ältere AICs sowie `AfterProvocation` und Bedrohungsregeln bei der Rekrutierung gültig. Bei `LastAggressor` können neue AICs die Werte unter `AttackTargetPolicy.Provocation` setzen.
 
+### Angriffspatrouillen
+
+- `PatrolGroupOrders`: `Native` befehligt nur die erste Angriffspatrouillengruppe; die zweite wartet an ihrem Sammelpunkt. `AllGroups` schickt bei einem Angriff auch die zweite Gruppe los. Damit sie Truppen hat, braucht sie `AttUnitPatrolGroupsCount` 2.
+- `PatrolFormation`: wohin die zweite Gruppe zieht. `Native` lässt sie ihre Schritte selbst wählen; `Wing` hält sie neben der ersten Gruppe; `Mirror` schickt sie auf die andere Seite des Ziel-Bergfrieds. Benötigt `AllGroups`.
+- `PatrolSpacing` (4–40, Standard 12): Felder Abstand zwischen beiden Gruppen bei `Wing`.
+
+Patrouilleneinstellungen speichern keinen eigenen Zustand: Beim Laden eines Spielstands bleiben beide Gruppen in ihren ursprünglichen Gruppenplätzen. `AttUnitPatrol`, `AttUnitPatrolMax` und `AttUnitPatrolRecommandDelay` gelten weiter.
+
 ### Überfälle
 
 - `RaidTargetPolicy`: `Native` behält bisherige Überfälle; `NearestReachable` wählt nahe erreichbare Gebäude; `Opportunistic` berücksichtigt Schwerpunkt und Gefahr; `RandomNearby` wählt ein erreichbares Gebäude zufällig und räumt danach die Umgebung ab.

@@ -18,6 +18,14 @@ A kitörési arány automatikusan bekapcsolja a `WeightedRoles` módot. A helyze
 - `AttackActivation`: az `AfterProvocation` kellően erős ellenséges támadásra vár a sereg vagy portya indítása előtt; az `Immediate` nem vár. A védekező kitörések megmaradnak.
 - `ProvocationRules`: régi AIC-khez, az `AfterProvocation` beállításhoz és a toborzási fenyegetéshez marad. Új AIC-ben a `LastAggressor` küszöbei az `AttackTargetPolicy.Provocation` alatt adhatók meg.
 
+### Támadó járőrök
+
+- `PatrolGroupOrders`: a `Native` csak az első támadó járőrcsoportnak ad parancsot; a második a gyülekezési pontján várakozik. Az `AllGroups` roham közben a második csoportot is elindítja. Ehhez az `AttUnitPatrolGroupsCount` értéke 2 legyen, hogy legyenek egységei.
+- `PatrolFormation`: hová megy a második csoport. A `Native` hagyja, hogy maga válassza meg a lépéseit; a `Wing` az első csoport mellett tartja; a `Mirror` a célpont vártornyának túloldalára küldi. Az `AllGroups` szükséges hozzá.
+- `PatrolSpacing` (4–40, alapérték 12): a két csoport közötti távolság mezőkben `Wing` módban.
+
+A járőrbeállítások nem tárolnak mentett állapotot: betöltéskor mindkét csoport az eredeti csoporthelyén marad. Az `AttUnitPatrol`, `AttUnitPatrolMax` és `AttUnitPatrolRecommandDelay` továbbra is érvényes.
+
 ### Portyák
 
 - `RaidTargetPolicy`: a `Native` megtartja a portyákat; a `NearestReachable` közeli elérhető épületet választ; az `Opportunistic` a preferenciát és veszélyt is nézi; a `RandomNearby` véletlen elérhető cél után a közeli épületeket támadja.

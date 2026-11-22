@@ -18,6 +18,14 @@ AIC Tactics, kurulu her yapay zekânın asker alımını, saldırılarını, bas
 - `AttackActivation`: `AfterProvocation`, ordu veya baskın başlatmadan önce yeterli düşman saldırısını bekler; `Immediate` beklemez. Savunma çıkışları kullanılabilir.
 - `ProvocationRules`: eski AIC'ler, `AfterProvocation` ve asker alımındaki tehdit kuralları için geçerlidir. Yeni AIC'lerde `LastAggressor` eşiklerini `AttackTargetPolicy.Provocation` içinde yazabilirsin.
 
+### Saldırı devriyeleri
+
+- `PatrolGroupOrders`: `Native` yalnızca ilk saldırı devriye grubuna emir verir; ikinci grup toplanma noktasında bekler. `AllGroups` saldırı sırasında ikinci grubu da gönderir. Birlik alabilmesi için `AttUnitPatrolGroupsCount` değerinin 2 olması gerekir.
+- `PatrolFormation`: ikinci grubun nereye gideceği. `Native` kendi adımlarını seçmesine izin verir; `Wing` onu ilk grubun yanında tutar; `Mirror` hedef iç kalenin diğer tarafına gönderir. `AllGroups` gerekir.
+- `PatrolSpacing` (4–40, varsayılan 12): `Wing` düzeninde iki grup arasındaki kare sayısı.
+
+Devriye ayarları kayıtlı durum tutmaz: bir kayıt yüklendiğinde iki grup da özgün yuvalarında kalır. `AttUnitPatrol`, `AttUnitPatrolMax` ve `AttUnitPatrolRecommandDelay` geçerlidir.
+
 ### Baskınlar
 
 - `RaidTargetPolicy`: `Native` önceki baskınları korur; `NearestReachable` yakın erişilebilir binaları seçer; `Opportunistic` tercih ve tehlikeyi değerlendirir; `RandomNearby` erişilebilir bir binayı rastgele seçip yakınındakileri temizler.
