@@ -24,7 +24,7 @@ AIC Tactics 可分别调整每个已安装 AI 的招兵、进攻、袭扰和攻�
 - `PatrolFormation`：第二支队伍的去向。`Native` 让其自行决定行动步骤；`Wing` 让其保持在第一支队伍身旁；`Mirror` 将其派往目标主堡的另一侧。需要启用 `AllGroups`。
 - `PatrolSpacing`（4–40，默认 12）：在 `Wing` 阵型下两支队伍之间的格数。
 
-巡逻设置不保存额外状态：读取存档后，两支队伍仍处于各自原有槽位。原有 `AttUnitPatrol`、`AttUnitPatrolMax` 和 `AttUnitPatrolRecommandDelay` 继续生效。
+巡逻设置不保存额外状态：读取存档后，两支队伍仍处于各自原有槽位。原有 `AttUnitPatrol` 和 `AttUnitPatrolMax` 继续生效。
 
 ### 袭扰
 

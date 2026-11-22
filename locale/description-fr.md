@@ -24,7 +24,7 @@ Une part de sortie active `WeightedRoles` automatiquement. Les règles de situat
 - `PatrolFormation` : destination du second groupe. `Native` le laisse choisir ses propres déplacements ; `Wing` le garde à côté du premier groupe ; `Mirror` l’envoie de l’autre côté du donjon ciblé. Exige `AllGroups`.
 - `PatrolSpacing` (4–40, défaut 12) : cases entre les deux groupes en `Wing`.
 
-Les réglages de patrouille ne conservent aucun état sauvegardé : une sauvegarde se recharge avec les deux groupes toujours dans leurs emplacements d’origine. `AttUnitPatrol`, `AttUnitPatrolMax` et `AttUnitPatrolRecommandDelay` restent valables.
+Les réglages de patrouille ne conservent aucun état sauvegardé : une sauvegarde se recharge avec les deux groupes toujours dans leurs emplacements d’origine. `AttUnitPatrol` et `AttUnitPatrolMax` restent valables.
 
 ### Raids
 

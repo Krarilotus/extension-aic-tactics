@@ -24,7 +24,7 @@ AIC Tactics, kurulu her yapay zekânın asker alımını, saldırılarını, bas
 - `PatrolFormation`: ikinci grubun nereye gideceği. `Native` kendi adımlarını seçmesine izin verir; `Wing` onu ilk grubun yanında tutar; `Mirror` hedef iç kalenin diğer tarafına gönderir. `AllGroups` gerekir.
 - `PatrolSpacing` (4–40, varsayılan 12): `Wing` düzeninde iki grup arasındaki kare sayısı.
 
-Devriye ayarları kayıtlı durum tutmaz: bir kayıt yüklendiğinde iki grup da özgün yuvalarında kalır. `AttUnitPatrol`, `AttUnitPatrolMax` ve `AttUnitPatrolRecommandDelay` geçerlidir.
+Devriye ayarları kayıtlı durum tutmaz: bir kayıt yüklendiğinde iki grup da özgün yuvalarında kalır. `AttUnitPatrol` ve `AttUnitPatrolMax` geçerlidir.
 
 ### Baskınlar
 

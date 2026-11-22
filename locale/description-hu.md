@@ -24,7 +24,7 @@ A kitörési arány automatikusan bekapcsolja a `WeightedRoles` módot. A helyze
 - `PatrolFormation`: hová megy a második csoport. A `Native` hagyja, hogy maga válassza meg a lépéseit; a `Wing` az első csoport mellett tartja; a `Mirror` a célpont vártornyának túloldalára küldi. Az `AllGroups` szükséges hozzá.
 - `PatrolSpacing` (4–40, alapérték 12): a két csoport közötti távolság mezőkben `Wing` módban.
 
-A járőrbeállítások nem tárolnak mentett állapotot: betöltéskor mindkét csoport az eredeti csoporthelyén marad. Az `AttUnitPatrol`, `AttUnitPatrolMax` és `AttUnitPatrolRecommandDelay` továbbra is érvényes.
+A járőrbeállítások nem tárolnak mentett állapotot: betöltéskor mindkét csoport az eredeti csoporthelyén marad. Az `AttUnitPatrol` és `AttUnitPatrolMax` továbbra is érvényes.
 
 ### Portyák
 

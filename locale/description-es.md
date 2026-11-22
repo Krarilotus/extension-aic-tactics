@@ -24,7 +24,7 @@ Una proporción de salidas activa `WeightedRoles` automáticamente. Las reglas d
 - `PatrolFormation`: adónde va el segundo grupo. `Native` le deja elegir sus propios pasos; `Wing` lo mantiene junto al primer grupo; `Mirror` lo envía al otro lado de la fortaleza objetivo. Requiere `AllGroups`.
 - `PatrolSpacing` (4–40, predeterminado 12): casillas entre ambos grupos en `Wing`.
 
-Los ajustes de patrulla no guardan estado: al cargar una partida guardada, ambos grupos siguen en sus ranuras originales. `AttUnitPatrol`, `AttUnitPatrolMax` y `AttUnitPatrolRecommandDelay` siguen vigentes.
+Los ajustes de patrulla no guardan estado: al cargar una partida guardada, ambos grupos siguen en sus ranuras originales. `AttUnitPatrol` y `AttUnitPatrolMax` siguen vigentes.
 
 ### Incursiones
 
