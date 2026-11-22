@@ -23,7 +23,10 @@ function M.defaults()
   return result
 end
 
-function M.active(candidate)
+-- Whether the character's 352-byte record carries a policy. The attack
+-- patrol fields live in separate per-AI arrays outside that record (and
+-- outside save admission), so they must not change it.
+function M.recordActive(candidate)
   return candidate.RecruitPolicy == 'WeightedRoles' or targets.active(candidate)
     or candidate.AttackPreparation ~= 'Native'
     or candidate.RaidTargetPolicy ~= 'Native' or candidate.SafeSiegePlacement ~= nil
@@ -31,7 +34,10 @@ function M.active(candidate)
     or candidate.CoordinatedSiegeHarassment ~= nil
     or candidate.SiegeHarassMinEngines ~= nil
     or candidate.LargerSiegeForces ~= nil or candidate.SiegeForceMax ~= nil
-    or attacks.active(candidate)
+end
+
+function M.active(candidate)
+  return M.recordActive(candidate) or attacks.active(candidate)
 end
 
 function M.prepare(previous, spec, readNative, resetting)

@@ -337,6 +337,8 @@ def test_patrol_orders_are_per_ai_with_native_absent_default():
       end
       assert(patrolPreflights==nil and patrolActivations==nil)
       prepare(4,{PatrolGroupOrders='AllGroups'}).commit()
+      -- The save-admission record stays identical to a native character's.
+      for address=10000+4*352,10000+4*352+348,4 do assert((memory[address] or 0)==0) end
       assert(memory[native.patrolOrders+16]==1 and memory[native.patrolFormation+16]==0)
       assert(memory[native.patrolSpacing+16]==0)
       assert(patrolPreflights==1 and patrolActivations==1)

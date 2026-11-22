@@ -117,7 +117,7 @@ function M.new(native)
     -- provider admission starts covering every update. Keep their unused
     -- storage identical to an unvisited record for save/MP/replay identity.
     -- The provider retains authored values for subsequent partial edits.
-    if not personality.active(authored) then
+    if not personality.recordActive(authored) then
       for index = 1, #words do words[index] = 0 end
     end
     return {commit = function()
