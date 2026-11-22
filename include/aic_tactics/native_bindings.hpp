@@ -86,6 +86,10 @@ struct NativeBindings {
     unsigned int siegeGetUnitForIndex;
     unsigned int siegeCatapultRange;
     unsigned int siegeFireRange;
+    unsigned int attackPatrolDispatch;
+    unsigned int attackPatrolDestination;
+    unsigned int troopValueState;
+    unsigned int tribePatrolFlag;
 };
 extern NativeBindings nativeBindings;
 int nativeRandom(void*);

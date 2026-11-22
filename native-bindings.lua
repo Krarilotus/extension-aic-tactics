@@ -11,7 +11,8 @@ local names = {'gameTick','rngState','rngValue','rngNext','initialDefenseTicks',
     'originalSiegeTileCheck','siegeTileOccupancyOffset','siegeTileMap','siegeTentPointX',
     'siegeTribeIndexOffset','siegePlacementFail','siegeResourceCheck','siegeGroupMove',
     'siegePlaceTent','popUnitFromTribe','siegeAssaultBatch','siegeUnitCount',
-    'siegeGetUnitForIndex','siegeCatapultRange','siegeFireRange'}
+    'siegeGetUnitForIndex','siegeCatapultRange','siegeFireRange',
+    'attackPatrolDispatch','attackPatrolDestination','troopValueState','tribePatrolFlag'}
 -- Framework loads every module before enabling Legacy's native patches.
 -- Resolve identifying contexts here; hook preflights still check current bytes
 -- when a feature is activated after all dependencies have enabled.
@@ -31,6 +32,7 @@ function M.resolve()
   for key, value in pairs(require('native-combat-bindings').resolve(game)) do game[key] = value end
   for key, value in pairs(require('native-siege-bindings').resolve(game)) do game[key] = value end
   for key, value in pairs(require('native-role-bindings').resolve(game)) do game[key] = value end
+  for key, value in pairs(require('native-patrol-bindings').resolve(game)) do game[key] = value end
   return game
 end
 
