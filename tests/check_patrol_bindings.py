@@ -19,6 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 PROJECTS = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT.parent
 FIXTURES = PROJECTS / 'Roadmap/Investigations/Tunnelers-Engineers/binary-identities.json'
 STATE_UPDATE = '53 56 8B 74 24 0C 57 8B FE 69 FF F4 39 00 00 8B 87 ? ? ? ? 85 C0 8B D9 0F 84'
+# Same identifying context as native-siege-bindings.lua's group movement owner.
+GROUP_MOVE = '83 EC 34 33 C0 55 8B 6C 24 44 57 8B 7C 24 44 3B F8 89 4C 24 08 89 44 24 18'
 
 
 def runtime(image, base):
@@ -36,6 +38,7 @@ def runtime(image, base):
     lua.globals().read_byte = lambda address: image[address - base]
     lua.globals().read_integer = lambda address: struct.unpack_from('<i', image, address - base)[0]
     lua.globals().state_update = STATE_UPDATE
+    lua.globals().group_move = GROUP_MOVE
     lua.execute('''
       package.path=root..'/?.lua;'..package.path
       core={AOBScan=aob,readByte=read_byte,readInteger=read_integer}
@@ -43,6 +46,7 @@ def runtime(image, base):
       game=require('native-layout').resolve()
       for key,value in pairs(require('native-group-actions').resolve(game)) do game[key]=value end
       game.updateAIPlayerState=context.find('AI state update',state_update)
+      game.siegeGroupMove=context.find('group move',group_move)
       patrol=require('native-patrol-bindings')
     ''')
     return lua
@@ -74,7 +78,8 @@ def check(identity):
               'sha256': identity['sha256'][:8], 'dispatch': hex(dispatch),
               'destination': hex(sites['attackPatrolDestination']),
               'troopValueState': hex(sites['troopValueState']),
-              'patrolFlag': hex(sites['tribePatrolFlag']),
+              'patrolStance': hex(game['tribeStance']),
+              'playableTiles': hex(sites['playableTiles']),
               'tribeStride': hex(game['tribeStride']),
               'callOffsets': [hex(call - game['updateAIPlayerState']) for call in calls]}
 
@@ -89,6 +94,7 @@ def check(identity):
         return lambda: image.__setitem__(slice(offset, offset + len(data)), saved)
     preflight = """
       local ok = pcall(context.verify, sites.attackPatrolDispatch, 'dispatch', patrol.dispatcherSignature)
+      ok = ok and pcall(context.verify, sites.attackPatrolDestination, 'destination', patrol.destinationSignature)
       ok = ok and pcall(context.verify, game.findAttackGroup + patrol.patrolCountOffset,
         'count', patrol.patrolCountSignature)
       for _, site in ipairs(sites.attackPatrolCalls) do
@@ -99,6 +105,7 @@ def check(identity):
     assert lua.execute(preflight) is True
     for address, data in ((dispatch, b'\xE9' + struct.pack('<i', 0x1000)),
                           (calls[1] + 1, struct.pack('<i', 0x1000)),
+                          (sites['attackPatrolDestination'], b'\xE9' + struct.pack('<i', 0x1000)),
                           (game['findAttackGroup'] + 0x65, bytes([0xBA, 1, 0, 0, 0, 0x90, 0x90]))):
         undo = patch(address, data)
         assert lua.execute(preflight) is False
@@ -117,7 +124,20 @@ def check(identity):
     redirected[offset + 1:offset + 5] = struct.pack('<i', 0x1000)
     lua = runtime(redirected, base)
     lua.execute('assert(patrol.resolve(game).attackPatrolUnavailable:find("callers changed"))')
-    result['negativeChecks'] = 'later entry/caller/count patches refused; earlier entry/caller patches reported unavailable'
+    # A module that forced one patrol group before AIC Tactics resolved: the
+    # module still starts (findAttackGroup no longer covers that read) and the
+    # patrol preflight refuses.
+    forced = bytearray(image)
+    offset = game['findAttackGroup'] + 0x65 - base
+    forced[offset:offset + 7] = bytes([0xBA, 1, 0, 0, 0, 0x90, 0x90])
+    lua = runtime(forced, base)
+    lua.execute('''
+      assert(patrol.resolve(game).attackPatrolUnavailable==nil)
+      assert(not pcall(context.verify,game.findAttackGroup+patrol.patrolCountOffset,
+        'count',patrol.patrolCountSignature))
+    ''')
+    result['negativeChecks'] = ('later entry/caller/destination/count patches refused; earlier entry/caller '
+                                'patches reported unavailable; earlier count patch starts and is refused')
     return result
 
 

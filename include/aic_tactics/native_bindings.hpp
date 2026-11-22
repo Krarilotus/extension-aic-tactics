@@ -89,7 +89,7 @@ struct NativeBindings {
     unsigned int attackPatrolDispatch;
     unsigned int attackPatrolDestination;
     unsigned int troopValueState;
-    unsigned int tribePatrolFlag;
+    unsigned int playableTiles;
 };
 extern NativeBindings nativeBindings;
 int nativeRandom(void*);

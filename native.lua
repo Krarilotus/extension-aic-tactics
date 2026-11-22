@@ -376,6 +376,8 @@ coordinated:
     -- patrol group count. Never patch over another module's ownership.
     local ok = pcall(context.verify, game.attackPatrolDispatch, 'attack patrol dispatch',
       bindings.dispatcherSignature)
+    ok = ok and pcall(context.verify, game.attackPatrolDestination, 'attack patrol destination',
+      bindings.destinationSignature)
     ok = ok and pcall(context.verify, game.findAttackGroup + bindings.patrolCountOffset,
       'attack patrol group count', bindings.patrolCountSignature)
     assert(ok, 'AIC Tactics: PatrolGroupOrders is unavailable because another module changed the '

@@ -12,7 +12,7 @@ local names = {'gameTick','rngState','rngValue','rngNext','initialDefenseTicks',
     'siegeTribeIndexOffset','siegePlacementFail','siegeResourceCheck','siegeGroupMove',
     'siegePlaceTent','popUnitFromTribe','siegeAssaultBatch','siegeUnitCount',
     'siegeGetUnitForIndex','siegeCatapultRange','siegeFireRange',
-    'attackPatrolDispatch','attackPatrolDestination','troopValueState','tribePatrolFlag'}
+    'attackPatrolDispatch','attackPatrolDestination','troopValueState','playableTiles'}
 -- Framework loads every module before enabling Legacy's native patches.
 -- Resolve identifying contexts here; hook preflights still check current bytes
 -- when a feature is activated after all dependencies have enabled.

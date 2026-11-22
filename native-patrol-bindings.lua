@@ -7,8 +7,11 @@ M.dispatcherSignature = '8B 4C 24 04 8B C1 69 C0 F4 39 00 00 83 B8 ? ? ? ? 00 74
   '0F BF 92 ? ? ? ? 85 D2 74 3F 8B C2 69 C9 F4 39 00 00 69 C0 ? ? ? ? 56 8B B0 ? ? ? ? '..
   '3B B1 ? ? ? ? 5E 75 21 66 83 B8 ? ? ? ? 00 74 17 66 C7 80 ? ? ? ? 01 00 89 54 24 04 B9 ? ? ? ? E9'
 -- sendAttackingPatrolTribeToComputedDestination(tribe): leader-based search.
-local destinationSignature = '53 8B 5C 24 08 8B C3 69 C0 ? ? ? ? 56 0F BF B0 ? ? ? ? 57 6A 01 B9 ? ? ? ? E8 ? ? ? ? '..
+M.destinationSignature = '53 8B 5C 24 08 8B C3 69 C0 ? ? ? ? 56 0F BF B0 ? ? ? ? 57 6A 01 B9 ? ? ? ? E8 ? ? ? ? '..
   '69 F6 ? ? ? ? 0F BF 8E ? ? ? ? 0F BF 96 ? ? ? ? 0F BF 86 ? ? ? ? 6A 01 6A 0C'
+-- giveTribeMoveInstruction first rejects coordinates outside the playable
+-- map: playable[y * 400 + x] == 0. The same 400x400 byte map gates stations.
+local playableSignature = '8B C5 69 C0 90 01 00 00 80 BC 38 ? ? ? ? 00'
 -- addUnitToSmallestBehaviourTypeTribe reads AttUnitPatrolGroupsCount here.
 M.patrolCountOffset = 0x65
 M.patrolCountSignature = '8B 94 0A 64 02 00 00'
@@ -26,12 +29,12 @@ local function resolve(game)
       and read(site + 0x3F) == game.players + 0x329C + 15 * 4
       and read(site + 0x49) == game.tribes + 0x5A,
     'AIC Tactics: inconsistent native attack patrol dispatch')
-  local flag = read(site + 0x53) - game.tribes
-  assert(flag > 0x5C and flag < game.tribeStride - 1,
-    'AIC Tactics: inconsistent native attack patrol flag')
+  -- The dispatcher sets the patrol tribe's stance; reuse the stance binding.
+  assert(read(site + 0x53) - game.tribes == game.tribeStance,
+    'AIC Tactics: inconsistent native attack patrol stance')
   local troopValueState = read(site + 0x5E)
   local destination = site + 0x67 + read(site + 0x63)
-  context.verify(destination, 'attack patrol destination', destinationSignature)
+  context.verify(destination, 'attack patrol destination', M.destinationSignature)
   assert(read(destination + 9) == game.tribeStride
       and read(destination + 17) == game.tribes + 0x5A
       and read(destination + 36) == 0x490
@@ -40,6 +43,11 @@ local function resolve(game)
       and read(destination + 57) == game.unitRecords + 0xC4
       and troopValueState > 0,
     'AIC Tactics: inconsistent native attack patrol destination')
+  local move = game.siegeGroupMove
+  context.verify(move + 0x5B, 'group move playable map check', playableSignature)
+  local playable = read(move + 0x66)
+  assert(playable > 0 and read(move + 0xC1) == game.mapRows,
+    'AIC Tactics: inconsistent native group move map layout')
   -- Every native caller lies inside the AI state update. Require all three.
   local calls = {}
   local owner = game.updateAIPlayerState
@@ -55,7 +63,7 @@ local function resolve(game)
   end
   assert(#calls == 3, 'AIC Tactics: native attack patrol callers changed')
   return {attackPatrolDispatch = site, attackPatrolDestination = destination,
-    troopValueState = troopValueState, tribePatrolFlag = flag, attackPatrolCalls = calls}
+    troopValueState = troopValueState, playableTiles = playable, attackPatrolCalls = calls}
 end
 
 -- Another module may already own the dispatcher (for example Smarter Patrols
@@ -65,7 +73,7 @@ function M.resolve(game)
   local ok, result = pcall(resolve, game)
   if ok then return result end
   return {attackPatrolDispatch = 0, attackPatrolDestination = 0, troopValueState = 0,
-    tribePatrolFlag = 0, attackPatrolCalls = {}, attackPatrolUnavailable = tostring(result)}
+    playableTiles = 0, attackPatrolCalls = {}, attackPatrolUnavailable = tostring(result)}
 end
 
 return M
