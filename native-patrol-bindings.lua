@@ -66,6 +66,37 @@ local function resolve(game)
     troopValueState = troopValueState, playableTiles = playable, attackPatrolCalls = calls}
 end
 
+local function reason(text)
+  return (tostring(text):gsub('^.-AIC Tactics: ', ''))
+end
+
+-- Checked when a character opts in (AIC files are applied after every module
+-- has enabled). `expected` is the current call target of the native callers:
+-- the game's dispatcher, or the module handler once installed.
+function M.preflight(game, expected)
+  assert(game.attackPatrolDispatch ~= 0, 'AIC Tactics: PatrolGroupOrders is unavailable: '
+    .. reason(game.attackPatrolUnavailable) .. '. If another module changes the AI\'s attack patrol '
+    .. 'orders (for example Smarter Patrols), turn off its patrol feature; otherwise this game '
+    .. 'version is not supported for patrol orders.')
+  local ok = pcall(context.verify, game.attackPatrolDispatch, 'attack patrol dispatch', M.dispatcherSignature)
+  ok = ok and pcall(context.verify, game.attackPatrolDestination, 'attack patrol destination',
+    M.destinationSignature)
+  ok = ok and pcall(context.verify, game.findAttackGroup + M.patrolCountOffset,
+    'attack patrol group count', M.patrolCountSignature)
+  assert(ok, 'AIC Tactics: PatrolGroupOrders is unavailable because another module changed the '
+    .. 'AI\'s attack patrol orders after AIC Tactics loaded (for example Smarter Patrols). Turn off '
+    .. 'that module\'s patrol feature or remove PatrolGroupOrders from this AIC.')
+  for _, site in ipairs(game.attackPatrolCalls) do
+    assert(context.call(site, 'attack patrol order') == expected,
+      'AIC Tactics: native attack patrol orders were replaced; restart with compatible modules')
+  end
+end
+
+-- Redirect the three native callers to the module handler.
+function M.install(game, handler)
+  for _, site in ipairs(game.attackPatrolCalls) do core.writeCode(site, {0xE8, handler - site - 5}) end
+end
+
 -- Another module may already own the dispatcher (for example Smarter Patrols
 -- replaces its entry). AIC Tactics still starts; only characters that opt in
 -- to patrol orders are refused, with the reason.

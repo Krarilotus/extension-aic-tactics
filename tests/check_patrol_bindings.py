@@ -86,31 +86,50 @@ def check(identity):
     # UCP loads every module before enabling any, so AIC Tactics resolves on
     # original bytes. Another module enabled later then changes the dispatcher
     # entry, one native caller or the patrol count; the preflight must see it.
-    lua.globals().dispatcher_signature = None
     def patch(address, data):
         offset = address - base
         saved = bytes(image[offset:offset + len(data)])
         image[offset:offset + len(data)] = data
         return lambda: image.__setitem__(slice(offset, offset + len(data)), saved)
-    preflight = """
-      local ok = pcall(context.verify, sites.attackPatrolDispatch, 'dispatch', patrol.dispatcherSignature)
-      ok = ok and pcall(context.verify, sites.attackPatrolDestination, 'destination', patrol.destinationSignature)
-      ok = ok and pcall(context.verify, game.findAttackGroup + patrol.patrolCountOffset,
-        'count', patrol.patrolCountSignature)
-      for _, site in ipairs(sites.attackPatrolCalls) do
-        ok = ok and context.call(site, 'caller') == sites.attackPatrolDispatch
+
+    def write_code(address, values):
+        # The module only writes E8 rel32 here: one opcode byte, then a dword.
+        patch(address, bytes([values[1]]) + struct.pack('<i', values[2]))
+
+    lua.globals().write_code = write_code
+    # The production preflight and install, run on this executable's image.
+    lua.execute('''
+      core.writeCode=function(address, values) write_code(address, values) end
+      for key,value in pairs(sites) do game[key]=value end
+      function preflight(expected)
+        return (pcall(patrol.preflight, game, expected or game.attackPatrolDispatch))
       end
-      return ok
-    """
-    assert lua.execute(preflight) is True
+    ''')
+    assert lua.execute('return preflight()') is True
     for address, data in ((dispatch, b'\xE9' + struct.pack('<i', 0x1000)),
                           (calls[1] + 1, struct.pack('<i', 0x1000)),
                           (sites['attackPatrolDestination'], b'\xE9' + struct.pack('<i', 0x1000)),
                           (game['findAttackGroup'] + 0x65, bytes([0xBA, 1, 0, 0, 0, 0x90, 0x90]))):
         undo = patch(address, data)
-        assert lua.execute(preflight) is False
+        assert lua.execute('return preflight()') is False
         undo()
-    assert lua.execute(preflight) is True
+    assert lua.execute('return preflight()') is True
+    # Install redirects all three callers to the handler; afterwards the
+    # preflight expects the handler, and a second install is not needed.
+    saved = bytes(image)
+    lua.execute('''
+      local handler = game.updateAIPlayerState + 0x40000
+      patrol.install(game, handler)
+      for _, site in ipairs(game.attackPatrolCalls) do
+        assert(context.call(site, 'redirected caller') == handler)
+      end
+      assert(preflight(handler) and not preflight())
+      local ok, message = pcall(patrol.preflight, {attackPatrolDispatch=0,
+        attackPatrolUnavailable='AIC Tactics: missing native attack patrol dispatch'}, 0)
+      assert(not ok and message:find('unavailable: missing native attack patrol dispatch', 1, true)
+        and not message:find('AIC Tactics: missing', 1, true))
+    ''')
+    image[:] = saved
 
     # A module that patched before AIC Tactics resolved: AIC Tactics still
     # starts and reports patrol orders as unavailable.

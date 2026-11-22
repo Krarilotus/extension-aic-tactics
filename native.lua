@@ -367,34 +367,13 @@ coordinated:
   end
   local patrolCallsInstalled = false
   function native.preflightAttackPatrols()
-    assert(game.attackPatrolDispatch ~= 0, 'AIC Tactics: PatrolGroupOrders is unavailable because '
-      .. 'another module already owns attack patrol orders (' .. tostring(game.attackPatrolUnavailable)
-      .. '). Turn off that module\'s patrol feature or remove PatrolGroupOrders from this AIC.')
-    local bindings = require('native-patrol-bindings')
-    local context = require('native-context')
-    -- Smarter Patrols and similar modules replace the dispatcher entry or the
-    -- patrol group count. Never patch over another module's ownership.
-    local ok = pcall(context.verify, game.attackPatrolDispatch, 'attack patrol dispatch',
-      bindings.dispatcherSignature)
-    ok = ok and pcall(context.verify, game.attackPatrolDestination, 'attack patrol destination',
-      bindings.destinationSignature)
-    ok = ok and pcall(context.verify, game.findAttackGroup + bindings.patrolCountOffset,
-      'attack patrol group count', bindings.patrolCountSignature)
-    assert(ok, 'AIC Tactics: PatrolGroupOrders is unavailable because another module changed the '
-      .. 'native attack patrol dispatch. Turn off that module\'s patrol feature or remove '
-      .. 'PatrolGroupOrders from this AIC.')
-    local expected = patrolCallsInstalled and native.dispatchAttackPatrols or game.attackPatrolDispatch
-    for _, site in ipairs(game.attackPatrolCalls) do
-      assert(context.call(site, 'attack patrol order') == expected,
-        'AIC Tactics: native attack patrol orders were replaced; restart with compatible modules')
-    end
+    require('native-patrol-bindings').preflight(game,
+      patrolCallsInstalled and native.dispatchAttackPatrols or game.attackPatrolDispatch)
   end
   function native.activateAttackPatrols()
     if patrolCallsInstalled then return end
     native.preflightAttackPatrols()
-    for _, site in ipairs(game.attackPatrolCalls) do
-      core.writeCode(site, {0xE8, native.dispatchAttackPatrols - site - 5})
-    end
+    require('native-patrol-bindings').install(game, native.dispatchAttackPatrols)
     patrolCallsInstalled = true
   end
   function native.preflightEngineerRoles()

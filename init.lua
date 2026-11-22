@@ -15,6 +15,9 @@ return {
     local identity = require('build-identity')
     require('package-identity').verify(identity)
     local native = require('native').new(nativeGame)
+    if nativeGame.attackPatrolUnavailable then
+      log(WARNING, '[aic-tactics] attack patrol orders unavailable: ' .. tostring(nativeGame.attackPatrolUnavailable))
+    end
     local safePlacement = config and config.safeSiegePlacement
     if safePlacement == nil then safePlacement = true end
     local siegePayment = config and config.actualSiegeResourcePayment
