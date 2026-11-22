@@ -24,8 +24,9 @@ function M.prepare(previous, spec, resetting)
   if not resetting then
     assert(spec.PatrolFormation == nil or result.PatrolGroupOrders == 'AllGroups',
       'PatrolFormation requires PatrolGroupOrders AllGroups')
-    assert(spec.PatrolSpacing == nil or result.PatrolFormation == 'Wing',
-      'PatrolSpacing requires PatrolFormation Wing')
+    assert(spec.PatrolSpacing == nil
+        or (result.PatrolGroupOrders == 'AllGroups' and result.PatrolFormation == 'Wing'),
+      'PatrolSpacing requires PatrolGroupOrders AllGroups and PatrolFormation Wing')
   end
   -- Authored values stay stored for later partial edits; only an active
   -- choice reaches the native record.

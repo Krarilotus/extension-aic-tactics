@@ -375,3 +375,18 @@ def test_patrol_policy_requires_a_fresh_process_like_other_policies():
       memory[native.game.gameTick]=500
       assert(not pcall(prepare,5,{PatrolGroupOrders='AllGroups'}))
     ''')
+
+
+def test_patrol_partial_edits_keep_dependent_fields_tied_to_active_parents():
+    backend().execute('''
+      local wing=schema.prepare(nil,{PatrolGroupOrders='AllGroups',PatrolFormation='Wing',PatrolSpacing=16},
+        function() return 0 end,false)
+      local native=schema.prepare(wing,{PatrolGroupOrders='Native'},function() return 0 end,false)
+      assert(native.PatrolFormation=='Wing' and native.PatrolSpacing==16)
+      assert(not pcall(schema.prepare,native,{PatrolSpacing=20},function() return 0 end,false))
+      assert(not pcall(schema.prepare,wing,{PatrolGroupOrders='Native',PatrolSpacing=20},function() return 0 end,false))
+      local mirror=schema.prepare(wing,{PatrolFormation='Mirror'},function() return 0 end,false)
+      assert(not pcall(schema.prepare,mirror,{PatrolSpacing=20},function() return 0 end,false))
+      local _,compiled=schema.prepare(native,{PatrolGroupOrders='AllGroups'},function() return 0 end,false)
+      assert(compiled.attacks[1]==1 and compiled.attacks[2]==1 and compiled.attacks[3]==16)
+    ''')
