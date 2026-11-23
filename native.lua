@@ -366,21 +366,41 @@ coordinated:
     if fallback then native.activateSiegeHarassment() end
   end
   local patrolCallsInstalled = false
+  -- Detached patrol groups are handed back from the combat scheduler calls.
   function native.preflightAttackPatrols()
+    native.preflightCombat()
     require('native-patrol-bindings').preflight(game,
       patrolCallsInstalled and native.dispatchAttackPatrols or game.attackPatrolDispatch)
   end
   function native.activateAttackPatrols()
     if patrolCallsInstalled then return end
     native.preflightAttackPatrols()
+    native.activateCombat()
     require('native-patrol-bindings').install(game, native.dispatchAttackPatrols)
     patrolCallsInstalled = true
   end
-  function native.configureAttackPatrols(orders, formation, spacing)
+  local siegeScreenInstalled = false
+  function native.preflightSiegeScreen()
+    require('native-patrol-bindings').preflightScreen(game,
+      siegeScreenInstalled and native.screenSiegeDefenceMove or game.siegeGroupMove)
+  end
+  function native.activateSiegeScreen()
+    if siegeScreenInstalled then return end
+    native.preflightSiegeScreen()
+    require('native-patrol-bindings').installScreen(game, native.screenSiegeDefenceMove)
+    siegeScreenInstalled = true
+  end
+  function native.configureAttackPatrols(orders, formation, spacing, extra, minimum, radius, screen, forward)
     core.writeInteger(native.patrolOrdersFallback, orders)
     core.writeInteger(native.patrolFormationFallback, formation)
     core.writeInteger(native.patrolSpacingFallback, spacing)
+    core.writeInteger(native.patrolExtraGroupsFallback, extra)
+    core.writeInteger(native.patrolMinSizeFallback, minimum)
+    core.writeInteger(native.patrolRadiusFallback, radius)
+    core.writeInteger(native.siegeScreenFallback, screen)
+    core.writeInteger(native.siegeScreenForwardFallback, forward)
     if orders == 1 then native.activateAttackPatrols() end
+    if screen == 1 then native.activateSiegeScreen() end
   end
   function native.preflightEngineerRoles()
     if engineerRoleHook then return end

@@ -1,12 +1,31 @@
--- Per-character attack patrol settings. An absent field uses the module
--- setting from Customizations; an explicit value switches the feature for
--- this character only. Stored per AI as 0 (use the module setting) or the
--- chosen value + 1, like the siege fields.
-local M = {fields = {'AICTactics_PatrolOrders', 'AICTactics_PatrolFormation', 'AICTactics_PatrolSpacing'}}
+-- Per-character attack patrol and siege-defence settings. An absent field
+-- uses the module setting from Customizations; an explicit value switches the
+-- feature for this character only. Stored per AI as 0 (use the module setting)
+-- or the chosen value + 1, like the siege fields; PatrolSpacing stores the
+-- value itself.
+local M = {fields = {'AICTactics_PatrolOrders', 'AICTactics_PatrolFormation', 'AICTactics_PatrolSpacing',
+  'AICTactics_PatrolExtraGroups', 'AICTactics_PatrolMinSize', 'AICTactics_PatrolRadius',
+  'AICTactics_SiegeScreen', 'AICTactics_SiegeScreenForward'}}
 local orders = {Native = 0, AllGroups = 1}
-local formations = {Native = 0, Wing = 1, Mirror = 2}
+local formations = {Native = 0, Wing = 1, Mirror = 2, Routes = 3}
+local screens = {Native = 0, EngineApproach = 1}
+-- Field, module setting, lowest, highest, default.
+local numbers = {
+  {'AICTactics_PatrolExtraGroups', 'patrolExtraGroups', 0, 6, 0},
+  {'AICTactics_PatrolMinSize', 'patrolMinSize', 1, 50, 4},
+  {'AICTactics_PatrolRadius', 'patrolRadius', 4, 100, 12},
+  {'AICTactics_SiegeScreenForward', 'siegeScreenForward', 0, 10, 4},
+}
 
-M.orders, M.formations = orders, formations
+M.orders, M.formations, M.screens = orders, formations, screens
+-- The native per-AI arrays (int[17]) the compiled values go to; each has a
+-- module setting word named <array>Fallback.
+M.arrays = {'patrolOrders', 'patrolFormation', 'patrolSpacing', 'patrolExtraGroups', 'patrolMinSize',
+  'patrolRadius', 'siegeScreen', 'siegeScreenForward'}
+
+local function integer(value, low, high)
+  return type(value) == 'number' and value == math.floor(value) and value >= low and value <= high
+end
 
 function M.defaults() return {} end
 
@@ -20,13 +39,24 @@ function M.prepare(previous, spec, resetting)
   end
   local order, formation, spacing = result.AICTactics_PatrolOrders, result.AICTactics_PatrolFormation,
     result.AICTactics_PatrolSpacing
+  local screen = result.AICTactics_SiegeScreen
   assert(order == nil or orders[order] ~= nil, 'AICTactics_PatrolOrders must be Native or AllGroups')
   assert(formation == nil or formations[formation] ~= nil,
-    'AICTactics_PatrolFormation must be Native, Wing or Mirror')
-  assert(spacing == nil or (type(spacing) == 'number' and spacing == math.floor(spacing)
-      and spacing >= 4 and spacing <= 40), 'AICTactics_PatrolSpacing must be an integer from 4 to 40')
+    'AICTactics_PatrolFormation must be Native, Wing, Mirror or Routes')
+  assert(spacing == nil or integer(spacing, 4, 40), 'AICTactics_PatrolSpacing must be an integer from 4 to 40')
+  assert(screen == nil or screens[screen] ~= nil, 'AICTactics_SiegeScreen must be Native or EngineApproach')
+  local stored = {}
+  for _, number in ipairs(numbers) do
+    local value = result[number[1]]
+    assert(value == nil or integer(value, number[3], number[4]),
+      string.format('%s must be an integer from %d to %d', number[1], number[3], number[4]))
+    stored[number[1]] = value == nil and 0 or value + 1
+  end
+  -- In the order of M.arrays.
   return result, {order == nil and 0 or orders[order] + 1, formation == nil and 0 or formations[formation] + 1,
-    spacing or 0}
+    spacing or 0, stored.AICTactics_PatrolExtraGroups, stored.AICTactics_PatrolMinSize,
+    stored.AICTactics_PatrolRadius, screen == nil and 0 or screens[screen] + 1,
+    stored.AICTactics_SiegeScreenForward}
 end
 
 function M.active(candidate)
@@ -40,16 +70,27 @@ function M.copy(candidate)
   return result
 end
 
--- Module settings: the defaults for every AI.
+-- Module settings: the defaults for every AI, in the order of
+-- native.configureAttackPatrols.
 function M.fallbacks(config)
   local order = config and config.patrolOrders or 'AllGroups'
-  local formation = config and config.patrolFormation or 'Wing'
+  local formation = config and config.patrolFormation or 'Routes'
   local spacing = config and config.patrolSpacing or 12
+  local screen = config and config.siegeScreen or 'EngineApproach'
   assert(orders[order] ~= nil, 'AIC Tactics: patrolOrders must be Native or AllGroups')
-  assert(formations[formation] ~= nil, 'AIC Tactics: patrolFormation must be Native, Wing or Mirror')
-  assert(type(spacing) == 'number' and spacing == math.floor(spacing) and spacing >= 4 and spacing <= 40,
-    'AIC Tactics: patrolSpacing must be an integer from 4 to 40')
-  return orders[order], formations[formation], spacing
+  assert(formations[formation] ~= nil,
+    'AIC Tactics: patrolFormation must be Native, Wing, Mirror or Routes')
+  assert(integer(spacing, 4, 40), 'AIC Tactics: patrolSpacing must be an integer from 4 to 40')
+  assert(screens[screen] ~= nil, 'AIC Tactics: siegeScreen must be Native or EngineApproach')
+  local values = {}
+  for _, number in ipairs(numbers) do
+    local value = config and config[number[2]]
+    if value == nil then value = number[5] end
+    assert(integer(value, number[3], number[4]),
+      string.format('AIC Tactics: %s must be an integer from %d to %d', number[2], number[3], number[4]))
+    values[#values + 1] = value
+  end
+  return orders[order], formations[formation], spacing, values[1], values[2], values[3], screens[screen], values[4]
 end
 
 return M

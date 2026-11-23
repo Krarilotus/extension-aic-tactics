@@ -2,6 +2,7 @@
 #include "aic_tactics/runtime.hpp"
 #include "aic_tactics/shc141_damage.hpp"
 #include "aic_tactics/groups.hpp"
+#include "aic_tactics/patrols.hpp"
 #include <cstring>
 
 namespace AicTactics {
@@ -344,6 +345,7 @@ void __fastcall selectOpponent(void* aic, void*, int player)
 
 void __fastcall updateOffensiveArmy(void* aic, void*, int player)
 {
+    finishAttackPatrols(aic, player);
     if (!offensiveActionsAllowed(player)) return;
     const int phaseBefore = playerValue(player, (nativeBindings.players + 0x2BA4));
     prepareArmyUpdate(aic, player);
@@ -376,6 +378,9 @@ void __fastcall updateOffensiveArmy(void* aic, void*, int player)
 
 void __fastcall returnFromAttack(void* aic, void*, int player)
 {
+    // Detached patrol members rejoin their native slots before the native
+    // retreat orders those slots home.
+    retreatAttackPatrols(aic, player);
     reinterpret_cast<PlayerAction>(nativeBindings.returnAttack)(aic, player);
     const CharacterConfiguration* config = configuration(player);
     if (!config || (config->preparation == NativePreparation && !targetPolicyActive(player))) return;

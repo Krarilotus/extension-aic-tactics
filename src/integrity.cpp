@@ -84,13 +84,25 @@ template<class Sink> void visitIntegrity(Sink& digest, int legacyInterval)
     digest.block(detachedGroups, sizeof(detachedGroups));
     digest.word(raidBuildingCensusTick);
     digest.word(static_cast<unsigned int>(raidBuildingCensusValid));
+    digest.block(patrolExtraGroups + 1, sizeof(int) * 16);
+    digest.block(patrolMinSize + 1, sizeof(int) * 16);
+    digest.block(patrolRadius + 1, sizeof(int) * 16);
+    digest.block(siegeScreen + 1, sizeof(int) * 16);
+    digest.block(siegeScreenForward + 1, sizeof(int) * 16);
+    digest.word(static_cast<unsigned int>(patrolExtraGroupsFallback));
+    digest.word(static_cast<unsigned int>(patrolMinSizeFallback));
+    digest.word(static_cast<unsigned int>(patrolRadiusFallback));
+    digest.word(static_cast<unsigned int>(siegeScreenFallback));
+    digest.word(static_cast<unsigned int>(siegeScreenForwardFallback));
+    digest.block(patrolRoutes, sizeof(patrolRoutes));
 }
 typedef char BoundaryCapacity[(sizeof(CharacterConfiguration) * 16 + 676 * 16
     + sizeof(defenseTypeCounts) + sizeof(combatCensus) + sizeof(targetStates)
     + sizeof(targetLifecycle) + sizeof(incidents) + sizeof(reserves)
     + sizeof(raidStates) + sizeof(raidGroupCensus) + sizeof(raidUnitPower)
     + sizeof(raidStaticDefenses) + sizeof(siegeHarassPlans) + sizeof(detachedGroups)
-    + sizeof(int) * 85 + sizeof(patrolOrders) * 3 + 128 <= sizeof(boundaryWords)) ? 1 : -1];
+    + sizeof(int) * 85 + sizeof(patrolOrders) * 3 + 128
+    + sizeof(patrolOrders) * 5 + sizeof(int) * 11 + sizeof(patrolRoutes) <= sizeof(boundaryWords)) ? 1 : -1];
 }
 
 // Observational, allocation-free checkpoint of the explicitly serialized words.

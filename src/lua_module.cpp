@@ -9,6 +9,7 @@ typedef char ReserveABI[sizeof(AicTactics::SHC141::ReserveState) == 196 ? 1 : -1
 typedef char RaidABI[sizeof(AicTactics::SHC141::RaidState) == 96 ? 1 : -1];
 typedef char IncidentABI[sizeof(AicTactics::IncidentState) == 2632 ? 1 : -1];
 typedef char DetachedGroupABI[sizeof(AicTactics::SHC141::DetachedGroup) == 48 ? 1 : -1];
+typedef char PatrolRouteABI[sizeof(AicTactics::SHC141::PatrolRoute) == 36 ? 1 : -1];
 typedef char CombatCensusABI[sizeof(AicTactics::SHC141::PlayerCensus) == 48 ? 1 : -1];
 
 // The bridge only publishes addresses. These stable Lua C API calls use the
@@ -52,7 +53,11 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         "siegeForceMaximumFallback", "largeSiegePolicy", "siegeForceMaximum",
         "buildLargerSiegeForce", "patrolOrders", "patrolFormation", "patrolSpacing",
         "dispatchAttackPatrols", "patrolOrdersFallback", "patrolFormationFallback",
-        "patrolSpacingFallback", "detachedGroups", "detachedGroupSize"};
+        "patrolSpacingFallback", "detachedGroups", "detachedGroupSize",
+        "patrolExtraGroups", "patrolMinSize", "patrolRadius", "siegeScreen", "siegeScreenForward",
+        "patrolExtraGroupsFallback", "patrolMinSizeFallback", "patrolRadiusFallback",
+        "siegeScreenFallback", "siegeScreenForwardFallback", "patrolRoutes", "patrolRouteSize",
+        "screenSiegeDefenceMove"};
     const unsigned int values[] = {
         reinterpret_cast<unsigned int>(configurations), sizeof(CharacterConfiguration),
         reinterpret_cast<unsigned int>(observations), sizeof(RecruitmentObservation),
@@ -115,7 +120,19 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         reinterpret_cast<unsigned int>(&patrolOrdersFallback),
         reinterpret_cast<unsigned int>(&patrolFormationFallback),
         reinterpret_cast<unsigned int>(&patrolSpacingFallback),
-        reinterpret_cast<unsigned int>(detachedGroups), sizeof(DetachedGroup)};
+        reinterpret_cast<unsigned int>(detachedGroups), sizeof(DetachedGroup),
+        reinterpret_cast<unsigned int>(patrolExtraGroups),
+        reinterpret_cast<unsigned int>(patrolMinSize),
+        reinterpret_cast<unsigned int>(patrolRadius),
+        reinterpret_cast<unsigned int>(siegeScreen),
+        reinterpret_cast<unsigned int>(siegeScreenForward),
+        reinterpret_cast<unsigned int>(&patrolExtraGroupsFallback),
+        reinterpret_cast<unsigned int>(&patrolMinSizeFallback),
+        reinterpret_cast<unsigned int>(&patrolRadiusFallback),
+        reinterpret_cast<unsigned int>(&siegeScreenFallback),
+        reinterpret_cast<unsigned int>(&siegeScreenForwardFallback),
+        reinterpret_cast<unsigned int>(patrolRoutes), sizeof(PatrolRoute),
+        reinterpret_cast<unsigned int>(&screenSiegeDefenceMove)};
     typedef char ExportCount[sizeof(names) / sizeof(names[0]) == sizeof(values) / sizeof(values[0]) ? 1 : -1];
     createTable(state, 0, sizeof(names) / sizeof(names[0]));
     for (unsigned int i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {

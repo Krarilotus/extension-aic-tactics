@@ -22,6 +22,8 @@ def backend():
         largeSiegeFallback=22600,
         patrolOrders=22700,patrolFormation=22800,patrolSpacing=22900,
         patrolOrdersFallback=23000,patrolFormationFallback=23004,patrolSpacingFallback=23008,
+        patrolExtraGroups=23100,patrolMinSize=23200,patrolRadius=23300,siegeScreen=23400,
+        siegeScreenForward=23500,
         game={gameTick=0x1FE7DA8},
         preflight=function()end,activate=function()end,preflightComposition=function()end,activateComposition=function()end,
         preflightCombat=function()end,activateCombat=function()end,
@@ -32,6 +34,8 @@ def backend():
         preflightLargerSiegeForce=function()end,activateLargerSiegeForce=function()end,
         preflightAttackPatrols=function()patrolPreflights=(patrolPreflights or 0)+1 end,
         activateAttackPatrols=function()patrolActivations=(patrolActivations or 0)+1 end,
+        preflightSiegeScreen=function()screenPreflights=(screenPreflights or 0)+1 end,
+        activateSiegeScreen=function()screenActivations=(screenActivations or 0)+1 end,
         preflightEngineerRoles=function()rolePreflights=rolePreflights+1 end,
         activateEngineerRoles=function()roleActivations=roleActivations+1 end}
       backend=require('config.backend').new(native)
@@ -365,11 +369,49 @@ def test_patrol_field_values_are_validated():
       assert(pcall(prepare,4,{AICTactics_PatrolSpacing=4}))
       assert(pcall(prepare,4,{AICTactics_PatrolSpacing=40}))
       local fallback=require('config.attacks').fallbacks
-      local orders,formation,spacing=fallback(nil)
-      assert(orders==1 and formation==1 and spacing==12)
+      local orders,formation,spacing,extra,minimum,radius,screen,forward=fallback(nil)
+      assert(orders==1 and formation==3 and spacing==12)
+      -- Smarter Patrols' tested defaults: the AIC's own group count, groups of 4,
+      -- the native ring distance 12, siege screens 4 tiles in front of the engines.
+      assert(extra==0 and minimum==4 and radius==12 and screen==1 and forward==4)
       orders,formation,spacing=fallback({patrolOrders='Native',patrolFormation='Mirror',patrolSpacing=20})
       assert(orders==0 and formation==2 and spacing==20)
       assert(not pcall(fallback,{patrolSpacing=3}))
+      orders,formation,spacing,extra,minimum,radius,screen,forward=fallback({patrolFormation='Routes',
+        patrolExtraGroups=6,patrolMinSize=1,patrolRadius=100,siegeScreen='Native',siegeScreenForward=0})
+      assert(formation==3 and extra==6 and minimum==1 and radius==100 and screen==0 and forward==0)
+      for _,bad in ipairs({{patrolExtraGroups=7},{patrolMinSize=0},{patrolRadius=3},{patrolRadius=101},
+          {siegeScreenForward=11},{siegeScreen='Front'},{patrolExtraGroups=1.5}}) do
+        assert(not pcall(fallback,bad))
+      end
+    ''')
+
+
+def test_split_route_and_screen_fields_store_inherit_or_explicit_values():
+    backend().execute('''
+      local op=prepare(4,{AICTactics_PatrolFormation='Routes',AICTactics_PatrolExtraGroups=0,
+        AICTactics_PatrolMinSize=6,AICTactics_PatrolRadius=20,AICTactics_SiegeScreen='Native',
+        AICTactics_SiegeScreenForward=0})
+      op.commit()
+      -- The save-admission record stays identical to a native character's.
+      for address=10000+4*352,10000+4*352+348,4 do assert((memory[address] or 0)==0) end
+      assert(memory[native.patrolFormation+16]==4 and memory[native.patrolExtraGroups+16]==1)
+      assert(memory[native.patrolMinSize+16]==7 and memory[native.patrolRadius+16]==21)
+      assert(memory[native.siegeScreen+16]==1 and memory[native.siegeScreenForward+16]==1)
+      assert(screenPreflights==nil and screenActivations==nil and backend.policyActive())
+      op.rollback()
+      for _,name in ipairs(require('config.attacks').arrays) do assert(memory[native[name]+16]==0) end
+      prepare(5,{AICTactics_SiegeScreen='EngineApproach',AICTactics_PatrolFormation='Wing'}).commit()
+      assert(memory[native.siegeScreen+20]==2 and memory[native.patrolFormation+20]==2)
+      assert(screenPreflights==1 and screenActivations==1)
+      prepare(6,{AICTactics_PatrolFormation='Native',AICTactics_PatrolExtraGroups=6}).commit()
+      assert(memory[native.patrolFormation+24]==1 and memory[native.patrolExtraGroups+24]==7)
+      for _,spec in ipairs({{AICTactics_PatrolExtraGroups=7},{AICTactics_PatrolExtraGroups=-1},
+          {AICTactics_PatrolMinSize=0},{AICTactics_PatrolMinSize=51},{AICTactics_PatrolRadius=3},
+          {AICTactics_PatrolRadius=101},{AICTactics_SiegeScreenForward=11},{AICTactics_SiegeScreen='Engines'},
+          {AICTactics_PatrolRadius='12'},{AICTactics_PatrolFormation='Clockwise'}}) do
+        assert(not pcall(prepare,7,spec))
+      end
     ''')
 
 

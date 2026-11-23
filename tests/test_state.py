@@ -20,6 +20,10 @@ def state():
         patrolOrders=191400,patrolFormation=191500,patrolSpacing=191600,
         patrolOrdersFallback=191700,patrolFormationFallback=191704,patrolSpacingFallback=191708,
         detachedGroups=200000,detachedGroupSize=48,
+        patrolExtraGroups=191800,patrolMinSize=191900,patrolRadius=192000,siegeScreen=192100,
+        siegeScreenForward=192200,patrolExtraGroupsFallback=192300,patrolMinSizeFallback=192304,
+        patrolRadiusFallback=192308,siegeScreenFallback=192312,siegeScreenForwardFallback=192316,
+        patrolRoutes=210000,patrolRouteSize=36,
         game={gameTick=0x1FE7DA8,initialDefenseTicks=0x4D34B1,aicRecords=0x23FC8E8+676,unitCapacity=2500,buildingCapacity=2000,tribeMemberWords=157,players=0x115BDF8,tribes=0x1667F78,tribeStride=0x334},
         defenseCensusTick=23000,defenseCensusValid=23004, legacyTargetPolicy=23008,
         incidentSize=2632,combatCensusTick=24000,combatCensusValid=24004,
@@ -287,4 +291,46 @@ def test_detached_group_records_round_trip_and_reject_bad_values():
       local bad=state.capture()
       memory[record+8]=2
       assert(not pcall(state.restore,bad))
+    ''')
+
+
+def test_split_and_screen_settings_enter_match_identity_but_not_save_admission():
+    state().execute('''
+      local saveIdentity,matchIdentity=state.identity(),state.matchIdentity()
+      local bytes=state.capture()
+      for _,name in ipairs({'patrolExtraGroups','patrolMinSize','patrolRadius','siegeScreen',
+          'siegeScreenForward','patrolExtraGroupsFallback','siegeScreenFallback'}) do
+        local address=native[name]+(name:find('Fallback') and 0 or 4*4)
+        memory[address]=3
+        assert(state.identity()==saveIdentity and state.matchIdentity()~=matchIdentity)
+        memory[address]=0
+      end
+      state.restore(bytes)
+      assert(state.capture()==bytes)
+    ''')
+
+
+def test_patrol_route_records_round_trip_and_reject_bad_values():
+    state().execute('''
+      -- Player 2, route 3: uid, target, point, step -1, x, y, tick, distance, stalls.
+      local route=native.patrolRoutes+(2*9+3)*36
+      local values={41234,4,11,-1,112,95,70000,9,1}
+      for index,value in ipairs(values) do memory[route+(index-1)*4]=value end
+      local bytes=state.capture()
+      for offset=0,32,4 do memory[route+offset]=0 end
+      state.restore(bytes)
+      for index,value in ipairs(values) do assert(memory[route+(index-1)*4]==value) end
+      assert(state.capture()==bytes)
+      for _,bad in ipairs({{4,9},{8,16},{12,2},{16,400},{32,3}}) do
+        local saved=memory[route+bad[1]]
+        memory[route+bad[1]]=bad[2]
+        local wrong=state.capture()
+        memory[route+bad[1]]=saved
+        assert(not pcall(state.restore,wrong))
+      end
+      -- A free entry must be all zero.
+      for offset=0,32,4 do memory[route+offset]=0 end
+      memory[route+16]=5
+      local stray=state.capture()
+      assert(not pcall(state.restore,stray))
     ''')

@@ -93,9 +93,11 @@ options:
       text: '{{patrolFormation_wing}}'
     - name: Mirror
       text: '{{patrolFormation_mirror}}'
+    - name: Routes
+      text: '{{patrolFormation_routes}}'
     - name: Native
       text: '{{patrolFormation_native}}'
-    value: Wing
+    value: Routes
 - category: ['{{ai}}', '{{improvements}}']
   name: patrolSpacing
   header: '{{patrolSpacing}}'
@@ -107,6 +109,63 @@ options:
     value: 12
     min: 4
     max: 40
+- category: ['{{ai}}', '{{improvements}}']
+  name: patrolExtraGroups
+  header: '{{patrolExtraGroups}}'
+  text: '{{patrolExtraGroups_descr}}'
+  display: Number
+  url: aic-tactics.patrolExtraGroups
+  contents:
+    type: integer
+    value: 0
+    min: 0
+    max: 6
+- category: ['{{ai}}', '{{improvements}}']
+  name: patrolMinSize
+  header: '{{patrolMinSize}}'
+  text: '{{patrolMinSize_descr}}'
+  display: Number
+  url: aic-tactics.patrolMinSize
+  contents:
+    type: integer
+    value: 4
+    min: 1
+    max: 50
+- category: ['{{ai}}', '{{improvements}}']
+  name: patrolRadius
+  header: '{{patrolRadius}}'
+  text: '{{patrolRadius_descr}}'
+  display: Number
+  url: aic-tactics.patrolRadius
+  contents:
+    type: integer
+    value: 12
+    min: 4
+    max: 100
+- category: ['{{ai}}', '{{improvements}}']
+  name: siegeScreen
+  header: '{{siegeScreen}}'
+  text: '{{siegeScreen_descr}}'
+  display: Choice
+  url: aic-tactics.siegeScreen
+  contents:
+    choices:
+    - name: EngineApproach
+      text: '{{siegeScreen_engineApproach}}'
+    - name: Native
+      text: '{{siegeScreen_native}}'
+    value: EngineApproach
+- category: ['{{ai}}', '{{improvements}}']
+  name: siegeScreenForward
+  header: '{{siegeScreenForward}}'
+  text: '{{siegeScreenForward_descr}}'
+  display: Number
+  url: aic-tactics.siegeScreenForward
+  contents:
+    type: integer
+    value: 4
+    min: 0
+    max: 10
 - category: [AIC Tactics]
   name: nativeTargetPolicy
   header: '{{nativeTargetPolicy}}'
