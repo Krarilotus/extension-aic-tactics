@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 project(aic_tactics_policy LANGUAGES CXX)
 
-add_library(aic_tactics_policy STATIC src/recruitment.cpp src/random.cpp src/composition.cpp src/targets.cpp src/incidents.cpp src/patrol_geometry.cpp)
+add_library(aic_tactics_policy STATIC src/recruitment.cpp src/random.cpp src/composition.cpp src/targets.cpp src/incidents.cpp src/patrol_geometry.cpp src/ally_policy.cpp)
 target_include_directories(aic_tactics_policy PUBLIC include)
 set_target_properties(aic_tactics_policy PROPERTIES CXX_STANDARD 98 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
 
@@ -37,7 +37,7 @@ else()
 endif()
 add_test(NAME bounded_random_draw COMMAND random_tests)
 
-foreach(policy_test target incident patrol)
+foreach(policy_test target incident patrol ally)
   add_executable(${policy_test}_tests tests/${policy_test}_tests.cpp)
   target_link_libraries(${policy_test}_tests PRIVATE aic_tactics_policy)
   set_target_properties(${policy_test}_tests PROPERTIES CXX_STANDARD 98 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
