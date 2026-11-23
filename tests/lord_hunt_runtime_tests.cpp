@@ -433,6 +433,64 @@ void splitTroopsFallBackToWallsThenTheKeep()
     assert(moves == before);
 }
 
+void freedHuntRecordIsNotTakenForAPatrol()
+{
+    climbing[Field][Shelter] = true;
+    census();
+    updateLordHunt(AIC, Attacker);
+    LordHuntState& state = lordHunts[Attacker];
+    const int hunt = state.huntGroup;
+    assert(hunt && state.huntWave == 1 && sizeOf(hunt) == 10);
+    // Every hunter dies; the owner frees the record and the patrol dispatcher
+    // reuses it before the hunt update of the same AI turn.
+    const int hunters = groupOf(hunt);
+    for (int id = 10; id < 30; ++id)
+        if (get<short>(unit(id), 0x2D8) == hunters) put<int>(unit(id), 0x3C8, 0);
+    put<short>(tribe(hunters), 0x40, 0);
+    ++tick;
+    validateDetachedGroups();
+    census();
+    assert(!state.huntGroup && state.huntWave == 1);
+    const int patrol = openDetachedGroup(Attacker, PatrolDuty);
+    assert(patrol == hunt - 1);
+    const int patrolTribe = detachedGroups[Attacker][patrol].tribe;
+    updateLordHunt(AIC, Attacker);
+    assert(detachedGroups[Attacker][patrol].duty == PatrolDuty && !detachedGroups[Attacker][patrol].returning);
+    assert(!state.returning && lastOrderTribe != patrolTribe);
+    // The second wave goes with the rest of the main army.
+    assert(state.huntWave == 2 && state.huntGroup && state.huntGroup != hunt && sizeOf(state.huntGroup) == 10);
+}
+
+void switchedOffSettingsUnwindTheAttack()
+{
+    census();
+    updateLordHunt(AIC, Attacker);
+    LordHuntState& state = lordHunts[Attacker];
+    const int split = state.splitGroup;
+    assert(state.host == Ally && split);
+    put<int>(player(Attacker), 0x2BD8, Ally);
+    lordHuntRetarget[2] = 1;              // character 2: retarget off
+    assert(lordHuntSiegeCastle(Attacker, Human) == Human);
+    ++tick;
+    census();
+    const SiegeRetarget change = updateLordHunt(AIC, Attacker);
+    assert(change.castle == Human && change.phase == 1 && !state.host && !state.splitTo && !state.splitGroup);
+    assert(detachedGroups[Attacker][split - 1].returning == 1);
+    put<int>(player(Attacker), 0x2BD8, Human);
+    climbing[Field][Shelter] = true;
+    ++tick;
+    census();
+    updateLordHunt(AIC, Attacker);
+    const int hunt = state.huntGroup;
+    assert(hunt && sizeOf(hunt) > 0);
+    lordHuntShare[2] = 1;                 // hunt share 0: both settings off
+    ++tick;
+    census();
+    assert(lordHuntCensus[Attacker].attackTroops == 20);
+    updateLordHunt(AIC, Attacker);
+    assert(!state.huntGroup && !state.huntWave && detachedGroups[Attacker][hunt - 1].returning == 1);
+}
+
 void run(unsigned int stride)
 {
     setup(stride);
@@ -454,6 +512,10 @@ void run(unsigned int stride)
     deadLordEndsTheAttackRecord();
     setup(stride);
     splitTroopsFallBackToWallsThenTheKeep();
+    setup(stride);
+    freedHuntRecordIsNotTakenForAPatrol();
+    setup(stride);
+    switchedOffSettingsUnwindTheAttack();
 }
 }
 

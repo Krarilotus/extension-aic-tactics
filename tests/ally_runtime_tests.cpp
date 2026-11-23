@@ -367,12 +367,15 @@ void humanGold(unsigned int stride)
 {
     setup(stride);
     gold(2) = 3000;
-    // The ally screen's test and the command use the same donor floor.
-    assert(allyGoldRequestAllowed(2, 2000) == 1 && allyGoldRequestAllowed(2, 2001) == 0);
-    assert(allyGoldRequestCommand(2, 14, 1500, 1) == 1 && gold(2) == 1500 && gold(1) == 1500);
-    assert(speeches == 1 && allyStates[2].given[15] == 1500 && received[1] == 1500);
+    // The ally screen's test and the command use the same limit: the gold above
+    // the 1000 floor, within the month's allowance (30% of 3000 = 900).
+    assert(allyGoldRequestAllowed(2, 900) == 1 && allyGoldRequestAllowed(2, 901) == 0);
+    assert(allyGoldRequestCommand(2, 14, 1500, 1) == 1 && gold(2) == 2100 && gold(1) == 900);
+    assert(speeches == 1 && allyStates[2].given[15] == 900 && received[1] == 900);
+    assert(allyGoldRequestAllowed(2, 1) == 0);
+    allySettings[2][AllyMonthlyGive] = 101;
     allySettings[2][AllyGoldKeep] = 1201;
-    assert(allyGoldRequestAllowed(2, 300) == 1 && allyGoldRequestAllowed(2, 301) == 0);
+    assert(allyGoldRequestAllowed(2, 900) == 1 && allyGoldRequestAllowed(2, 901) == 0);
     // Gold moved since the test: never below the floor.
     assert(allyGoldRequestCommand(2, 14, 1000, 1) == 1 && gold(2) == 1200 && gold(1) == 1800);
     // Goods, a human giver and goods help off stay native.
@@ -473,6 +476,21 @@ void relief(unsigned int stride)
     assert(relieved(2) == -1);
 }
 
+void reinforcement(unsigned int stride)
+{
+    setup(stride);
+    army();
+    combatCensus[1].homePower[4] = 150;
+    update(2);
+    assert(relieved(2) == 9 && moves == 1);
+    for (int id = 2; id <= 12; ++id) { at<short>(unit(id), 0xC4) = 50; at<short>(unit(id), 0xC6) = 51; }
+    // A recruit at the helper's camp joins the group standing at the keep.
+    soldier(13, 2, 10, 20, 22, 110, 110);
+    field(2, 0x30F0) = 13;
+    update(2);
+    assert(relieved(2) == 10 && moves == 2 && moveTribe == detachedGroups[2][0].tribe && moveX == 50);
+}
+
 void request(unsigned int stride)
 {
     setup(stride);
@@ -540,6 +558,7 @@ void run(unsigned int stride)
     rebuild(stride);
     gift(stride);
     humanGold(stride);
+    reinforcement(stride);
     relief(stride);
     request(stride);
 }

@@ -18,6 +18,13 @@ inline int setting(const int values[17], int character, int fallback)
     return values[character] ? values[character] - 1 : fallback;
 }
 
+// A field of an AIC record (AIC Loader field index * 4) in the native AI
+// state; `character` is the player's AI type, 2..17.
+inline int aicValue(void* aic, int character, int offset)
+{
+    return *reinterpret_cast<int*>(static_cast<unsigned char*>(aic) + (character - 1) * 0x2A4 + offset);
+}
+
 struct CharacterConfiguration {
     RecruitmentPolicy recruitment;
     RoleWeights baseRows[3];

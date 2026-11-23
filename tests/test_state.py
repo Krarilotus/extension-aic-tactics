@@ -426,3 +426,25 @@ def test_patrol_route_records_round_trip_and_reject_bad_values():
       local stray=state.capture()
       assert(not pcall(state.restore,stray))
     ''')
+
+
+def test_patrol_records_require_state_and_restore_with_the_feature_off():
+    state().execute('''
+      memory[native.configuration+4*352]=0
+      assert(not state.callbacks.isRequired())
+      memory[native.patrolFormationFallback]=3
+      assert(state.callbacks.isRequired())
+      memory[native.patrolFormationFallback]=0
+      memory[native.patrolExtraGroups+4*4]=2
+      assert(state.callbacks.isRequired())
+      local record=native.detachedGroups+(3*8+1)*48
+      memory[record]=1040;memory[record+4]=24736;memory[record+8]=1
+      local bytes=state.capture()
+      memory[native.patrolExtraGroups+4*4]=0
+      for offset=0,44,4 do memory[record+offset]=0 end
+      assert(not state.callbacks.isRequired())
+      local reader={loadKind='save',exists=function()return true end,get=function()return bytes end}
+      state.callbacks:validate(reader)
+      state.callbacks:deserialize(reader)
+      assert(memory[record]==1040 and memory[record+8]==1)
+    ''')

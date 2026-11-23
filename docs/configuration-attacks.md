@@ -93,7 +93,7 @@ More fragments are in `examples/attack-behaviour/`. They are examples and test f
 - **Native slots.** The native patrol and siege-defence slots are in every save; after a reload the next native order finds them again.
 - **Extra groups and routes.** Extra groups and route progress (point, direction, last progress tick, stalls) are saved in AIC Tactics' state and validated against the game's groups on load. A reload continues the same routes with the same troops.
 - **Changed settings.** A save loads with changed settings and follows them from the next order. Surplus extra groups then rejoin the native groups.
-- **Without AIC Tactics.** A save made during an attack with extra groups loads, but those groups stand and fight where they are.
+- **Without AIC Tactics.** While these features are on, AIC Tactics marks its saved state as required, so Map Extensions refuses the save without AIC Tactics.
 - **Replays and multiplayer.** Decisions use only synchronized game state at the native order, integer geometry and a fixed group order, without random numbers. Route records are part of the replay check. All peers must use the same values: they are part of AIC Tactics' multiplayer admission check.
 
 ## Compatibility
@@ -103,4 +103,4 @@ More fragments are in `examples/attack-behaviour/`. They are examples and test f
 - **Recruitment and AI update untouched.** AIC Tactics does not change how many patrol groups the game recruits into, and adds no hook to the per-AI update.
 - **UCP2-Legacy.** Its attack options touch different code and remain compatible.
 
-Smarter Patrols by Monsterfish, moved into AIC Tactics under GPL-3.0 with the author's consent, relayed by Krarilotus on 2026-11-23.
+Smarter Patrols by Monsterfish, under GPL-3.0; see [CREDITS.md](../CREDITS.md).

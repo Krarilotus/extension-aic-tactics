@@ -51,9 +51,9 @@ Keep the full siege at the human's home and send a third of the army after the h
 
 ## Saves, replays and multiplayer
 
-- **Saves.** The attack record (opponent and lord, castle, split, hunt wave and timers) and the census it decides from are saved in AIC Tactics' state, and the hunting and split troops are saved as detached groups (`include/aic_tactics/groups.hpp`). A reload continues the same attack with the same troops; nothing is guessed from the map and no troops are swept. Every saved group is checked against its native tribe before use. Changing these settings does not invalidate a save; the next decision follows the new values.
+- **Saves.** The attack record (opponent and lord, castle, split, hunt wave and timers) and the census it decides from are saved in AIC Tactics' state, and the hunting and split troops are saved as detached groups (`include/aic_tactics/groups.hpp`). A reload continues the same attack with the same troops; nothing is guessed from the map and no troops are swept. Every saved group is checked against its native tribe before use. Changing these settings does not invalidate a save; the next decision follows the new values. With `AICTactics_LordHuntRetarget` off the attack turns back to the lord's own castle and the split troops rejoin; with `AICTactics_LordHuntShare` 0 the hunters rejoin.
 - **Replays and multiplayer.** Decisions use only synchronized game state at the AI's native update, in fixed order, with integer math and no random numbers. The settings are part of AIC Tactics' multiplayer admission check; the saved records are part of its replay digest.
-- **Without AIC Tactics** a save with live hunting or split troops still loads; those troops stand and fight where they are.
+- **Without AIC Tactics.** While these features are on, AIC Tactics marks its saved state as required, so Map Extensions refuses the save without AIC Tactics.
 
 ## Compatibility
 
@@ -61,4 +61,4 @@ Keep the full siege at the human's home and send a third of the army after the h
 - **AIC Tactics target policies** (`AttackTargetPolicy` and its commitment) choose the opponent; lord hunt only chooses which of that opponent's shelters is sieged. The committed opponent and its lord stay the policy's target, so commitment, cleanup and `LastAggressor` work unchanged.
 - **Monsterfish's Lord Hunt module** is part of AIC Tactics now; installing both is not supported.
 
-Lord Hunt by Monsterfish, moved into AIC Tactics under GPL-3.0 with the author's consent, relayed by Krarilotus on 2026-11-23.
+Lord Hunt by Monsterfish, under GPL-3.0; see [CREDITS.md](../CREDITS.md).

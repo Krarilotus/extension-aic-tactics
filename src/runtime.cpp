@@ -29,9 +29,6 @@ const unsigned int& Units = nativeBindings.units;
 const unsigned int& Tribes = nativeBindings.tribes;
 template<class T> T& memory(unsigned int address) { return *reinterpret_cast<T*>(address); }
 int& playerValue(int player, unsigned int address) { return memory<int>(address + player * PlayerStride); }
-int aicValue(void* aic, int character, int offset) {
-    return *reinterpret_cast<int*>(static_cast<unsigned char*>(aic) + (character - 1) * 0x2A4 + offset);
-}
 typedef void (__thiscall *PlayerAction)(void*, int);
 typedef int (__thiscall *PlayerQuery)(void*, int);
 typedef int (__thiscall *TwoIntQuery)(void*, int, int);

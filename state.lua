@@ -31,7 +31,8 @@ function M.new(native, legacyInterval, fingerprint)
   local groups = require('group-state').new(native)
   local hunts = require('lord-hunt-state').new(native)
   local routes = require('patrol-state').new(native)
-  local patrolArrays = require('config.attacks').arrays
+  local attacks = require('config.attacks')
+  local patrolArrays, routesFormation = attacks.arrays, attacks.formations.Routes
   local allies = require('ally-state').new(native)
   local nativeIntegrity = core.exposeCode(native.captureIntegrity, 1, 0)
   local observeBoundary = core.exposeCode(native.observeIntegrityBoundary, 1, 0)
@@ -53,6 +54,9 @@ function M.new(native, legacyInterval, fingerprint)
     -- Lord hunt keeps detachments and their census in this section.
     if core.readInteger(native.lordHuntRetargetFallback) ~= 0
         or core.readInteger(native.lordHuntShareFallback) ~= 0 then return true end
+    -- Extra patrol groups and patrol routes keep their records in this section.
+    if core.readInteger(native.patrolExtraGroupsFallback) ~= 0
+        or core.readInteger(native.patrolFormationFallback) == routesFormation then return true end
     -- Ally help keeps gifts and relief timers in this section.
     if core.readInteger(native.allyFallback) ~= 0 or core.readInteger(native.allyFallback + 4) ~= 0 then
       return true
@@ -64,6 +68,8 @@ function M.new(native, legacyInterval, fingerprint)
       for _, name in ipairs(huntArrays) do
         if core.readInteger(native[name] + ai * 4) ~= 0 then return true end
       end
+      if core.readInteger(native.patrolExtraGroups + ai * 4) > 1
+          or core.readInteger(native.patrolFormation + ai * 4) == routesFormation + 1 then return true end
       if core.readInteger(native.siegePaymentPolicy + ai * 4) ~= 0 then return true end
       if core.readInteger(native.siegeHarassPolicy + ai * 4) ~= 0
           or core.readInteger(native.siegeHarassMinimum + ai * 4) ~= 0 then return true end
@@ -264,7 +270,9 @@ function M.new(native, legacyInterval, fingerprint)
         if handle:exists(path) then validate(handle:get(path)) else validateAbsent(handle.loadKind) end
       end,
       deserialize = function(self, handle)
-        if active() and handle:exists(path) then restore(handle:get(path))
+        -- A matching section is restored even with its features now off: the
+        -- detached groups in it go back to their slots at the next AI update.
+        if handle:exists(path) and pcall(validate, handle:get(path)) then restore(handle:get(path))
         else initialize(nil, {kind=handle.loadKind}) end
       end,
     },

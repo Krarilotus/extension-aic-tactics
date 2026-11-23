@@ -225,6 +225,32 @@ void handBack(void* aic, int player, LordHuntState& state, int& reference)
     reference = 0;
 }
 
+void endSplit(void* aic, int player, LordHuntState& state)
+{
+    handBack(aic, player, state, state.splitGroup);
+    handBack(aic, player, state, state.shooterGroup);
+    state.splitTo = 0;
+    state.splitOrder = NoSplitOrder;
+    state.splitSize = 0;
+}
+
+// The attack goes back to the lord's own castle: a new plan while the army
+// is strong enough, else the native cleanup.
+void turnBack(int ch, int phase, LordHuntState& state, const LordHuntCensus& census, SiegeRetarget& change)
+{
+    state.host = 0;
+    change.castle = state.origin;
+    const __int64 required = static_cast<__int64>(state.peak) * setting(lordHuntSwitch, ch, lordHuntSwitchFallback);
+    change.phase = phase < 3 || static_cast<__int64>(census.attackTroops) * 100 >= required ? 1 : 8;
+}
+
+// The owner frees records whose tribe is gone and reuses them for any duty,
+// so a reference holds only while its record keeps the duty it was opened for.
+void dropFreed(int player, int& reference, int duty)
+{
+    if (reference > 0 && detachedGroups[player][reference - 1].duty != duty) reference = 0;
+}
+
 void returnGroups(void* aic, int player, LordHuntState& state)
 {
     int budget = ReturnBudget;
@@ -343,16 +369,8 @@ void checkShelter(void* aic, int player, int ch, int phase, LordHuntState& state
     const int lordArea = area(lord.tile);
     if (!lordArea || lordArea == keepArea(hiding)) return;
     state.phase |= LordHuntSwitchedBack;
-    handBack(aic, player, state, state.splitGroup);
-    handBack(aic, player, state, state.shooterGroup);
-    state.splitTo = 0;
-    state.splitOrder = NoSplitOrder;
-    state.splitSize = 0;
-    if (!state.host) return;
-    state.host = 0;
-    change.castle = state.origin;
-    const __int64 required = static_cast<__int64>(state.peak) * setting(lordHuntSwitch, ch, lordHuntSwitchFallback);
-    change.phase = phase < 3 || static_cast<__int64>(census.attackTroops) * 100 >= required ? 1 : 8;
+    endSplit(aic, player, state);
+    if (state.host) turnBack(ch, phase, state, census, change);
 }
 
 // A building's entrance, else the tile below its corner.
@@ -444,9 +462,7 @@ void orderSplit(void* aic, int player, LordHuntState& state, Reach& memo)
     if (state.shooterGroup && detachedGroupSize(player, state.shooterGroup - 1) <= 0)
         handBack(aic, player, state, state.shooterGroup);
     if (!state.splitGroup && !state.shooterGroup) {
-        state.splitTo = 0;
-        state.splitOrder = NoSplitOrder;
-        state.splitSize = 0;
+        endSplit(aic, player, state);
         return;
     }
     const int size = (state.splitGroup ? detachedGroupSize(player, state.splitGroup - 1) : 0)
@@ -584,7 +600,7 @@ void huntLord(void* aic, int player, int share, LordHuntState& state, const Lord
         return;
     }
     int source = state.splitTo && keepArea(state.splitTo) == lordArea ? SplitTroopSource : MainArmySource;
-    if (state.huntGroup) {
+    if (state.huntWave) {
         // Every hunter is gone: the rest of that army goes, once.
         const int wave = state.huntWave;
         source = state.huntSource;
@@ -608,9 +624,15 @@ void resetLordHuntCensus()
     std::memset(collecting, 0, sizeof(collecting));
     std::memset(splitTribes, 0, sizeof(splitTribes));
     for (int player = 1; player <= 8; ++player) {
+        // Runs right after the owner dropped the records of vanished tribes.
+        LordHuntState& state = lordHunts[player];
+        dropFreed(player, state.huntGroup, HuntDuty);
+        dropFreed(player, state.splitGroup, SplitDuty);
+        dropFreed(player, state.shooterGroup, SplitDuty);
         const int ch = character(player);
         const int phase = field(player, 0x2BA4);
-        if (!ch || !enabled(ch) || phase < 1 || phase > 6) continue;
+        // A running attack record keeps its census while it unwinds switched-off settings.
+        if (!ch || (!enabled(ch) && !state.origin) || phase < 1 || phase > 6) continue;
         collecting[player] = 1;
         const unsigned int address = playerAddress(player);
         for (int slot = 0; slot < 200; ++slot) {
@@ -619,7 +641,6 @@ void resetLordHuntCensus()
                 && at<unsigned int>(tribeAddress(tribe) + 0x34) == at<unsigned int>(address + 0x329C + slot * 4))
                 slotOwner[tribe] = static_cast<short>(player);
         }
-        const LordHuntState& state = lordHunts[player];
         if (state.splitGroup) splitTribes[player][0] = detachedGroups[player][state.splitGroup - 1].tribe;
         if (state.shooterGroup) splitTribes[player][1] = detachedGroups[player][state.shooterGroup - 1].tribe;
     }
@@ -676,10 +697,18 @@ SiegeRetarget updateLordHunt(void* aic, int player)
     if (setting(lordHuntRetarget, ch, lordHuntRetargetFallback) == 1) {
         if (!(state.phase & LordHuntHidingDecided)) checkHiding(player, ch, phase, state, census, lord, memo, change);
         else checkShelter(aic, player, ch, phase, state, census, lord, change);
+    } else {
+        // Switched off during the attack, e.g. before a reload.
+        endSplit(aic, player, state);
+        if (state.host) turnBack(ch, phase, state, census, change);
     }
     orderSplit(aic, player, state, memo);
     const int share = setting(lordHuntShare, ch, lordHuntShareFallback);
     if (share > 0) huntLord(aic, player, share, state, census, lord, memo);
+    else {
+        handBack(aic, player, state, state.huntGroup);
+        state.huntWave = 0;
+    }
     return change;
 }
 
@@ -687,7 +716,9 @@ int lordHuntSiegeCastle(int player, int opponent)
 {
     if (player < 1 || player > 8) return opponent;
     const LordHuntState& state = lordHunts[player];
-    return state.host && (opponent == state.origin || opponent == state.host) ? state.host : opponent;
+    const int ch = character(player);
+    return state.host && ch && setting(lordHuntRetarget, ch, lordHuntRetargetFallback) == 1
+        && (opponent == state.origin || opponent == state.host) ? state.host : opponent;
 }
 
 } // namespace SHC141

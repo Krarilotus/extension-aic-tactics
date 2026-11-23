@@ -74,10 +74,7 @@ int setting(int player, int which)
     const int stored = allySettings[character(player)][which];
     return stored ? stored - 1 : allyFallback[which];
 }
-int aicValue(void* aic, int player, int offset)
-{
-    return at<int>(reinterpret_cast<unsigned int>(aic) + (field(player, Character) - 1) * 0x2A4 + offset);
-}
+int playerAicValue(void* aic, int player, int offset) { return aicValue(aic, field(player, Character), offset); }
 int team(int player) { return at<int>(nativeBindings.teams + player * 4); }
 bool allied(int a, int b)
 {
@@ -210,7 +207,7 @@ int storageRoom(void* aic, int player, int resource)
 {
     const int offset = storageField(resource);
     if (!offset) return -1;
-    const int room = aicValue(aic, player, offset) + aicValue(aic, player, AicVariance) - stock(player, resource);
+    const int room = playerAicValue(aic, player, offset) + playerAicValue(aic, player, AicVariance) - stock(player, resource);
     return room > 0 ? room : 0;
 }
 
@@ -231,7 +228,7 @@ int goodsAmount(void* aic, int giver, int receiver, int resource, int wanted)
     offer.enoughForAll = reinterpret_cast<ThreeQuery>(allyBindings.enoughAfterTrade)(
         aic, giver, resource, wanted) != 0;
     offer.receiverWeak = weak(receiver);
-    offer.minimumAfterTrade = aicValue(aic, giver, AicMinimumGoods);
+    offer.minimumAfterTrade = playerAicValue(aic, giver, AicMinimumGoods);
     offer.receiverRoom = storageRoom(aic, receiver, resource);
     offer.allowance = allowance(giver, resource, offer.stock);
     return allyGoodsAmount(offer);
@@ -329,7 +326,7 @@ void askAllies(void* aic, int receiver)
         }
     }
     if (accepted) {
-        const int delay = aicValue(aic, receiver, AicRequestDelay);
+        const int delay = playerAicValue(aic, receiver, AicRequestDelay);
         field(receiver, RequestDelay) = delay > 0 ? delay : 0;
     } else {
         state.nextAskTick = now() + RetryTicks;
@@ -342,7 +339,7 @@ void askAllies(void* aic, int receiver)
 void recruitGold(void* aic, int receiver)
 {
     if (field(receiver, RequestDelay) > 0 || !(weak(receiver) || nervous(receiver))) return;
-    const int threshold = aicValue(aic, receiver, AicRecruitGold);
+    const int threshold = playerAicValue(aic, receiver, AicRecruitGold);
     const int need = (threshold > 0 ? threshold : 0) + setting(receiver, AllyRecruitGoldBuffer) - gold(receiver);
     if (need <= 0) return;
     int list[8];
@@ -353,7 +350,7 @@ void recruitGold(void* aic, int receiver)
             allowance(giver, AllyGold, gold(giver))) : 0;
         if (send <= 0) continue;
         sendGold(giver, receiver, send);
-        const int delay = aicValue(aic, receiver, AicRequestDelay);
+        const int delay = playerAicValue(aic, receiver, AicRequestDelay);
         field(receiver, RequestDelay) = delay > 0 ? delay : 0;
         return;
     }
@@ -392,7 +389,7 @@ bool ownDanger(int player)
 bool attackDue(void* aic, int player)
 {
     return field(player, Phase) != 0 || static_cast<__int64>(field(player, AttackTroops))
-        - field(player, AttackEngineers) >= static_cast<__int64>(aicValue(aic, player, AicAttackForce))
+        - field(player, AttackEngineers) >= static_cast<__int64>(playerAicValue(aic, player, AicAttackForce))
         + field(player, WaveExtra);
 }
 
@@ -464,13 +461,14 @@ bool move(void* aic, int tribe, int x, int y)
 }
 
 // The helped keep's entrance, else its camp if the keep cannot be reached.
-// Returns false when neither can be reached by the group.
-bool orderRelief(void* aic, int helper, DetachedGroup& group)
+// Returns false when neither can be reached by the group. Members that just
+// joined get the order even at the station: the native add gives none.
+bool orderRelief(void* aic, int helper, DetachedGroup& group, bool joined)
 {
     TilePoint leader;
     if (!tribeLeaderTile(helper, group.tribe, leader)) return true;
     TilePoint station = {group.x, group.y};
-    if (patrolDistance(station, leader) <= 4) return true;
+    if (!joined && patrolDistance(station, leader) <= 4) return true;
     // The native help order sets this stance on the tribes it sends.
     at<short>(tribeAddress(group.tribe) + nativeBindings.tribeStance) = 2;
     if (move(aic, group.tribe, field(group.target, KeyX), field(group.target, KeyY))) {
@@ -513,7 +511,7 @@ int reliefTarget(void* aic, int helper, int& requested)
         return asker;
     }
     if (now() < allyStates[helper].reliefPauseUntil
-        || field(helper, AttackTroops) < aicValue(aic, helper, AicSupportThreshold)) return 0;
+        || field(helper, AttackTroops) < playerAicValue(aic, helper, AicSupportThreshold)) return 0;
     int best = 0, bestThreat = ReliefThreatPower - 1;
     for (int ally = 1; ally <= 8; ++ally) {
         if (!helpable(helper, ally)) continue;
@@ -545,7 +543,7 @@ void openRelief(void* aic, int helper)
     AllyState& state = allyStates[helper];
     state.reliefRequested = requested;
     state.reliefCalmSince = now();
-    if (!orderRelief(aic, helper, group)) endRelief(aic, helper, index, ReliefAllyGone);
+    if (!orderRelief(aic, helper, group, true)) endRelief(aic, helper, index, ReliefAllyGone);
 }
 
 void updateRelief(void* aic, int helper)
@@ -592,8 +590,8 @@ void updateRelief(void* aic, int helper)
     if (reason == ReliefContinues) {
         const int size = detachedGroupSize(helper, index);
         const int wanted = allyReliefSize(idleArmy(helper) + size, setting(helper, AllyArmyShare)) - size;
-        if (wanted > 0) fillRelief(helper, index, wanted);
-        if (!orderRelief(aic, helper, group)) reason = ReliefAllyGone;
+        const bool joined = wanted > 0 && fillRelief(helper, index, wanted) > 0;
+        if (!orderRelief(aic, helper, group, joined)) reason = ReliefAllyGone;
     }
     if (reason != ReliefContinues) endRelief(aic, helper, index, reason);
 }
@@ -657,17 +655,27 @@ AllyUpdate::~AllyUpdate()
     updateAllies(aic, player);
 }
 
+namespace {
+// Gold for a human ally who asks: above the floor and within the month's allowance.
+int humanGoldLimit(int player)
+{
+    const int above = gold(player) - setting(player, AllyGoldKeep);
+    const int allowed = allowance(player, AllyGold, gold(player));
+    return above < allowed ? above : allowed;
+}
+} // namespace
+
 int __cdecl allyGoldRequestAllowed(int player, int amount)
 {
     if (!isAI(player) || !setting(player, AllyGoods) || amount <= 0 || !castleDone(player)) return 0;
-    return static_cast<__int64>(gold(player)) - amount >= setting(player, AllyGoldKeep) ? 1 : 0;
+    return amount <= humanGoldLimit(player) ? 1 : 0;
 }
 
 int __cdecl allyGoldRequestCommand(int giver, int resourceIndex, int amount, int receiver)
 {
     if (resourceIndex + 1 != AllyGold || !isAI(giver) || !setting(giver, AllyGoods)) return 0;
     if (amount > 0 && allied(giver, receiver) && castleDone(giver)) {
-        int send = gold(giver) - setting(giver, AllyGoldKeep);
+        int send = humanGoldLimit(giver);
         if (send > amount) send = amount;
         if (send > 0) sendGold(giver, receiver, send);
     }
