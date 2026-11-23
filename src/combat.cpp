@@ -1,6 +1,7 @@
 #include "aic_tactics/combat.hpp"
 #include "aic_tactics/runtime.hpp"
 #include "aic_tactics/shc141_damage.hpp"
+#include "aic_tactics/groups.hpp"
 #include <cstring>
 
 namespace AicTactics {
@@ -111,6 +112,7 @@ void __cdecl resetCombatCensus()
     resetReserveCensus();
     resetRaidUnitCensus();
     resetSiegeHarassCensus();
+    validateDetachedGroups();
     combatCensusValid = 0;
     std::memset(combatCensus, 0, sizeof(combatCensus));
     bool needsPower = raidPoliciesEnabled();

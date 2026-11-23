@@ -1,5 +1,6 @@
 #include "aic_tactics/runtime.hpp"
 #include "aic_tactics/patrols.hpp"
+#include "aic_tactics/groups.hpp"
 #include <cstring>
 
 namespace AicTactics {
@@ -80,6 +81,7 @@ template<class Sink> void visitIntegrity(Sink& digest, int legacyInterval)
     digest.block(raidUnitPower, sizeof(raidUnitPower));
     digest.block(raidStaticDefenses, sizeof(raidStaticDefenses));
     digest.block(siegeHarassPlans, sizeof(siegeHarassPlans));
+    digest.block(detachedGroups, sizeof(detachedGroups));
     digest.word(raidBuildingCensusTick);
     digest.word(static_cast<unsigned int>(raidBuildingCensusValid));
 }
@@ -87,7 +89,7 @@ typedef char BoundaryCapacity[(sizeof(CharacterConfiguration) * 16 + 676 * 16
     + sizeof(defenseTypeCounts) + sizeof(combatCensus) + sizeof(targetStates)
     + sizeof(targetLifecycle) + sizeof(incidents) + sizeof(reserves)
     + sizeof(raidStates) + sizeof(raidGroupCensus) + sizeof(raidUnitPower)
-    + sizeof(raidStaticDefenses) + sizeof(siegeHarassPlans)
+    + sizeof(raidStaticDefenses) + sizeof(siegeHarassPlans) + sizeof(detachedGroups)
     + sizeof(int) * 85 + sizeof(patrolOrders) * 3 + 128 <= sizeof(boundaryWords)) ? 1 : -1];
 }
 

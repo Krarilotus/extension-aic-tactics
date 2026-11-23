@@ -1,6 +1,6 @@
 local M = {}
 local path = 'recruitment-state.bin'
-local header = 'AICTACT\012'
+local header = 'AICTACT\013'
 local configurationBytes, aicBytes, censusWords, harassWords = 16 * 352, 16 * 676, 9 * 80, 9 * 9
 
 local function word(value)
@@ -25,6 +25,7 @@ function M.new(native, legacyInterval, fingerprint)
   local combat = require('combat-state').new(native)
   local army = require('army-state').new(native)
   local raids = require('raid-state').new(native)
+  local groups = require('group-state').new(native)
   local nativeIntegrity = core.exposeCode(native.captureIntegrity, 1, 0)
   local observeBoundary = core.exposeCode(native.observeIntegrityBoundary, 1, 0)
   local boundaryIntegrity = core.exposeCode(native.captureBoundaryIntegrity, 0, 0)
@@ -97,12 +98,13 @@ function M.new(native, legacyInterval, fingerprint)
     for index = 0, harassWords - 1 do
       result[#result + 1] = word(core.readInteger(native.siegeHarassPlans + index * 4))
     end
+    for _, value in ipairs(groups.capture()) do result[#result + 1] = word(value) end
     return table.concat(result)
   end
   local function validate(bytes)
     assert(type(bytes) == 'string', 'AIC Tactics: missing saved recruitment state')
     local expected = identity()
-    assert(#bytes == #expected + 8 + (censusWords + combat.wordCount + army.wordCount + raids.wordCount + harassWords) * 4 and bytes:sub(1, #expected) == expected,
+    assert(#bytes == #expected + 8 + (censusWords + combat.wordCount + army.wordCount + raids.wordCount + harassWords + groups.wordCount) * 4 and bytes:sub(1, #expected) == expected,
       'AIC Tactics: this save requires its original AIC configuration and module version')
     local offset = #expected + 1
     local tick, valid = number(bytes, offset), number(bytes, offset + 4)
@@ -142,10 +144,16 @@ function M.new(native, legacyInterval, fingerprint)
           and planValues[start + 7] <= 399 and planValues[start + 8] <= 399,
         'AIC Tactics: invalid saved siege harassment plan')
     end
-    return tick, valid, counts, combatValues, armyValues, raidValues, planValues
+    local groupValues = {}
+    local groupOffset = planOffset + harassWords * 4
+    for index = 0, groups.wordCount - 1 do
+      groupValues[index + 1] = number(bytes, groupOffset + index * 4)
+    end
+    groups.validate(groupValues)
+    return tick, valid, counts, combatValues, armyValues, raidValues, planValues, groupValues
   end
   local function restore(bytes)
-    local tick, valid, counts, combatValues, armyValues, raidValues, planValues = validate(bytes)
+    local tick, valid, counts, combatValues, armyValues, raidValues, planValues, groupValues = validate(bytes)
     -- Validate the entire payload before writing any state.
     core.writeInteger(native.defenseCensusValid, 0)
     for index, count in ipairs(counts) do core.writeInteger(native.defenseTypeCounts + (index - 1) * 4, count) end
@@ -154,6 +162,7 @@ function M.new(native, legacyInterval, fingerprint)
     combat.restore(combatValues)
     army.restore(armyValues)
     raids.restore(raidValues)
+    groups.restore(groupValues)
     for index, value in ipairs(planValues) do
       core.writeInteger(native.siegeHarassPlans + (index - 1) * 4,
         value >= 2147483648 and value - 4294967296 or value)
@@ -171,6 +180,7 @@ function M.new(native, legacyInterval, fingerprint)
     combat.initialize()
     army.initialize()
     raids.initialize()
+    groups.initialize()
     core.setMemory(native.siegeHarassPlans, 0, harassWords * 4)
   end
   return {

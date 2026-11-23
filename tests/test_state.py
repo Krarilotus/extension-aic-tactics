@@ -19,6 +19,7 @@ def state():
         largeSiegePolicy=191200,siegeForceMaximum=191300,
         patrolOrders=191400,patrolFormation=191500,patrolSpacing=191600,
         patrolOrdersFallback=191700,patrolFormationFallback=191704,patrolSpacingFallback=191708,
+        detachedGroups=200000,detachedGroupSize=48,
         game={gameTick=0x1FE7DA8,initialDefenseTicks=0x4D34B1,aicRecords=0x23FC8E8+676,unitCapacity=2500,buildingCapacity=2000,tribeMemberWords=157,players=0x115BDF8,tribes=0x1667F78,tribeStride=0x334},
         defenseCensusTick=23000,defenseCensusValid=23004, legacyTargetPolicy=23008,
         incidentSize=2632,combatCensusTick=24000,combatCensusValid=24004,
@@ -269,4 +270,21 @@ def test_patrol_settings_enter_match_identity_but_not_save_admission():
       -- A save made before the change still validates and restores.
       state.restore(bytes)
       assert(state.capture()==bytes)
+    ''')
+
+
+def test_detached_group_records_round_trip_and_reject_bad_values():
+    state().execute('''
+      local record=native.detachedGroups+(3*8+1)*48
+      memory[record]=1040;memory[record+4]=24736;memory[record+8]=2
+      memory[record+12]=1;memory[record+32]=12;memory[record+36]=1;memory[record+40]=3
+      local bytes=state.capture()
+      for offset=0,44,4 do memory[record+offset]=0 end
+      state.restore(bytes)
+      assert(memory[record]==1040 and memory[record+4]==24736 and memory[record+8]==2)
+      assert(memory[record+32]==12 and memory[record+36]==1 and state.capture()==bytes)
+      memory[record+8]=9
+      local bad=state.capture()
+      memory[record+8]=2
+      assert(not pcall(state.restore,bad))
     ''')

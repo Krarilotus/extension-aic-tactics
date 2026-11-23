@@ -63,7 +63,7 @@ return {
         or 'AIC Tactics: checking settings. Press Start again when all players have responded.',0,0)
     end)
     mapState:registerSection('aic-tactics', self.recruitmentState.callbacks,
-      {required=true, format='aic-tactics-state-12', fingerprint=identity.sha256})
+      {required=true, format='aic-tactics-state-13', fingerprint=identity.sha256})
     log(INFO, string.format('[aic-tactics] configuration=0x%X size=%d observations=0x%X size=%d',
       native.configuration, native.configurationSize, native.observations, native.observationSize))
     local addresses = {}
