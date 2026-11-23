@@ -33,14 +33,20 @@ function M.resolve()
   for key, value in pairs(require('native-siege-bindings').resolve(game)) do game[key] = value end
   for key, value in pairs(require('native-role-bindings').resolve(game)) do game[key] = value end
   for key, value in pairs(require('native-patrol-bindings').resolve(game)) do game[key] = value end
+  for key, value in pairs(require('native-ally-bindings').resolve(game)) do game[key] = value end
   return game
 end
 
 function M.initialize(native, game)
   assert(native.nativeBindingsSize == #names * 4, 'AIC Tactics: incompatible native binding ABI')
   game = game or M.resolve()
+  local allies = require('native-ally-bindings').names
+  assert(native.allyBindingsSize == #allies * 4, 'AIC Tactics: incompatible ally binding ABI')
   for index, name in ipairs(names) do
     core.writeInteger(native.nativeBindings + (index - 1) * 4, game[name])
+  end
+  for index, name in ipairs(allies) do
+    core.writeInteger(native.allyBindings + (index - 1) * 4, game[name])
   end
   native.game = game
 end

@@ -22,6 +22,7 @@ def backend():
         largeSiegeFallback=22600,
         patrolOrders=22700,patrolFormation=22800,patrolSpacing=22900,
         patrolOrdersFallback=23000,patrolFormationFallback=23004,patrolSpacingFallback=23008,
+        allySettings=24000,allyFallback=24800,
         game={gameTick=0x1FE7DA8},
         preflight=function()end,activate=function()end,preflightComposition=function()end,activateComposition=function()end,
         preflightCombat=function()end,activateCombat=function()end,
@@ -32,6 +33,10 @@ def backend():
         preflightLargerSiegeForce=function()end,activateLargerSiegeForce=function()end,
         preflightAttackPatrols=function()patrolPreflights=(patrolPreflights or 0)+1 end,
         activateAttackPatrols=function()patrolActivations=(patrolActivations or 0)+1 end,
+        preflightAllyRelief=function()reliefPreflights=(reliefPreflights or 0)+1 end,
+        activateAllyRelief=function()reliefActivations=(reliefActivations or 0)+1 end,
+        preflightAllyGoods=function()goodsPreflights=(goodsPreflights or 0)+1 end,
+        activateAllyGoods=function()goodsActivations=(goodsActivations or 0)+1 end,
         preflightEngineerRoles=function()rolePreflights=rolePreflights+1 end,
         activateEngineerRoles=function()roleActivations=roleActivations+1 end}
       backend=require('config.backend').new(native)

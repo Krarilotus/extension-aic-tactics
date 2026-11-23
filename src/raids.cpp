@@ -1,4 +1,5 @@
 #include "aic_tactics/raids.hpp"
+#include "aic_tactics/allies.hpp"
 #include "aic_tactics/runtime.hpp"
 #include "aic_tactics/random.hpp"
 #include "aic_tactics/shc141_groups.hpp"
@@ -478,11 +479,13 @@ void __cdecl resetRaidBuildingCensus()
 {
     raidBuildingCensusValid = 0;
     std::memset(raidStaticDefenses, 0, sizeof(raidStaticDefenses));
+    resetAllyBuildingCensus();
 }
 
 void __cdecl countRaidBuilding(int building)
 {
     if (building <= 0 || building >= 2000) return;
+    countAllyBuilding(building);
     const unsigned int address = Buildings + 0x14 + building * 0x32C;
     const int type = at<short>(address + 0xD2);
     if (type != 60 && type != 61 && !(type >= 45 && type <= 48) && !(type >= 74 && type <= 78)
@@ -497,6 +500,7 @@ void __cdecl completeRaidBuildingCensus()
 {
     raidBuildingCensusTick = at<unsigned int>(nativeBindings.gameTick);
     raidBuildingCensusValid = 1;
+    completeAllyBuildingCensus();
 }
 
 bool updateSplitRaids(void* aic, int player)

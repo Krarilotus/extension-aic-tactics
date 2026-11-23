@@ -3,6 +3,7 @@
 #include "aic_tactics/runtime.hpp"
 #include "aic_tactics/patrols.hpp"
 #include "aic_tactics/groups.hpp"
+#include "aic_tactics/allies.hpp"
 
 typedef char ConfigurationABI[sizeof(AicTactics::SHC141::CharacterConfiguration) == 352 ? 1 : -1];
 typedef char ReserveABI[sizeof(AicTactics::SHC141::ReserveState) == 196 ? 1 : -1];
@@ -10,6 +11,8 @@ typedef char RaidABI[sizeof(AicTactics::SHC141::RaidState) == 96 ? 1 : -1];
 typedef char IncidentABI[sizeof(AicTactics::IncidentState) == 2632 ? 1 : -1];
 typedef char DetachedGroupABI[sizeof(AicTactics::SHC141::DetachedGroup) == 48 ? 1 : -1];
 typedef char CombatCensusABI[sizeof(AicTactics::SHC141::PlayerCensus) == 48 ? 1 : -1];
+typedef char AllyStateABI[sizeof(AicTactics::SHC141::AllyState) == 260 ? 1 : -1];
+typedef char AllyBindingsABI[sizeof(AicTactics::SHC141::AllyBindings) == 48 ? 1 : -1];
 
 // The bridge only publishes addresses. These stable Lua C API calls use the
 // host's lua.dll; no Lua VM or allocator is embedded in the module.
@@ -52,7 +55,9 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         "siegeForceMaximumFallback", "largeSiegePolicy", "siegeForceMaximum",
         "buildLargerSiegeForce", "patrolOrders", "patrolFormation", "patrolSpacing",
         "dispatchAttackPatrols", "patrolOrdersFallback", "patrolFormationFallback",
-        "patrolSpacingFallback", "detachedGroups", "detachedGroupSize"};
+        "patrolSpacingFallback", "detachedGroups", "detachedGroupSize",
+        "allyBindings", "allyBindingsSize", "allySettings", "allyFallback", "allyStates", "allyStateSize",
+        "allyGoldRequestAllowed", "allyGoldRequestCommand"};
     const unsigned int values[] = {
         reinterpret_cast<unsigned int>(configurations), sizeof(CharacterConfiguration),
         reinterpret_cast<unsigned int>(observations), sizeof(RecruitmentObservation),
@@ -115,7 +120,12 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         reinterpret_cast<unsigned int>(&patrolOrdersFallback),
         reinterpret_cast<unsigned int>(&patrolFormationFallback),
         reinterpret_cast<unsigned int>(&patrolSpacingFallback),
-        reinterpret_cast<unsigned int>(detachedGroups), sizeof(DetachedGroup)};
+        reinterpret_cast<unsigned int>(detachedGroups), sizeof(DetachedGroup),
+        reinterpret_cast<unsigned int>(&allyBindings), sizeof(AllyBindings),
+        reinterpret_cast<unsigned int>(allySettings), reinterpret_cast<unsigned int>(allyFallback),
+        reinterpret_cast<unsigned int>(allyStates), sizeof(AllyState),
+        reinterpret_cast<unsigned int>(&allyGoldRequestAllowed),
+        reinterpret_cast<unsigned int>(&allyGoldRequestCommand)};
     typedef char ExportCount[sizeof(names) / sizeof(names[0]) == sizeof(values) / sizeof(values[0]) ? 1 : -1];
     createTable(state, 0, sizeof(names) / sizeof(names[0]));
     for (unsigned int i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {

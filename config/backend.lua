@@ -1,5 +1,7 @@
 local personality = require('config.personality')
 local M = {}
+-- Per-AI ally settings: 7 words per character (src/allies.cpp allySettings).
+local allyWords = 7
 
 function M.new(native)
   local multiplayerLocked=false
@@ -25,7 +27,13 @@ function M.new(native)
     if core.readInteger(native.siegePaymentFallback) ~= 0 then return true end
     if core.readInteger(native.siegeHarassFallback) ~= 0 then return true end
     if core.readInteger(native.largeSiegeFallback) ~= 0 then return true end
+    if core.readInteger(native.allyFallback) ~= 0 or core.readInteger(native.allyFallback + 4) ~= 0 then
+      return true
+    end
     for ai = 1, 16 do
+      for word = 0, allyWords - 1 do
+        if core.readInteger(native.allySettings + (ai * allyWords + word) * 4) ~= 0 then return true end
+      end
       if core.readInteger(native.siegePaymentPolicy + ai * 4) ~= 0 then return true end
       if core.readInteger(native.siegeHarassPolicy + ai * 4) ~= 0
           or core.readInteger(native.siegeHarassMinimum + ai * 4) ~= 0 then return true end
@@ -60,7 +68,15 @@ function M.new(native)
     for index, name in ipairs({'patrolOrders', 'patrolFormation', 'patrolSpacing'}) do
       previousPatrol[index] = core.readInteger(native[name] + ai * 4)
     end
-    local attacks = envelope.attacks
+    local previousAllies = {}
+    for word = 1, allyWords do
+      previousAllies[word] = core.readInteger(native.allySettings + (ai * allyWords + word - 1) * 4)
+    end
+    local attacks, allies = envelope.attacks, envelope.allies
+    local alliesChange = false
+    for word = 1, allyWords do
+      if allies[word] ~= 0 or previousAllies[word] ~= 0 then alliesChange = true end
+    end
     local changesPolicy = compiled.mode ~= 0 or previous[1] ~= 0
       or targeting.policy ~= 0 or targeting.commitment ~= 0 or targeting.activation ~= 0
       or previous[73] ~= 0 or previous[74] ~= 0 or previous[75] ~= 0
@@ -74,6 +90,7 @@ function M.new(native)
       or envelope.siege[6] ~= 0 or previousForceMaximum ~= 0
       or attacks[1] ~= 0 or attacks[2] ~= 0 or attacks[3] ~= 0
       or previousPatrol[1] ~= 0 or previousPatrol[2] ~= 0 or previousPatrol[3] ~= 0
+      or alliesChange
     if multiplayerLocked or changesPolicy or anyPolicyActive() then admission() end
     if compiled.mode == 1 then native.preflight() end
     if compiled.mode == 1 and compiled.defenseComposition == 1 then native.preflightComposition() end
@@ -93,6 +110,8 @@ function M.new(native)
     if envelope.siege[3] == 1 then native.preflightSiegeHarassment() end
     if envelope.siege[5] == 1 then native.preflightLargerSiegeForce() end
     if attacks[1] == 2 then native.preflightAttackPatrols() end
+    if allies[1] == 2 then native.preflightAllyRelief() end
+    if allies[2] == 2 then native.preflightAllyGoods() end
     local words = {compiled.mode, #compiled.conditions}
     for index = 1, 8 do
       local row = compiled.conditions[index]
@@ -134,6 +153,8 @@ function M.new(native)
       if envelope.siege[3] == 1 then native.activateSiegeHarassment() end
       if envelope.siege[5] == 1 then native.activateLargerSiegeForce() end
       if attacks[1] == 2 then native.activateAttackPatrols() end
+      if allies[1] == 2 then native.activateAllyRelief() end
+      if allies[2] == 2 then native.activateAllyGoods() end
       writeRecord(ai, words)
       core.writeInteger(native.siegePaymentPolicy + ai * 4, envelope.siege[2])
       core.writeInteger(native.siegeHarassPolicy + ai * 4, envelope.siege[3])
@@ -143,6 +164,9 @@ function M.new(native)
       core.writeInteger(native.patrolOrders + ai * 4, attacks[1])
       core.writeInteger(native.patrolFormation + ai * 4, attacks[2])
       core.writeInteger(native.patrolSpacing + ai * 4, attacks[3])
+      for word = 1, allyWords do
+        core.writeInteger(native.allySettings + (ai * allyWords + word - 1) * 4, allies[word])
+      end
     end,
       rollback = function()
         writeRecord(ai, previous)
@@ -154,6 +178,9 @@ function M.new(native)
         core.writeInteger(native.patrolOrders + ai * 4, previousPatrol[1])
         core.writeInteger(native.patrolFormation + ai * 4, previousPatrol[2])
         core.writeInteger(native.patrolSpacing + ai * 4, previousPatrol[3])
+        for word = 1, allyWords do
+          core.writeInteger(native.allySettings + (ai * allyWords + word - 1) * 4, previousAllies[word])
+        end
       end}
   end}
 end

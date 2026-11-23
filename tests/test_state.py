@@ -20,6 +20,7 @@ def state():
         patrolOrders=191400,patrolFormation=191500,patrolSpacing=191600,
         patrolOrdersFallback=191700,patrolFormationFallback=191704,patrolSpacingFallback=191708,
         detachedGroups=200000,detachedGroupSize=48,
+        allySettings=210000,allyFallback=210600,allyStates=211000,allyStateSize=260,
         game={gameTick=0x1FE7DA8,initialDefenseTicks=0x4D34B1,aicRecords=0x23FC8E8+676,unitCapacity=2500,buildingCapacity=2000,tribeMemberWords=157,players=0x115BDF8,tribes=0x1667F78,tribeStride=0x334},
         defenseCensusTick=23000,defenseCensusValid=23004, legacyTargetPolicy=23008,
         incidentSize=2632,combatCensusTick=24000,combatCensusValid=24004,

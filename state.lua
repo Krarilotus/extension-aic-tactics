@@ -1,6 +1,6 @@
 local M = {}
 local path = 'recruitment-state.bin'
-local header = 'AICTACT\013'
+local header = 'AICTACT\014'
 local configurationBytes, aicBytes, censusWords, harassWords = 16 * 352, 16 * 676, 9 * 80, 9 * 9
 
 local function word(value)
@@ -26,6 +26,7 @@ function M.new(native, legacyInterval, fingerprint)
   local army = require('army-state').new(native)
   local raids = require('raid-state').new(native)
   local groups = require('group-state').new(native)
+  local allies = require('ally-state').new(native)
   local nativeIntegrity = core.exposeCode(native.captureIntegrity, 1, 0)
   local observeBoundary = core.exposeCode(native.observeIntegrityBoundary, 1, 0)
   local boundaryIntegrity = core.exposeCode(native.captureBoundaryIntegrity, 0, 0)
@@ -43,6 +44,13 @@ function M.new(native, legacyInterval, fingerprint)
     if core.readInteger(native.siegePaymentFallback) ~= 0 then return true end
     if core.readInteger(native.siegeHarassFallback) ~= 0 then return true end
     if core.readInteger(native.largeSiegeFallback) ~= 0 then return true end
+    -- Ally help keeps gifts and relief timers in this section.
+    if core.readInteger(native.allyFallback) ~= 0 or core.readInteger(native.allyFallback + 4) ~= 0 then
+      return true
+    end
+    if core.readString(native.allySettings + 28, 16 * 28) ~= string.rep('\0', 16 * 28) then
+      return true
+    end
     for ai = 1, 16 do
       if core.readInteger(native.siegePaymentPolicy + ai * 4) ~= 0 then return true end
       if core.readInteger(native.siegeHarassPolicy + ai * 4) ~= 0
@@ -85,6 +93,8 @@ function M.new(native, legacyInterval, fingerprint)
       .. word(core.readInteger(native.patrolOrdersFallback))
       .. word(core.readInteger(native.patrolFormationFallback))
       .. word(core.readInteger(native.patrolSpacingFallback))
+      .. core.readString(native.allySettings + 28, 16 * 28)
+      .. core.readString(native.allyFallback, 7 * 4)
   end
   local function capture()
     local result = {identity(), word(core.readInteger(native.defenseCensusTick)),
@@ -99,12 +109,13 @@ function M.new(native, legacyInterval, fingerprint)
       result[#result + 1] = word(core.readInteger(native.siegeHarassPlans + index * 4))
     end
     for _, value in ipairs(groups.capture()) do result[#result + 1] = word(value) end
+    for _, value in ipairs(allies.capture()) do result[#result + 1] = word(value) end
     return table.concat(result)
   end
   local function validate(bytes)
     assert(type(bytes) == 'string', 'AIC Tactics: missing saved recruitment state')
     local expected = identity()
-    assert(#bytes == #expected + 8 + (censusWords + combat.wordCount + army.wordCount + raids.wordCount + harassWords + groups.wordCount) * 4 and bytes:sub(1, #expected) == expected,
+    assert(#bytes == #expected + 8 + (censusWords + combat.wordCount + army.wordCount + raids.wordCount + harassWords + groups.wordCount + allies.wordCount) * 4 and bytes:sub(1, #expected) == expected,
       'AIC Tactics: this save requires its original AIC configuration and module version')
     local offset = #expected + 1
     local tick, valid = number(bytes, offset), number(bytes, offset + 4)
@@ -150,10 +161,17 @@ function M.new(native, legacyInterval, fingerprint)
       groupValues[index + 1] = number(bytes, groupOffset + index * 4)
     end
     groups.validate(groupValues)
-    return tick, valid, counts, combatValues, armyValues, raidValues, planValues, groupValues
+    local allyValues = {}
+    local allyOffset = groupOffset + groups.wordCount * 4
+    for index = 0, allies.wordCount - 1 do
+      allyValues[index + 1] = number(bytes, allyOffset + index * 4)
+    end
+    allies.validate(allyValues)
+    return tick, valid, counts, combatValues, armyValues, raidValues, planValues, groupValues, allyValues
   end
   local function restore(bytes)
-    local tick, valid, counts, combatValues, armyValues, raidValues, planValues, groupValues = validate(bytes)
+    local tick, valid, counts, combatValues, armyValues, raidValues, planValues, groupValues, allyValues =
+      validate(bytes)
     -- Validate the entire payload before writing any state.
     core.writeInteger(native.defenseCensusValid, 0)
     for index, count in ipairs(counts) do core.writeInteger(native.defenseTypeCounts + (index - 1) * 4, count) end
@@ -163,6 +181,7 @@ function M.new(native, legacyInterval, fingerprint)
     army.restore(armyValues)
     raids.restore(raidValues)
     groups.restore(groupValues)
+    allies.restore(allyValues)
     for index, value in ipairs(planValues) do
       core.writeInteger(native.siegeHarassPlans + (index - 1) * 4,
         value >= 2147483648 and value - 4294967296 or value)
@@ -181,6 +200,7 @@ function M.new(native, legacyInterval, fingerprint)
     army.initialize()
     raids.initialize()
     groups.initialize()
+    allies.initialize()
     core.setMemory(native.siegeHarassPlans, 0, harassWords * 4)
   end
   return {

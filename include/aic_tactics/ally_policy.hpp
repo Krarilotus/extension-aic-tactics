@@ -2,9 +2,7 @@
 #define AIC_TACTICS_ALLY_POLICY_HPP
 
 // Ally help decisions (goods, gold, relief), free of native memory so they
-// run under the portable policy tests. Ported from Ally Support by
-// Monsterfish, moved into AIC Tactics under GPL-3.0 with the author's
-// consent, relayed by Krarilotus on 2026-11-23.
+// run under the portable policy tests.
 namespace AicTactics {
 
 const int AllyResourceCount = 25;

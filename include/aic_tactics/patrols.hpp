@@ -1,6 +1,8 @@
 #ifndef AIC_TACTICS_PATROLS_HPP
 #define AIC_TACTICS_PATROLS_HPP
 
+#include "aic_tactics/patrol_geometry.hpp"
+
 namespace AicTactics {
 namespace SHC141 {
 
@@ -22,6 +24,14 @@ extern int patrolSpacingFallback;
 // second patrol slot duty when it is on for that character. No state is
 // kept: every decision uses saved native slot, tribe and unit records.
 void __fastcall dispatchAttackPatrols(void* aic, void*, int player);
+
+// The checks above, shared with other duties: a slot occupant validated like
+// the native dispatcher's (UID, owner, lifecycle, a living leader linked back
+// to it), a tribe's living linked leader, and the native move instruction's
+// playable-map test for a tile (0 when it would refuse it).
+int validSlotTribe(int player, int slot, TilePoint& leader);
+bool tribeLeaderTile(int player, int tribe, TilePoint& position);
+int movableTile(TilePoint point);
 
 } // namespace SHC141
 } // namespace AicTactics

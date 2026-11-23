@@ -1,6 +1,7 @@
 #include "aic_tactics/runtime.hpp"
 #include "aic_tactics/patrols.hpp"
 #include "aic_tactics/groups.hpp"
+#include "aic_tactics/allies.hpp"
 #include <cstring>
 
 namespace AicTactics {
@@ -84,13 +85,17 @@ template<class Sink> void visitIntegrity(Sink& digest, int legacyInterval)
     digest.block(detachedGroups, sizeof(detachedGroups));
     digest.word(raidBuildingCensusTick);
     digest.word(static_cast<unsigned int>(raidBuildingCensusValid));
+    digest.block(allySettings + 1, sizeof(allySettings[0]) * 16);
+    digest.block(allyFallback, sizeof(allyFallback));
+    digest.block(allyStates, sizeof(allyStates));
 }
 typedef char BoundaryCapacity[(sizeof(CharacterConfiguration) * 16 + 676 * 16
     + sizeof(defenseTypeCounts) + sizeof(combatCensus) + sizeof(targetStates)
     + sizeof(targetLifecycle) + sizeof(incidents) + sizeof(reserves)
     + sizeof(raidStates) + sizeof(raidGroupCensus) + sizeof(raidUnitPower)
     + sizeof(raidStaticDefenses) + sizeof(siegeHarassPlans) + sizeof(detachedGroups)
-    + sizeof(int) * 85 + sizeof(patrolOrders) * 3 + 128 <= sizeof(boundaryWords)) ? 1 : -1];
+    + sizeof(int) * 85 + sizeof(patrolOrders) * 3 + 128
+    + sizeof(allySettings) + sizeof(allyFallback) + sizeof(allyStates) + 12 <= sizeof(boundaryWords)) ? 1 : -1];
 }
 
 // Observational, allocation-free checkpoint of the explicitly serialized words.
