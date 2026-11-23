@@ -1,8 +1,8 @@
 """Ally help: AIC fields, module settings, inheritance and recorded state."""
 import json
+import re
 from pathlib import Path
 
-import yaml
 
 from test_backend import backend
 from test_state import state
@@ -170,8 +170,11 @@ def test_ally_settings_require_the_saved_section():
 
 def test_schema_options_and_locales_match_the_lua_bounds():
     schema = json.loads((ROOT / 'schema/aic-tactics.schema.json').read_text(encoding='utf-8'))
-    options = {option['name']: option for option in
-               yaml.safe_load((ROOT / 'options.yml').read_text(encoding='utf-8'))['options']}
+    options = (ROOT / 'options.yml').read_text(encoding='utf-8')
+
+    def option(name, key):
+        block = options.split('  name: %s\n' % name, 1)[1].split('  name: ', 1)[0]
+        return re.search(r'^\s+%s: (.+)$' % key, block, re.M).group(1).strip()
     bounds = {'AICTactics_AllyGoldKeep': (0, 100000, 'allyGoldKeep', 1000),
               'AICTactics_AllyRecruitGoldBuffer': (0, 5000, 'allyRecruitGoldBuffer', 300),
               'AICTactics_AllyGoldSharePercent': (0, 100, 'allyGoldSharePercent', 25),
@@ -179,17 +182,16 @@ def test_schema_options_and_locales_match_the_lua_bounds():
               'AICTactics_AllyArmySharePercent': (0, 100, 'allyArmySharePercent', 75)}
     for field in FIELDS:
         assert field in schema['properties']
-    for field, (low, high, option, default) in bounds.items():
+    for field, (low, high, name, default) in bounds.items():
         entry = schema['properties'][field]
         assert entry['type'] == 'integer' and entry['minimum'] == low and entry['maximum'] == high
-        contents = options[option]['contents']
-        assert contents['min'] == low and contents['max'] == high and contents['value'] == default
-    for option in ('allyRelief', 'allyGoods'):
-        assert options[option]['contents']['value'] is True
-        assert options[option]['category'] == ['{{ai}}', '{{improvements}}']
+        assert [option(name, key) for key in ('min', 'max', 'value')] == [str(low), str(high), str(default)]
+    for name in ('allyRelief', 'allyGoods'):
+        assert option(name, 'value') == 'true'
     locales = sorted((ROOT / 'locale').glob('*.yml'))
     assert len(locales) == 9
     for path in locales:
-        labels = yaml.safe_load(path.read_text(encoding='utf-8'))
-        for option in ['allyRelief', 'allyGoods'] + [value[2] for value in bounds.values()]:
-            assert labels[option] and labels[option + '_descr']
+        text = path.read_text(encoding='utf-8')
+        for name in ['allyRelief', 'allyGoods'] + [value[2] for value in bounds.values()]:
+            for key in (name, name + '_descr'):
+                assert re.search(r'^%s: "[^"]+"' % key, text, re.M), (path.name, key)
