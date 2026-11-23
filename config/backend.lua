@@ -3,6 +3,8 @@ local lordHunt = require('config.lord-hunt')
 local patrolArrays = require('config.attacks').arrays
 local M = {}
 local huntArrays = {'lordHuntRetarget', 'lordHuntSiege', 'lordHuntSwitch', 'lordHuntShare', 'lordHuntSplit'}
+-- Per-AI ally settings: 7 words per character (src/allies.cpp allySettings).
+local allyWords = 7
 
 function M.new(native)
   local multiplayerLocked=false
@@ -28,7 +30,13 @@ function M.new(native)
     if core.readInteger(native.siegePaymentFallback) ~= 0 then return true end
     if core.readInteger(native.siegeHarassFallback) ~= 0 then return true end
     if core.readInteger(native.largeSiegeFallback) ~= 0 then return true end
+    if core.readInteger(native.allyFallback) ~= 0 or core.readInteger(native.allyFallback + 4) ~= 0 then
+      return true
+    end
     for ai = 1, 16 do
+      for word = 0, allyWords - 1 do
+        if core.readInteger(native.allySettings + (ai * allyWords + word) * 4) ~= 0 then return true end
+      end
       if core.readInteger(native.siegePaymentPolicy + ai * 4) ~= 0 then return true end
       if core.readInteger(native.siegeHarassPolicy + ai * 4) ~= 0
           or core.readInteger(native.siegeHarassMinimum + ai * 4) ~= 0 then return true end
@@ -66,14 +74,22 @@ function M.new(native)
     for index, name in ipairs(patrolArrays) do
       previousPatrol[index] = core.readInteger(native[name] + ai * 4)
     end
+    local previousAllies = {}
+    for word = 1, allyWords do
+      previousAllies[word] = core.readInteger(native.allySettings + (ai * allyWords + word - 1) * 4)
+    end
     local previousHunt = {}
     for index, name in ipairs(huntArrays) do previousHunt[index] = core.readInteger(native[name] + ai * 4) end
-    local attacks, hunt = envelope.attacks, envelope.lordHunt
+    local attacks, hunt, allies = envelope.attacks, envelope.lordHunt, envelope.allies
     local changesHunt = false
     for index = 1, #huntArrays do
       if hunt[index] ~= 0 or previousHunt[index] ~= 0 then changesHunt = true end
     end
-    local changesPolicy = changesHunt or compiled.mode ~= 0 or previous[1] ~= 0
+    local alliesChange = false
+    for word = 1, allyWords do
+      if allies[word] ~= 0 or previousAllies[word] ~= 0 then alliesChange = true end
+    end
+    local changesPolicy = changesHunt or alliesChange or compiled.mode ~= 0 or previous[1] ~= 0
       or targeting.policy ~= 0 or targeting.commitment ~= 0 or targeting.activation ~= 0
       or previous[73] ~= 0 or previous[74] ~= 0 or previous[75] ~= 0
       or envelope.preparation ~= 0 or previous[80] ~= 0
@@ -108,6 +124,8 @@ function M.new(native)
     if attacks[1] == 2 then native.preflightAttackPatrols() end
     if lordHunt.enables(hunt) then native.preflightLordHunt() end
     if attacks[7] == 2 then native.preflightSiegeScreen() end
+    if allies[1] == 2 then native.preflightAllyRelief() end
+    if allies[2] == 2 then native.preflightAllyGoods() end
     local words = {compiled.mode, #compiled.conditions}
     for index = 1, 8 do
       local row = compiled.conditions[index]
@@ -151,6 +169,8 @@ function M.new(native)
       if attacks[1] == 2 then native.activateAttackPatrols() end
       if lordHunt.enables(hunt) then native.activateLordHunt() end
       if attacks[7] == 2 then native.activateSiegeScreen() end
+      if allies[1] == 2 then native.activateAllyRelief() end
+      if allies[2] == 2 then native.activateAllyGoods() end
       writeRecord(ai, words)
       core.writeInteger(native.siegePaymentPolicy + ai * 4, envelope.siege[2])
       core.writeInteger(native.siegeHarassPolicy + ai * 4, envelope.siege[3])
@@ -159,6 +179,9 @@ function M.new(native)
       core.writeInteger(native.siegeForceMaximum + ai * 4, envelope.siege[6])
       for index, name in ipairs(patrolArrays) do core.writeInteger(native[name] + ai * 4, attacks[index]) end
       for index, name in ipairs(huntArrays) do core.writeInteger(native[name] + ai * 4, hunt[index]) end
+      for word = 1, allyWords do
+        core.writeInteger(native.allySettings + (ai * allyWords + word - 1) * 4, allies[word])
+      end
     end,
       rollback = function()
         writeRecord(ai, previous)
@@ -171,6 +194,9 @@ function M.new(native)
           core.writeInteger(native[name] + ai * 4, previousPatrol[index])
         end
         for index, name in ipairs(huntArrays) do core.writeInteger(native[name] + ai * 4, previousHunt[index]) end
+        for word = 1, allyWords do
+          core.writeInteger(native.allySettings + (ai * allyWords + word - 1) * 4, previousAllies[word])
+        end
       end}
   end}
 end

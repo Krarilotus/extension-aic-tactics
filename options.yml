@@ -115,6 +115,11 @@ options:
   text: '{{lordHuntRetarget_descr}}'
   display: UCP2Switch
   url: aic-tactics.lordHuntRetarget
+  name: allyRelief
+  header: '{{allyRelief}}'
+  text: '{{allyRelief_descr}}'
+  display: UCP2Switch
+  url: aic-tactics.allyRelief
   contents:
     type: boolean
     value: true
@@ -221,6 +226,70 @@ options:
     value: 4
     min: 0
     max: 10
+- category: ['{{ai}}', '{{improvements}}']
+  name: allyArmySharePercent
+  header: '{{allyArmySharePercent}}'
+  text: '{{allyArmySharePercent_descr}}'
+  display: Number
+  url: aic-tactics.allyArmySharePercent
+  contents:
+    type: integer
+    value: 75
+    min: 0
+    max: 100
+- category: ['{{ai}}', '{{improvements}}']
+  name: allyGoods
+  header: '{{allyGoods}}'
+  text: '{{allyGoods_descr}}'
+  display: UCP2Switch
+  url: aic-tactics.allyGoods
+  contents:
+    type: boolean
+    value: true
+- category: ['{{ai}}', '{{improvements}}']
+  name: allyGoldKeep
+  header: '{{allyGoldKeep}}'
+  text: '{{allyGoldKeep_descr}}'
+  display: Number
+  url: aic-tactics.allyGoldKeep
+  contents:
+    type: integer
+    value: 1000
+    min: 0
+    max: 100000
+- category: ['{{ai}}', '{{improvements}}']
+  name: allyRecruitGoldBuffer
+  header: '{{allyRecruitGoldBuffer}}'
+  text: '{{allyRecruitGoldBuffer_descr}}'
+  display: Number
+  url: aic-tactics.allyRecruitGoldBuffer
+  contents:
+    type: integer
+    value: 300
+    min: 0
+    max: 5000
+- category: ['{{ai}}', '{{improvements}}']
+  name: allyGoldSharePercent
+  header: '{{allyGoldSharePercent}}'
+  text: '{{allyGoldSharePercent_descr}}'
+  display: Number
+  url: aic-tactics.allyGoldSharePercent
+  contents:
+    type: integer
+    value: 25
+    min: 0
+    max: 100
+- category: ['{{ai}}', '{{improvements}}']
+  name: allyMonthlyGivePercent
+  header: '{{allyMonthlyGivePercent}}'
+  text: '{{allyMonthlyGivePercent_descr}}'
+  display: Number
+  url: aic-tactics.allyMonthlyGivePercent
+  contents:
+    type: integer
+    value: 30
+    min: 0
+    max: 100
 - category: [AIC Tactics]
   name: nativeTargetPolicy
   header: '{{nativeTargetPolicy}}'

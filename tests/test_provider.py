@@ -307,6 +307,7 @@ def test_native_identity_is_independent_of_character_update_order(lua, native_fi
         lordHuntSplit=501400,
         patrolExtraGroups=502000,patrolMinSize=502100,patrolRadius=502200,siegeScreen=502300,
         siegeScreenForward=502400,
+        allySettings=503000,allyFallback=503500,
         game={gameTick=300000},preflightTargets=function()end,
         preflightCombat=function()end,activateCombat=function()end}
       backend.prepare=require('config.backend').new(native).prepare

@@ -2,6 +2,7 @@
 #define AIC_TACTICS_PATROLS_HPP
 
 #include "aic_tactics/groups.hpp"
+#include "aic_tactics/patrol_geometry.hpp"
 
 namespace AicTactics {
 namespace SHC141 {
@@ -67,6 +68,14 @@ void __cdecl retreatAttackPatrols(void* aic, int player);
 // on the engines' approach; the native wall assault in state 5 is unchanged.
 int __fastcall screenSiegeDefenceMove(void* tribes, void*, int tribe, int x, int y,
     int rally, int store, int speed);
+
+// The checks above, shared with other duties: a slot occupant validated like
+// the native dispatcher's (UID, owner, lifecycle, a living leader linked back
+// to it), a tribe's living linked leader, and the native move instruction's
+// playable-map test for a tile (0 when it would refuse it).
+int validSlotTribe(int player, int slot, TilePoint& leader);
+bool tribeLeaderTile(int player, int tribe, TilePoint& position);
+int movableTile(TilePoint point);
 
 } // namespace SHC141
 } // namespace AicTactics

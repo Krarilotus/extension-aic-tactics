@@ -2,6 +2,7 @@
 #include "aic_tactics/patrols.hpp"
 #include "aic_tactics/groups.hpp"
 #include "aic_tactics/lord_hunt.hpp"
+#include "aic_tactics/allies.hpp"
 #include <cstring>
 
 namespace AicTactics {
@@ -109,6 +110,9 @@ template<class Sink> void visitIntegrity(Sink& digest, int legacyInterval)
     digest.word(static_cast<unsigned int>(siegeScreenFallback));
     digest.word(static_cast<unsigned int>(siegeScreenForwardFallback));
     digest.block(patrolRoutes, sizeof(patrolRoutes));
+    digest.block(allySettings + 1, sizeof(allySettings[0]) * 16);
+    digest.block(allyFallback, sizeof(allyFallback));
+    digest.block(allyStates, sizeof(allyStates));
 }
 typedef char BoundaryCapacity[(sizeof(CharacterConfiguration) * 16 + 676 * 16
     + sizeof(defenseTypeCounts) + sizeof(combatCensus) + sizeof(targetStates)
@@ -118,6 +122,7 @@ typedef char BoundaryCapacity[(sizeof(CharacterConfiguration) * 16 + 676 * 16
     + sizeof(lordHunts) + sizeof(lordHuntCensus) + sizeof(lordHuntUnits)
     + sizeof(int) * 98 + sizeof(patrolOrders) * 3 + sizeof(lordHuntRetarget) * 5 + 128
     + sizeof(patrolOrders) * 5 + sizeof(int) * 11 + sizeof(patrolRoutes)
+    + sizeof(allySettings) + sizeof(allyFallback) + sizeof(allyStates) + 12
     <= sizeof(boundaryWords)) ? 1 : -1];
 }
 

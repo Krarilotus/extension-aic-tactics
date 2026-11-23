@@ -581,6 +581,29 @@ handled:
   core.writeCode(sites.melee, {0xE8, native.meleeSortie - (sites.melee+5)})
   installed = true
   end
+  local allyBindings = require('native-ally-bindings')
+  local allyGoldHooks
+  -- Relief and goods run in the per-AI update owned by the combat hooks;
+  -- relief reads the combat census, goods the building census.
+  function native.preflightAllyRelief() native.preflightCombat() end
+  function native.activateAllyRelief() native.activateCombat() end
+  function native.preflightAllyGoods()
+    native.preflightCombat()
+    native.preflightRaids()
+    allyBindings.preflight(game, allyGoldHooks)
+  end
+  function native.activateAllyGoods()
+    if allyGoldHooks then return end
+    native.preflightAllyGoods()
+    native.activateCombat()
+    native.activateRaids()
+    allyGoldHooks = allyBindings.install(game, native.allyGoldRequestAllowed, native.allyGoldRequestCommand)
+  end
+  function native.configureAllies(words)
+    for index, value in ipairs(words) do core.writeInteger(native.allyFallback + (index - 1) * 4, value) end
+    if words[1] ~= 0 then native.activateAllyRelief() end
+    if words[2] ~= 0 then native.activateAllyGoods() end
+  end
   require('combat-native').attach(native)
   return native
 end

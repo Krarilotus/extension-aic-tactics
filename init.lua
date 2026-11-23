@@ -37,6 +37,7 @@ return {
     native.configureEngineerRoles(roleCounting)
     native.configureAttackPatrols(require('config.attacks').fallbacks(config))
     native.configureLordHunt(require('config.lord-hunt').fallbacks(config))
+    native.configureAllies(require('config.allies').fallbacks(config))
     native.enableNativeTargetPolicy(config and config.nativeTargetPolicy or 'Native')
     local legacyInterval = config and config.legacyRecruitInterval
     assert(legacyInterval == nil or type(legacyInterval) == 'boolean',

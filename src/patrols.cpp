@@ -585,5 +585,9 @@ int __fastcall screenSiegeDefenceMove(void* tribes, void*, int tribe, int x, int
     return move(tribes, tribe, x, y, rally, store, speed);
 }
 
+int validSlotTribe(int player, int slot, TilePoint& leader) { return patrolTribe(player, slot, leader); }
+bool tribeLeaderTile(int player, int tribe, TilePoint& position) { return leaderPosition(player, tribe, position); }
+int movableTile(TilePoint point) { return stationTile(point); }
+
 } // namespace SHC141
 } // namespace AicTactics

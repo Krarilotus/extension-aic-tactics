@@ -26,6 +26,7 @@ def backend():
         lordHuntSplit=23500,
         patrolExtraGroups=24100,patrolMinSize=24200,patrolRadius=24300,siegeScreen=24400,
         siegeScreenForward=24500,
+        allySettings=26000,allyFallback=26800,
         game={gameTick=0x1FE7DA8},
         preflightLordHunt=function()huntPreflights=(huntPreflights or 0)+1 end,
         activateLordHunt=function()huntActivations=(huntActivations or 0)+1 end,
@@ -40,6 +41,10 @@ def backend():
         activateAttackPatrols=function()patrolActivations=(patrolActivations or 0)+1 end,
         preflightSiegeScreen=function()screenPreflights=(screenPreflights or 0)+1 end,
         activateSiegeScreen=function()screenActivations=(screenActivations or 0)+1 end,
+        preflightAllyRelief=function()reliefPreflights=(reliefPreflights or 0)+1 end,
+        activateAllyRelief=function()reliefActivations=(reliefActivations or 0)+1 end,
+        preflightAllyGoods=function()goodsPreflights=(goodsPreflights or 0)+1 end,
+        activateAllyGoods=function()goodsActivations=(goodsActivations or 0)+1 end,
         preflightEngineerRoles=function()rolePreflights=rolePreflights+1 end,
         activateEngineerRoles=function()roleActivations=roleActivations+1 end}
       backend=require('config.backend').new(native)

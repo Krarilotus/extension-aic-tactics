@@ -385,6 +385,44 @@
       "minimum": 0,
       "maximum": 100,
       "description": "Percent of the army sent to the castle without the full siege. Absent uses the module setting (default 50)."
+    },
+    "AICTactics_AllyRelief": {
+      "type": "boolean",
+      "description": "Send part of the idle attack army to an ally (human or AI) whose home is under attack, and when a human ally asks for help. false keeps the native help. Absent uses the module setting (default true)."
+    },
+    "AICTactics_AllyGoods": {
+      "type": "boolean",
+      "description": "Ask AI allies for goods and gold this AI cannot buy, give to them, and send gold to a human ally who asks. false keeps native trade. Absent uses the module setting (default true)."
+    },
+    "AICTactics_AllyGoldKeep": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000,
+      "description": "Gold this AI keeps before giving any to an ally, also when a human asks. Absent uses the module setting (default 1000)."
+    },
+    "AICTactics_AllyRecruitGoldBuffer": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 5000,
+      "description": "When weak or threatened, this AI is helped up to its RecruitGoldThreshold plus this much gold. Absent uses the module setting (default 300)."
+    },
+    "AICTactics_AllyGoldSharePercent": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Percent of the gold above AllyGoldKeep this AI adds unasked to a goods gift. 0 adds none; asked gold is still sent. Absent uses the module setting (default 25)."
+    },
+    "AICTactics_AllyMonthlyGivePercent": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Percent of each good, gold included, this AI gives away per month. 0 gives nothing, 100 has no monthly limit. Absent uses the module setting (default 30)."
+    },
+    "AICTactics_AllyArmySharePercent": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Percent of the idle attack army sent as relief, rounded up. 0 sends no troops, also when asked; 100 sends the whole idle attack army. Absent uses the module setting (default 75)."
     }
   }
 }

@@ -4,6 +4,7 @@
 #include "aic_tactics/groups.hpp"
 #include "aic_tactics/lord_hunt.hpp"
 #include "aic_tactics/patrols.hpp"
+#include "aic_tactics/allies.hpp"
 #include <cstring>
 
 namespace AicTactics {
@@ -120,7 +121,7 @@ void __cdecl resetCombatCensus()
     std::memset(combatCensus, 0, sizeof(combatCensus));
     bool needsPower = raidPoliciesEnabled();
     for (int player = 1; player <= 8; ++player) {
-        homeObservers[player] = observesIncidents(player) ? 1 : 0;
+        homeObservers[player] = observesIncidents(player) || allyReliefWatched(player) ? 1 : 0;
         if (homeObservers[player]) needsPower = true;
         int hostilePlayers[9] = {0};
         for (int other = 1; other <= 8; ++other) hostilePlayers[other] = hostile(player, other) ? 1 : 0;
@@ -377,6 +378,7 @@ void __fastcall selectOpponent(void* aic, void*, int player)
 
 void __fastcall updateOffensiveArmy(void* aic, void*, int player)
 {
+    AllyUpdate allies(aic, player);
     finishAttackPatrols(aic, player);
     if (!offensiveActionsAllowed(player)) return;
     const int phaseBefore = playerValue(player, (nativeBindings.players + 0x2BA4));
