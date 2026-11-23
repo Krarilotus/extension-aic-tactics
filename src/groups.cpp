@@ -70,6 +70,14 @@ int detachedGroupSize(int player, int index)
         ? at<short>(tribeAddress(detachedGroups[player][index].tribe) + 0x5C) : 0;
 }
 
+int detachedGroupLeader(int player, int index)
+{
+    if (!detachedGroupValid(player, index)) return 0;
+    const int tribe = detachedGroups[player][index].tribe;
+    const int leader = at<short>(tribeAddress(tribe) + 0x5A);
+    return member(player, leader, tribe) ? leader : 0;
+}
+
 bool moveUnitToDetachedGroup(int player, int index, int unit)
 {
     if (!detachedGroupValid(player, index)) return false;

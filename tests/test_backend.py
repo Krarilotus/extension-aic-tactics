@@ -22,7 +22,11 @@ def backend():
         largeSiegeFallback=22600,
         patrolOrders=22700,patrolFormation=22800,patrolSpacing=22900,
         patrolOrdersFallback=23000,patrolFormationFallback=23004,patrolSpacingFallback=23008,
+        lordHuntRetarget=23100,lordHuntSiege=23200,lordHuntSwitch=23300,lordHuntShare=23400,
+        lordHuntSplit=23500,
         game={gameTick=0x1FE7DA8},
+        preflightLordHunt=function()huntPreflights=(huntPreflights or 0)+1 end,
+        activateLordHunt=function()huntActivations=(huntActivations or 0)+1 end,
         preflight=function()end,activate=function()end,preflightComposition=function()end,activateComposition=function()end,
         preflightCombat=function()end,activateCombat=function()end,
         preflightTargets=function()end,preflightRaids=function()end,activateRaids=function()end,
@@ -379,4 +383,59 @@ def test_patrol_policy_requires_a_fresh_process_like_other_policies():
       assert(backend.policyActive())
       memory[native.game.gameTick]=500
       assert(not pcall(prepare,5,{AICTactics_PatrolFormation='Wing'}))
+    ''')
+
+
+def test_lord_hunt_fields_store_inherit_or_explicit_values_per_ai():
+    backend().execute('''
+      local arrays={'lordHuntRetarget','lordHuntSiege','lordHuntSwitch','lordHuntShare','lordHuntSplit'}
+      prepare(4,{}).commit()
+      for _,name in ipairs(arrays) do assert(memory[native[name]+16]==0) end
+      assert(huntPreflights==nil and huntActivations==nil)
+      prepare(4,{AICTactics_LordHuntRetarget=true,AICTactics_LordHuntSiege='HomeCastle',
+        AICTactics_LordHuntSwitchPercent=0,AICTactics_LordHuntShare=30,AICTactics_LordHuntSplitShare=100}).commit()
+      -- The save-admission record stays identical to a native character's.
+      for address=10000+4*352,10000+4*352+348,4 do assert((memory[address] or 0)==0) end
+      assert(memory[native.lordHuntRetarget+16]==2 and memory[native.lordHuntSiege+16]==2)
+      assert(memory[native.lordHuntSwitch+16]==1 and memory[native.lordHuntShare+16]==31)
+      assert(memory[native.lordHuntSplit+16]==101)
+      assert(huntPreflights==1 and huntActivations==1)
+      -- Switching a character off needs no hooks of its own.
+      prepare(5,{AICTactics_LordHuntRetarget=false,AICTactics_LordHuntShare=0}).commit()
+      assert(memory[native.lordHuntRetarget+20]==1 and memory[native.lordHuntShare+20]==1)
+      assert(huntActivations==1)
+      local op=prepare(4,{AICTactics_LordHuntSiege='HidingCastle'})
+      op.commit()
+      assert(memory[native.lordHuntSiege+16]==1 and memory[native.lordHuntShare+16]==0)
+      op.rollback()
+      assert(memory[native.lordHuntSiege+16]==2 and memory[native.lordHuntShare+16]==31)
+    ''')
+
+
+def test_lord_hunt_field_values_are_validated():
+    backend().execute('''
+      for _,field in ipairs({'AICTactics_LordHuntSwitchPercent','AICTactics_LordHuntShare',
+          'AICTactics_LordHuntSplitShare'}) do
+        for _,value in ipairs({-1,101,10.5,'50',true}) do assert(not pcall(prepare,4,{[field]=value})) end
+        assert(pcall(prepare,4,{[field]=0}) and pcall(prepare,4,{[field]=100}))
+      end
+      assert(not pcall(prepare,4,{AICTactics_LordHuntRetarget='yes'}))
+      assert(not pcall(prepare,4,{AICTactics_LordHuntSiege='Keep'}))
+      local fallback=require('config.lord-hunt').fallbacks
+      local retarget,siege,switch,share,split=fallback(nil)
+      assert(retarget==1 and siege==0 and switch==80 and share==50 and split==50)
+      retarget,siege,switch,share,split=fallback({lordHuntRetarget=false,lordHuntSiege='HomeCastle',
+        lordHuntSwitchPercent=60,lordHuntShare=0,lordHuntSplitShare=25})
+      assert(retarget==0 and siege==1 and switch==60 and share==0 and split==25)
+      assert(not pcall(fallback,{lordHuntShare=101}))
+      assert(not pcall(fallback,{lordHuntSiege='Home'}))
+    ''')
+
+
+def test_lord_hunt_policy_requires_a_fresh_process_like_other_policies():
+    backend().execute('''
+      prepare(4,{AICTactics_LordHuntShare=20}).commit()
+      assert(backend.policyActive())
+      memory[native.game.gameTick]=500
+      assert(not pcall(prepare,5,{AICTactics_LordHuntRetarget=false}))
     ''')

@@ -75,13 +75,7 @@ bool validBuilding(int player, const RaidConfiguration& config, int id, unsigned
     if (id <= 0 || id >= 2000 || id >= at<int>((nativeBindings.buildings + 8))) return false;
     const unsigned int address = Buildings + 0x14 + id * 0x32C;
     const int owner = at<short>(address + 0xD6);
-    if (!hostile(player, owner)) return false;
-    const PlayerCensus& census = combatCensus[owner];
-    if (census.lord <= 0 || census.lord >= static_cast<int>(nativeBindings.unitCapacity)) return false;
-    const unsigned int lord = Units + census.lord * 0x490;
-    if (at<short>(lord + 0x8C) != 2 || at<short>(lord + 0x8E) != 55
-        || at<short>(lord + 0x96) != owner || at<int>(lord + 0x98) != census.lordUID
-        || at<short>(lord + 0x2A0) != 0 || at<int>(lord + 0x3C8) <= 0) return false;
+    if (!hostile(player, owner) || !liveCensusLord(owner)) return false;
     return at<short>(address + 0xD0) == 2 && at<unsigned int>(address + 0xD8) == uid
         && at<short>(address + 0x2BE) == 0 && category(at<short>(address + 0xD2)) >= 0
         && (config.scope == AnyRaidEnemy || field(player, (nativeBindings.players + 0x2BD8)) == owner);

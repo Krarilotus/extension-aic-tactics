@@ -382,6 +382,18 @@ coordinated:
     core.writeInteger(native.patrolSpacingFallback, spacing)
     if orders == 1 then native.activateAttackPatrols() end
   end
+  -- Lord hunt runs inside the combat owner's per-AI attack update, monthly
+  -- target selection and unit census; it installs nothing of its own.
+  function native.preflightLordHunt() native.preflightCombat() end
+  function native.activateLordHunt() native.activateCombat() end
+  function native.configureLordHunt(retarget, siege, switch, share, split)
+    core.writeInteger(native.lordHuntRetargetFallback, retarget)
+    core.writeInteger(native.lordHuntSiegeFallback, siege)
+    core.writeInteger(native.lordHuntSwitchFallback, switch)
+    core.writeInteger(native.lordHuntShareFallback, share)
+    core.writeInteger(native.lordHuntSplitFallback, split)
+    if retarget == 1 or share > 0 then native.activateLordHunt() end
+  end
   function native.preflightEngineerRoles()
     if engineerRoleHook then return end
     require('native-context').verify(game.engineerRoleHook, 'AI engineer role recount',

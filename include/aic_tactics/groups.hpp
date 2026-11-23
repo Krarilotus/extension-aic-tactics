@@ -40,6 +40,8 @@ extern DetachedGroup detachedGroups[9][DetachedGroupsPerPlayer];
 int openDetachedGroup(int player, int duty);
 bool detachedGroupValid(int player, int index);
 int detachedGroupSize(int player, int index);
+// The group's native leader when it is a living member; 0 otherwise.
+int detachedGroupLeader(int player, int index);
 // Moves one living unit of the player from its current tribe into the group.
 bool moveUnitToDetachedGroup(int player, int index, int unit);
 // Hands up to `budget` members back to their native role slots through the

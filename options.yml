@@ -107,6 +107,61 @@ options:
     value: 12
     min: 4
     max: 40
+- category: ['{{ai}}', '{{improvements}}']
+  name: lordHuntRetarget
+  header: '{{lordHuntRetarget}}'
+  text: '{{lordHuntRetarget_descr}}'
+  display: UCP2Switch
+  url: aic-tactics.lordHuntRetarget
+  contents:
+    type: boolean
+    value: true
+- category: ['{{ai}}', '{{improvements}}']
+  name: lordHuntSiege
+  header: '{{lordHuntSiege}}'
+  text: '{{lordHuntSiege_descr}}'
+  display: Choice
+  url: aic-tactics.lordHuntSiege
+  contents:
+    choices:
+    - name: HidingCastle
+      text: '{{lordHuntSiege_hiding}}'
+    - name: HomeCastle
+      text: '{{lordHuntSiege_home}}'
+    value: HidingCastle
+- category: ['{{ai}}', '{{improvements}}']
+  name: lordHuntSplitShare
+  header: '{{lordHuntSplitShare}}'
+  text: '{{lordHuntSplitShare_descr}}'
+  display: Number
+  url: aic-tactics.lordHuntSplitShare
+  contents:
+    type: integer
+    value: 50
+    min: 0
+    max: 100
+- category: ['{{ai}}', '{{improvements}}']
+  name: lordHuntSwitchPercent
+  header: '{{lordHuntSwitchPercent}}'
+  text: '{{lordHuntSwitchPercent_descr}}'
+  display: Number
+  url: aic-tactics.lordHuntSwitchPercent
+  contents:
+    type: integer
+    value: 80
+    min: 0
+    max: 100
+- category: ['{{ai}}', '{{improvements}}']
+  name: lordHuntShare
+  header: '{{lordHuntShare}}'
+  text: '{{lordHuntShare_descr}}'
+  display: Number
+  url: aic-tactics.lordHuntShare
+  contents:
+    type: integer
+    value: 50
+    min: 0
+    max: 100
 - category: [AIC Tactics]
   name: nativeTargetPolicy
   header: '{{nativeTargetPolicy}}'

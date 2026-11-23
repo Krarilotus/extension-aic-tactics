@@ -36,6 +36,7 @@ return {
     if roleCounting == nil then roleCounting = true end
     native.configureEngineerRoles(roleCounting)
     native.configureAttackPatrols(require('config.attacks').fallbacks(config))
+    native.configureLordHunt(require('config.lord-hunt').fallbacks(config))
     native.enableNativeTargetPolicy(config and config.nativeTargetPolicy or 'Native')
     local legacyInterval = config and config.legacyRecruitInterval
     assert(legacyInterval == nil or type(legacyInterval) == 'boolean',
@@ -63,7 +64,7 @@ return {
         or 'AIC Tactics: checking settings. Press Start again when all players have responded.',0,0)
     end)
     mapState:registerSection('aic-tactics', self.recruitmentState.callbacks,
-      {required=true, format='aic-tactics-state-13', fingerprint=identity.sha256})
+      {required=true, format='aic-tactics-state-14', fingerprint=identity.sha256})
     log(INFO, string.format('[aic-tactics] configuration=0x%X size=%d observations=0x%X size=%d',
       native.configuration, native.configurationSize, native.observations, native.observationSize))
     local addresses = {}

@@ -3,6 +3,7 @@
 #include "aic_tactics/runtime.hpp"
 #include "aic_tactics/patrols.hpp"
 #include "aic_tactics/groups.hpp"
+#include "aic_tactics/lord_hunt.hpp"
 
 typedef char ConfigurationABI[sizeof(AicTactics::SHC141::CharacterConfiguration) == 352 ? 1 : -1];
 typedef char ReserveABI[sizeof(AicTactics::SHC141::ReserveState) == 196 ? 1 : -1];
@@ -10,6 +11,8 @@ typedef char RaidABI[sizeof(AicTactics::SHC141::RaidState) == 96 ? 1 : -1];
 typedef char IncidentABI[sizeof(AicTactics::IncidentState) == 2632 ? 1 : -1];
 typedef char DetachedGroupABI[sizeof(AicTactics::SHC141::DetachedGroup) == 48 ? 1 : -1];
 typedef char CombatCensusABI[sizeof(AicTactics::SHC141::PlayerCensus) == 48 ? 1 : -1];
+typedef char LordHuntABI[sizeof(AicTactics::SHC141::LordHuntState) == 68 ? 1 : -1];
+typedef char LordHuntCensusABI[sizeof(AicTactics::SHC141::LordHuntCensus) == 1544 ? 1 : -1];
 
 // The bridge only publishes addresses. These stable Lua C API calls use the
 // host's lua.dll; no Lua VM or allocator is embedded in the module.
@@ -52,7 +55,11 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         "siegeForceMaximumFallback", "largeSiegePolicy", "siegeForceMaximum",
         "buildLargerSiegeForce", "patrolOrders", "patrolFormation", "patrolSpacing",
         "dispatchAttackPatrols", "patrolOrdersFallback", "patrolFormationFallback",
-        "patrolSpacingFallback", "detachedGroups", "detachedGroupSize"};
+        "patrolSpacingFallback", "detachedGroups", "detachedGroupSize",
+        "lordHuntRetarget", "lordHuntSiege", "lordHuntSwitch", "lordHuntShare", "lordHuntSplit",
+        "lordHuntRetargetFallback", "lordHuntSiegeFallback", "lordHuntSwitchFallback",
+        "lordHuntShareFallback", "lordHuntSplitFallback", "lordHunts", "lordHuntStateSize",
+        "lordHuntCensus", "lordHuntCensusSize", "lordHuntUnits"};
     const unsigned int values[] = {
         reinterpret_cast<unsigned int>(configurations), sizeof(CharacterConfiguration),
         reinterpret_cast<unsigned int>(observations), sizeof(RecruitmentObservation),
@@ -115,7 +122,20 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         reinterpret_cast<unsigned int>(&patrolOrdersFallback),
         reinterpret_cast<unsigned int>(&patrolFormationFallback),
         reinterpret_cast<unsigned int>(&patrolSpacingFallback),
-        reinterpret_cast<unsigned int>(detachedGroups), sizeof(DetachedGroup)};
+        reinterpret_cast<unsigned int>(detachedGroups), sizeof(DetachedGroup),
+        reinterpret_cast<unsigned int>(lordHuntRetarget),
+        reinterpret_cast<unsigned int>(lordHuntSiege),
+        reinterpret_cast<unsigned int>(lordHuntSwitch),
+        reinterpret_cast<unsigned int>(lordHuntShare),
+        reinterpret_cast<unsigned int>(lordHuntSplit),
+        reinterpret_cast<unsigned int>(&lordHuntRetargetFallback),
+        reinterpret_cast<unsigned int>(&lordHuntSiegeFallback),
+        reinterpret_cast<unsigned int>(&lordHuntSwitchFallback),
+        reinterpret_cast<unsigned int>(&lordHuntShareFallback),
+        reinterpret_cast<unsigned int>(&lordHuntSplitFallback),
+        reinterpret_cast<unsigned int>(lordHunts), sizeof(LordHuntState),
+        reinterpret_cast<unsigned int>(lordHuntCensus), sizeof(LordHuntCensus),
+        reinterpret_cast<unsigned int>(lordHuntUnits)};
     typedef char ExportCount[sizeof(names) / sizeof(names[0]) == sizeof(values) / sizeof(values[0]) ? 1 : -1];
     createTable(state, 0, sizeof(names) / sizeof(names[0]));
     for (unsigned int i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {

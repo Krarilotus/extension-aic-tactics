@@ -324,6 +324,35 @@
       "minimum": 4,
       "maximum": 40,
       "description": "Tiles between the two patrol groups in Wing. Absent uses the module setting (default 12)."
+    },
+    "AICTactics_LordHuntRetarget": {
+      "type": "boolean",
+      "description": "When the attacked human player's lord shelters inside an ally's walls that the attackers cannot enter, attack that castle with the full native siege. Absent uses the module setting (default true)."
+    },
+    "AICTactics_LordHuntSiege": {
+      "enum": [
+        "HidingCastle",
+        "HomeCastle"
+      ],
+      "description": "Which castle gets the full siege when the army splits because the lord's own castle still has people and buildings. Absent uses the module setting (default HidingCastle)."
+    },
+    "AICTactics_LordHuntSwitchPercent": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "During an attack, turn to another castle only while this percent of the army's largest size remains. Absent uses the module setting (default 80)."
+    },
+    "AICTactics_LordHuntShare": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Percent of the army attacking the lord's castle that goes for the lord once the way to him is open; 0 turns the hunt off. Absent uses the module setting (default 50)."
+    },
+    "AICTactics_LordHuntSplitShare": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Percent of the army sent to the castle without the full siege. Absent uses the module setting (default 50)."
     }
   }
 }

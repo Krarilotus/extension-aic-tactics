@@ -4,8 +4,9 @@ local army = require('config.army')
 local raids = require('config.raids')
 local siege = require('config.siege')
 local attacks = require('config.attacks')
+local lordHunt = require('config.lord-hunt')
 local M = {fields = {}}
-for _, component in ipairs({recruitment, targets, army, raids, siege, attacks}) do
+for _, component in ipairs({recruitment, targets, army, raids, siege, attacks, lordHunt}) do
   for _, field in ipairs(component.fields) do M.fields[#M.fields + 1] = field end
 end
 
@@ -20,12 +21,13 @@ function M.defaults()
   for field, value in pairs(raids.defaults()) do result[field] = value end
   for field, value in pairs(siege.defaults()) do result[field] = value end
   for field, value in pairs(attacks.defaults()) do result[field] = value end
+  for field, value in pairs(lordHunt.defaults()) do result[field] = value end
   return result
 end
 
 -- Whether the character's 352-byte record carries a policy. The attack
--- patrol fields live in separate per-AI arrays outside that record (and
--- outside save admission), so they must not change it.
+-- patrol and lord hunt fields live in separate per-AI arrays outside that
+-- record (and outside save admission), so they must not change it.
 function M.recordActive(candidate)
   return candidate.RecruitPolicy == 'WeightedRoles' or targets.active(candidate)
     or candidate.AttackPreparation ~= 'Native'
@@ -37,7 +39,7 @@ function M.recordActive(candidate)
 end
 
 function M.active(candidate)
-  return M.recordActive(candidate) or attacks.active(candidate)
+  return M.recordActive(candidate) or attacks.active(candidate) or lordHunt.active(candidate)
 end
 
 function M.prepare(previous, spec, readNative, resetting)
@@ -50,7 +52,9 @@ function M.prepare(previous, spec, readNative, resetting)
   local raidAuthored, raidCompiled = raids.prepare(previous, spec, resetting)
   local siegeAuthored, siegeCompiled = siege.prepare(previous, spec, resetting)
   local attackAuthored, attackCompiled = attacks.prepare(previous, spec, resetting)
+  local huntAuthored, huntCompiled = lordHunt.prepare(previous, spec, resetting)
   for field, value in pairs(attackAuthored) do authored[field] = value end
+  for field, value in pairs(huntAuthored) do authored[field] = value end
   for field, value in pairs(raidAuthored) do authored[field] = value end
   authored.AttackPreparation = armyAuthored.AttackPreparation
   authored.SafeSiegePlacement = siegeAuthored.SafeSiegePlacement
@@ -71,7 +75,7 @@ function M.prepare(previous, spec, readNative, resetting)
   end
   return combine(authored, targetAuthored),
     {schemaVersion = 10, recruitment = compiled, targeting = targetCompiled, preparation = armyCompiled,
-      raids = raidCompiled, siege = siegeCompiled, attacks = attackCompiled}
+      raids = raidCompiled, siege = siegeCompiled, attacks = attackCompiled, lordHunt = huntCompiled}
 end
 
 function M.copy(candidate)
@@ -85,6 +89,7 @@ function M.copy(candidate)
   result.LargerSiegeForces = candidate.LargerSiegeForces
   result.SiegeForceMax = candidate.SiegeForceMax
   for field, value in pairs(attacks.copy(candidate)) do result[field] = value end
+  for field, value in pairs(lordHunt.copy(candidate)) do result[field] = value end
   return result
 end
 

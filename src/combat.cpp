@@ -2,6 +2,7 @@
 #include "aic_tactics/runtime.hpp"
 #include "aic_tactics/shc141_damage.hpp"
 #include "aic_tactics/groups.hpp"
+#include "aic_tactics/lord_hunt.hpp"
 #include <cstring>
 
 namespace AicTactics {
@@ -113,6 +114,7 @@ void __cdecl resetCombatCensus()
     resetRaidUnitCensus();
     resetSiegeHarassCensus();
     validateDetachedGroups();
+    resetLordHuntCensus();
     combatCensusValid = 0;
     std::memset(combatCensus, 0, sizeof(combatCensus));
     bool needsPower = raidPoliciesEnabled();
@@ -141,6 +143,7 @@ void __cdecl countCombatUnit(int unit)
     const int player = at<short>(address + 0x96);
     if (player < 1 || player > 8) return;
     const int type = at<short>(address + 0x8E);
+    countLordHuntUnit(unit, player, type);
     if (type == 55 && !combatCensus[player].lord) {
         combatCensus[player].lord = unit;
         combatCensus[player].lordUID = at<int>(address + 0x98);
@@ -226,13 +229,8 @@ bool readTargetContext(int player, TargetContext& context)
         || at<unsigned int>(nativeBindings.gameTick) - combatCensusTick > 1) return false;
     context.nativeFallback = playerValue(player, (nativeBindings.players + 0x2BD8));
     for (int other = 1; other <= 8; ++other) {
-        if (!hostile(player, other)) continue;
+        if (!hostile(player, other) || !liveCensusLord(other)) continue;
         const PlayerCensus& census = combatCensus[other];
-        if (census.lord <= 0 || census.lord >= static_cast<int>(nativeBindings.unitCapacity)) continue;
-        const unsigned int lord = Units + census.lord * 0x490;
-        if (at<short>(lord + 0x8C) != 2 || at<short>(lord + 0x8E) != 55
-            || at<short>(lord + 0x96) != other || at<int>(lord + 0x98) != census.lordUID
-            || at<short>(lord + 0x2A0) != 0 || at<int>(lord + 0x3C8) <= 0) continue;
         Opponent& opponent = context.players[other];
         opponent.eligible = true;
         opponent.lordUID = census.lordUID;
@@ -243,6 +241,18 @@ bool readTargetContext(int player, TargetContext& context)
         opponent.incidentAge = at<unsigned int>(nativeBindings.gameTick) - incidents[player].enemies[other].qualifiedTick;
     }
     return true;
+}
+
+int liveCensusLord(int player)
+{
+    if (player < 1 || player > 8) return 0;
+    const PlayerCensus& census = combatCensus[player];
+    if (census.lord <= 0 || census.lord >= static_cast<int>(nativeBindings.unitCapacity)) return 0;
+    const unsigned int lord = Units + census.lord * 0x490;
+    if (at<short>(lord + 0x8C) != 2 || at<short>(lord + 0x8E) != 55
+        || at<short>(lord + 0x96) != player || at<int>(lord + 0x98) != census.lordUID
+        || at<short>(lord + 0x2A0) != 0 || at<int>(lord + 0x3C8) <= 0) return 0;
+    return census.lord;
 }
 
 int __fastcall observedUnitDamage(void* units, void*, int attacker, int victim)
@@ -297,7 +307,9 @@ int __cdecl commitOpponent(int player)
     return 1;
 }
 
-void __fastcall selectOpponent(void* aic, void*, int player)
+namespace {
+// The native, Legacy or policy choice of an opponent for the monthly selection.
+void chooseOpponent(void* aic, int player)
 {
     if (!targetPolicyActive(player)) {
         reinterpret_cast<PlayerAction>(nativeBindings.selectAttackTarget)(aic, player);
@@ -342,6 +354,26 @@ void __fastcall selectOpponent(void* aic, void*, int player)
         at<int>((nativeBindings.players + 0x2BD8) + player * PlayerStride) = preview.player;
 }
 
+// The lord hunt decision after the native state update: the castle the
+// attack targets, and a new plan or native cleanup when it changes castles.
+void applySiegeRetarget(int player, const SiegeRetarget& change)
+{
+    if (change.castle) at<int>((nativeBindings.players + 0x2BD8) + player * PlayerStride) = change.castle;
+    int& phase = at<int>((nativeBindings.players + 0x2BA4) + player * PlayerStride);
+    if (change.phase == 1) phase = 1;
+    else if (change.phase == 8 && phase != 9) phase = 8;
+}
+} // namespace
+
+void __fastcall selectOpponent(void* aic, void*, int player)
+{
+    chooseOpponent(aic, player);
+    // A redirect to the castle where the opponent's lord hides survives the
+    // selection when the selection keeps that opponent.
+    int& target = at<int>((nativeBindings.players + 0x2BD8) + player * PlayerStride);
+    target = lordHuntSiegeCastle(player, target);
+}
+
 void __fastcall updateOffensiveArmy(void* aic, void*, int player)
 {
     if (!offensiveActionsAllowed(player)) return;
@@ -350,6 +382,7 @@ void __fastcall updateOffensiveArmy(void* aic, void*, int player)
     if (!targetPolicyActive(player)) {
         reinterpret_cast<PlayerAction>(nativeBindings.updateAIPlayerState)(aic, player);
         finishArmyUpdate(player, phaseBefore);
+        applySiegeRetarget(player, updateLordHunt(aic, player));
         return;
     }
     TargetContext context;
@@ -362,7 +395,7 @@ void __fastcall updateOffensiveArmy(void* aic, void*, int player)
         if (status == TargetNeedsCleanup) {
             if (playerValue(player, (nativeBindings.players + 0x2BA4)) != 9) at<int>((nativeBindings.players + 0x2BA4) + player * PlayerStride) = 8;
             at<int>((nativeBindings.players + 0x2BD8) + player * PlayerStride) = 0;
-        } else at<int>((nativeBindings.players + 0x2BD8) + player * PlayerStride) = state.player;
+        } else at<int>((nativeBindings.players + 0x2BD8) + player * PlayerStride) = lordHuntSiegeCastle(player, state.player);
     }
     // A help request uses a separate early native dispatch path. Defer its
     // dispatch while this policy owns an army; preserve the request itself.
@@ -372,6 +405,7 @@ void __fastcall updateOffensiveArmy(void* aic, void*, int player)
     reinterpret_cast<PlayerAction>(nativeBindings.updateAIPlayerState)(aic, player);
     finishArmyUpdate(player, phaseBefore);
     if (request == 0 && savedRequest != 0) request = savedRequest;
+    applySiegeRetarget(player, updateLordHunt(aic, player));
 }
 
 void __fastcall returnFromAttack(void* aic, void*, int player)

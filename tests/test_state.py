@@ -20,6 +20,12 @@ def state():
         patrolOrders=191400,patrolFormation=191500,patrolSpacing=191600,
         patrolOrdersFallback=191700,patrolFormationFallback=191704,patrolSpacingFallback=191708,
         detachedGroups=200000,detachedGroupSize=48,
+        lordHuntRetarget=4000000,lordHuntSiege=4000100,lordHuntSwitch=4000200,
+        lordHuntShare=4000300,lordHuntSplit=4000400,
+        lordHuntRetargetFallback=4000500,lordHuntSiegeFallback=4000504,lordHuntSwitchFallback=4000508,
+        lordHuntShareFallback=4000512,lordHuntSplitFallback=4000516,
+        lordHunts=4001000,lordHuntStateSize=68,lordHuntCensus=4002000,lordHuntCensusSize=1544,
+        lordHuntUnits=4020000,
         game={gameTick=0x1FE7DA8,initialDefenseTicks=0x4D34B1,aicRecords=0x23FC8E8+676,unitCapacity=2500,buildingCapacity=2000,tribeMemberWords=157,players=0x115BDF8,tribes=0x1667F78,tribeStride=0x334},
         defenseCensusTick=23000,defenseCensusValid=23004, legacyTargetPolicy=23008,
         incidentSize=2632,combatCensusTick=24000,combatCensusValid=24004,
@@ -287,4 +293,89 @@ def test_detached_group_records_round_trip_and_reject_bad_values():
       local bad=state.capture()
       memory[record+8]=2
       assert(not pcall(state.restore,bad))
+    ''')
+
+
+def test_lord_hunt_settings_enter_match_identity_but_not_save_admission():
+    state().execute('''
+      local saveIdentity,matchIdentity=state.identity(),state.matchIdentity()
+      local bytes=state.capture()
+      memory[native.lordHuntShare+4*4]=31
+      assert(state.identity()==saveIdentity and state.matchIdentity()~=matchIdentity)
+      memory[native.lordHuntShare+4*4]=0
+      memory[native.lordHuntSiegeFallback]=1
+      assert(state.identity()==saveIdentity and state.matchIdentity()~=matchIdentity)
+      state.restore(bytes)
+      assert(state.capture()==bytes)
+    ''')
+
+
+def test_lord_hunt_module_setting_requires_its_saved_state():
+    state().execute('''
+      memory[native.configuration+4*352]=0
+      assert(not state.callbacks.isRequired())
+      memory[native.lordHuntRetargetFallback]=1
+      assert(state.callbacks.isRequired())
+      memory[native.lordHuntRetargetFallback]=0
+      memory[native.lordHuntShare+4*4]=51
+      assert(state.callbacks.isRequired())
+    ''')
+
+
+def test_saved_hunt_split_and_census_survive_exactly():
+    state().execute('''
+      -- AI 2 attacks human 1 whose lord hides with ally 3: hunt in record 0,
+      -- melee and ranged split troops in records 1 and 2.
+      for index,duty in ipairs({2,3,3}) do
+        local group=native.detachedGroups+(2*8+index-1)*48
+        memory[group]=40+index;memory[group+4]=900+index;memory[group+8]=duty
+      end
+      local hunt=native.lordHunts+2*68
+      local values={1,7001,3,1,5,40,1,2,3,1,0,6000,0,1,10,0,6050}
+      for index,value in ipairs(values) do memory[hunt+(index-1)*4]=value end
+      local census=native.lordHuntCensus+2*1544
+      memory[census]=20;memory[census+4]=2;memory[census+8]=25;memory[census+12]=12+65536
+      memory[native.lordHuntUnits+4]=3
+      local bytes=state.capture()
+      for index=0,16 do memory[hunt+index*4]=0 end
+      memory[census+12]=0;memory[native.lordHuntUnits+4]=0
+      state.restore(bytes)
+      for index,value in ipairs(values) do assert(memory[hunt+(index-1)*4]==value) end
+      assert(memory[census+12]==12+65536 and memory[native.lordHuntUnits+4]==3)
+      assert(state.capture()==bytes)
+    ''')
+
+
+def test_bad_lord_hunt_state_is_rejected_before_any_write():
+    state().execute('''
+      local hunt=native.lordHunts+2*68
+      local census=native.lordHuntCensus+2*1544
+      local group=native.detachedGroups+(2*8)*48
+      memory[group]=41;memory[group+4]=901;memory[group+8]=2
+      memory[hunt]=1;memory[hunt+4]=7001;memory[hunt+24]=1
+      local good=state.capture()
+      local cases={
+        {hunt,2},            -- the AI attacks itself
+        {hunt+8,9},          -- no such host
+        {hunt+28,1},         -- split troops in the hunt's record (duty 2)
+        {hunt+36,3},         -- no third hunt wave
+        {census+4,385},      -- more candidates than the census holds
+        {census+8,0},        -- an empty candidate slot inside the count
+      }
+      memory[census+4]=1;memory[census+8]=17
+      good=state.capture()
+      for _,case in ipairs(cases) do
+        local saved=memory[case[1]]
+        memory[case[1]]=case[2]
+        local bad=state.capture()
+        memory[case[1]]=saved
+        writes=0
+        assert(not pcall(state.restore,bad) and writes==0)
+      end
+      -- No record: every other field must be zero.
+      memory[hunt]=0
+      local orphan=state.capture()
+      memory[hunt]=1
+      assert(not pcall(state.restore,orphan))
+      state.restore(good)
     ''')

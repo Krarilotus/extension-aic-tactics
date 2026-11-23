@@ -26,6 +26,18 @@ Sortie shares enable `WeightedRoles` automatically. Situation rules, defense com
 
 Omitted values use the module settings (both groups, `Wing`, 12 tiles).
 
+### Lord hunt
+
+When an AI attacks a human player whose lord shelters inside an ally's walls, the AI sieges that castle instead of the empty home. Once it has an open way to the lord, part of the army goes straight for him.
+
+- `AICTactics_LordHuntRetarget`: `true` attacks the castle the lord hides in; `false` keeps the attack on his own castle.
+- `AICTactics_LordHuntSiege`: `HidingCastle` or `HomeCastle`, the castle that gets the full siege while the lord's own castle still has people and buildings. The other castle gets a share of the troops.
+- `AICTactics_LordHuntSplitShare` (0–100): that share in percent.
+- `AICTactics_LordHuntSwitchPercent` (0–100): during an attack the AI only changes castles while this share of its army remains.
+- `AICTactics_LordHuntShare` (0–100): share of the army at the lord's castle that hunts him; 0 turns the hunt off.
+
+Omitted values use the module settings (on, `HidingCastle`, 50, 80, 50). AI attacks on AI players are not changed.
+
 ### Raids
 
 - `RaidTargetPolicy`: `Native` keeps existing raids; `NearestReachable` picks nearby accessible buildings; `Opportunistic` weighs focus and danger; `RandomNearby` picks a reachable building at random, then clears nearby buildings before drawing again.

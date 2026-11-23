@@ -1,5 +1,7 @@
 local personality = require('config.personality')
+local lordHunt = require('config.lord-hunt')
 local M = {}
+local huntArrays = {'lordHuntRetarget', 'lordHuntSiege', 'lordHuntSwitch', 'lordHuntShare', 'lordHuntSplit'}
 
 function M.new(native)
   local multiplayerLocked=false
@@ -34,6 +36,9 @@ function M.new(native)
       for _, name in ipairs({'patrolOrders', 'patrolFormation', 'patrolSpacing'}) do
         if core.readInteger(native[name] + ai * 4) ~= 0 then return true end
       end
+      for _, name in ipairs(huntArrays) do
+        if core.readInteger(native[name] + ai * 4) ~= 0 then return true end
+      end
       local address = native.configuration + ai * native.configurationSize
       for _, offset in ipairs({0,288,292,296,316,320,344}) do
         if core.readInteger(address + offset) ~= 0 then return true end
@@ -60,8 +65,14 @@ function M.new(native)
     for index, name in ipairs({'patrolOrders', 'patrolFormation', 'patrolSpacing'}) do
       previousPatrol[index] = core.readInteger(native[name] + ai * 4)
     end
-    local attacks = envelope.attacks
-    local changesPolicy = compiled.mode ~= 0 or previous[1] ~= 0
+    local previousHunt = {}
+    for index, name in ipairs(huntArrays) do previousHunt[index] = core.readInteger(native[name] + ai * 4) end
+    local attacks, hunt = envelope.attacks, envelope.lordHunt
+    local changesHunt = false
+    for index = 1, #huntArrays do
+      if hunt[index] ~= 0 or previousHunt[index] ~= 0 then changesHunt = true end
+    end
+    local changesPolicy = changesHunt or compiled.mode ~= 0 or previous[1] ~= 0
       or targeting.policy ~= 0 or targeting.commitment ~= 0 or targeting.activation ~= 0
       or previous[73] ~= 0 or previous[74] ~= 0 or previous[75] ~= 0
       or envelope.preparation ~= 0 or previous[80] ~= 0
@@ -93,6 +104,7 @@ function M.new(native)
     if envelope.siege[3] == 1 then native.preflightSiegeHarassment() end
     if envelope.siege[5] == 1 then native.preflightLargerSiegeForce() end
     if attacks[1] == 2 then native.preflightAttackPatrols() end
+    if lordHunt.enables(hunt) then native.preflightLordHunt() end
     local words = {compiled.mode, #compiled.conditions}
     for index = 1, 8 do
       local row = compiled.conditions[index]
@@ -134,6 +146,7 @@ function M.new(native)
       if envelope.siege[3] == 1 then native.activateSiegeHarassment() end
       if envelope.siege[5] == 1 then native.activateLargerSiegeForce() end
       if attacks[1] == 2 then native.activateAttackPatrols() end
+      if lordHunt.enables(hunt) then native.activateLordHunt() end
       writeRecord(ai, words)
       core.writeInteger(native.siegePaymentPolicy + ai * 4, envelope.siege[2])
       core.writeInteger(native.siegeHarassPolicy + ai * 4, envelope.siege[3])
@@ -143,6 +156,7 @@ function M.new(native)
       core.writeInteger(native.patrolOrders + ai * 4, attacks[1])
       core.writeInteger(native.patrolFormation + ai * 4, attacks[2])
       core.writeInteger(native.patrolSpacing + ai * 4, attacks[3])
+      for index, name in ipairs(huntArrays) do core.writeInteger(native[name] + ai * 4, hunt[index]) end
     end,
       rollback = function()
         writeRecord(ai, previous)
@@ -154,6 +168,7 @@ function M.new(native)
         core.writeInteger(native.patrolOrders + ai * 4, previousPatrol[1])
         core.writeInteger(native.patrolFormation + ai * 4, previousPatrol[2])
         core.writeInteger(native.patrolSpacing + ai * 4, previousPatrol[3])
+        for index, name in ipairs(huntArrays) do core.writeInteger(native[name] + ai * 4, previousHunt[index]) end
       end}
   end}
 end

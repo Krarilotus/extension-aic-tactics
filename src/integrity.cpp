@@ -1,6 +1,7 @@
 #include "aic_tactics/runtime.hpp"
 #include "aic_tactics/patrols.hpp"
 #include "aic_tactics/groups.hpp"
+#include "aic_tactics/lord_hunt.hpp"
 #include <cstring>
 
 namespace AicTactics {
@@ -12,7 +13,7 @@ namespace {
 // Observation only: never used by the simulation or serialized as game state.
 // A fixed memcpy snapshot preserves the final observed replay boundary without
 // running the word digest on every tick. The sink's exact size is checked below.
-unsigned int boundaryWords[32768];
+unsigned int boundaryWords[40960];
 unsigned int boundaryCount;
 struct Boundary {
     void word(unsigned int value) { boundaryWords[boundaryCount++] = value; }
@@ -64,6 +65,16 @@ template<class Sink> void visitIntegrity(Sink& digest, int legacyInterval)
     digest.word(static_cast<unsigned int>(patrolOrdersFallback));
     digest.word(static_cast<unsigned int>(patrolFormationFallback));
     digest.word(static_cast<unsigned int>(patrolSpacingFallback));
+    digest.block(lordHuntRetarget + 1, sizeof(int) * 16);
+    digest.block(lordHuntSiege + 1, sizeof(int) * 16);
+    digest.block(lordHuntSwitch + 1, sizeof(int) * 16);
+    digest.block(lordHuntShare + 1, sizeof(int) * 16);
+    digest.block(lordHuntSplit + 1, sizeof(int) * 16);
+    digest.word(static_cast<unsigned int>(lordHuntRetargetFallback));
+    digest.word(static_cast<unsigned int>(lordHuntSiegeFallback));
+    digest.word(static_cast<unsigned int>(lordHuntSwitchFallback));
+    digest.word(static_cast<unsigned int>(lordHuntShareFallback));
+    digest.word(static_cast<unsigned int>(lordHuntSplitFallback));
     digest.block(configurations + 1, sizeof(CharacterConfiguration) * 16);
     digest.block(reinterpret_cast<const void*>(nativeBindings.aicRecords), 676 * 16);
     digest.word(defenseCensusTick);
@@ -82,6 +93,9 @@ template<class Sink> void visitIntegrity(Sink& digest, int legacyInterval)
     digest.block(raidStaticDefenses, sizeof(raidStaticDefenses));
     digest.block(siegeHarassPlans, sizeof(siegeHarassPlans));
     digest.block(detachedGroups, sizeof(detachedGroups));
+    digest.block(lordHunts, sizeof(lordHunts));
+    digest.block(lordHuntCensus, sizeof(lordHuntCensus));
+    digest.block(lordHuntUnits, sizeof(lordHuntUnits));
     digest.word(raidBuildingCensusTick);
     digest.word(static_cast<unsigned int>(raidBuildingCensusValid));
 }
@@ -90,7 +104,9 @@ typedef char BoundaryCapacity[(sizeof(CharacterConfiguration) * 16 + 676 * 16
     + sizeof(targetLifecycle) + sizeof(incidents) + sizeof(reserves)
     + sizeof(raidStates) + sizeof(raidGroupCensus) + sizeof(raidUnitPower)
     + sizeof(raidStaticDefenses) + sizeof(siegeHarassPlans) + sizeof(detachedGroups)
-    + sizeof(int) * 85 + sizeof(patrolOrders) * 3 + 128 <= sizeof(boundaryWords)) ? 1 : -1];
+    + sizeof(lordHunts) + sizeof(lordHuntCensus) + sizeof(lordHuntUnits)
+    + sizeof(int) * 98 + sizeof(patrolOrders) * 3 + sizeof(lordHuntRetarget) * 5 + 128
+    <= sizeof(boundaryWords)) ? 1 : -1];
 }
 
 // Observational, allocation-free checkpoint of the explicitly serialized words.
