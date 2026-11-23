@@ -39,9 +39,8 @@ function M.resolve(game)
   result.findAttackGroup = context.find('findAttackGroup',
     '83 EC 08 53 8B 5C 24 10 8B C3 69 C0 F4 39 00 00 8B 80 ? ? ? ? 85 C0 75 07 5B 83 C4 08 C2 0C 00 55 8D 50 '..
     'FF 8B 44 24 1C 56 8B 34 85 ? ? ? ? 57 33 C0 33 ED 8D 7E F1 81 FF B1 00 00 00 89 44 24 14 89 6C 24 10 C7 '..
-    '44 24 24 E8 03 00 00 77 4F 0F B6 BF ? ? ? ? FF 24 BD ? ? ? ? 69 D2 A4 02 00 00')
-  -- The signature stops before the AttUnitPatrolGroupsCount read at +0x65,
-  -- which other modules may change; patrol orders verify that read themselves.
+    '44 24 24 E8 03 00 00 77 4F 0F B6 BF ? ? ? ? FF 24 BD ? ? ? ? 69 D2 A4 02 00 00 8B 94 0A 64 02 00 00 '..
+    'EB 2B')
   result.returnTribe = context.find('returnTribe',
     '8B 44 24 08 69 C0 F4 39 00 00 83 B8 ? ? ? ? 00 7E 30 8B 88 ? ? ? ? 8B 90 ? ? ? ? 56 8B 74 24 08 '..
     '6A 00 51 52 56 B9 ? ? ? ? E8 ? ? ? ? 69 F6 ? ? ? ? 66 C7 86 ? ? ? ? 02 00 5E C2 08 00')
