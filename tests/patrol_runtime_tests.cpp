@@ -511,7 +511,7 @@ void routes(unsigned int stride, unsigned int stance)
     // Group 3 (the first extra group) sweeps the five front points (front = south), turning at the ends.
     setup(stride, stance, 2, 4, 0);
     for (int id = 10; id < 30; ++id) soldier(id, 5, 16, 22, 100, 160);
-    patrolExtraGroups[2] = 1;
+    patrolExtraGroups[2] = 2;
     dispatchAttackPatrols(AIC, 0, 1);
     assert(patrolRecords() == 1 && patrolRoutes[1][1].point == 2 && patrolRoutes[1][1].step == 1);
     assert(detachedGroups[1][0].x == ring(4).x && detachedGroups[1][0].y == ring(4).y);
