@@ -21,10 +21,15 @@ Sortie shares enable `WeightedRoles` automatically. Situation rules, defense com
 ### Attack patrols
 
 - `AICTactics_PatrolOrders`: `AllGroups` also sends the second attack patrol group into an assault; `Native` orders only the first. It needs `AttUnitPatrolGroupsCount` 2 to have troops.
-- `AICTactics_PatrolFormation`: `Wing` keeps the second group beside the first; `Mirror` sends it to the other side of the target keep; `Native` lets it choose its own steps.
-- `AICTactics_PatrolSpacing` (4–40): tiles between the two groups in `Wing`.
+- `AICTactics_PatrolFormation`: `Wing` keeps the other groups beside the first in a line; `Mirror` sends them to the other side of the target keep; `Routes` circles the target castle both ways and walks back and forth along its front, as Smarter Patrols did; `Native` lets them choose their own steps.
+- `AICTactics_PatrolSpacing` (4–40): tiles between neighbouring groups in `Wing` and `Mirror`.
+- `AICTactics_PatrolExtraGroups` (0–6): extra patrol groups split off during an attack; they rejoin when it ends.
+- `AICTactics_PatrolMinSize` (1–50): units every group keeps when the patrol is split.
+- `AICTactics_PatrolRadius` (4–100): walking distance from the target castle of the ring that `Routes` follow.
+- `AICTactics_SiegeScreen`: `EngineApproach` stations the siege-defence groups in front of their engines, the two groups at different engines; `Native` keeps the game's rally.
+- `AICTactics_SiegeScreenForward` (0–10): tiles in front of the engines for melee siege-defence groups.
 
-Omitted values use the module settings (both groups, `Wing`, 12 tiles).
+Omitted values use the module settings (every group, `Routes`, 12 tiles, no extra groups, groups of 4, ring 12, siege screen on, 4 tiles).
 
 ### Lord hunt
 

@@ -10,6 +10,7 @@ typedef char ReserveABI[sizeof(AicTactics::SHC141::ReserveState) == 196 ? 1 : -1
 typedef char RaidABI[sizeof(AicTactics::SHC141::RaidState) == 96 ? 1 : -1];
 typedef char IncidentABI[sizeof(AicTactics::IncidentState) == 2632 ? 1 : -1];
 typedef char DetachedGroupABI[sizeof(AicTactics::SHC141::DetachedGroup) == 48 ? 1 : -1];
+typedef char PatrolRouteABI[sizeof(AicTactics::SHC141::PatrolRoute) == 36 ? 1 : -1];
 typedef char CombatCensusABI[sizeof(AicTactics::SHC141::PlayerCensus) == 48 ? 1 : -1];
 typedef char LordHuntABI[sizeof(AicTactics::SHC141::LordHuntState) == 68 ? 1 : -1];
 typedef char LordHuntCensusABI[sizeof(AicTactics::SHC141::LordHuntCensus) == 1544 ? 1 : -1];
@@ -59,7 +60,11 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         "lordHuntRetarget", "lordHuntSiege", "lordHuntSwitch", "lordHuntShare", "lordHuntSplit",
         "lordHuntRetargetFallback", "lordHuntSiegeFallback", "lordHuntSwitchFallback",
         "lordHuntShareFallback", "lordHuntSplitFallback", "lordHunts", "lordHuntStateSize",
-        "lordHuntCensus", "lordHuntCensusSize", "lordHuntUnits"};
+        "lordHuntCensus", "lordHuntCensusSize", "lordHuntUnits",
+        "patrolExtraGroups", "patrolMinSize", "patrolRadius", "siegeScreen", "siegeScreenForward",
+        "patrolExtraGroupsFallback", "patrolMinSizeFallback", "patrolRadiusFallback",
+        "siegeScreenFallback", "siegeScreenForwardFallback", "patrolRoutes", "patrolRouteSize",
+        "screenSiegeDefenceMove"};
     const unsigned int values[] = {
         reinterpret_cast<unsigned int>(configurations), sizeof(CharacterConfiguration),
         reinterpret_cast<unsigned int>(observations), sizeof(RecruitmentObservation),
@@ -135,7 +140,19 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         reinterpret_cast<unsigned int>(&lordHuntSplitFallback),
         reinterpret_cast<unsigned int>(lordHunts), sizeof(LordHuntState),
         reinterpret_cast<unsigned int>(lordHuntCensus), sizeof(LordHuntCensus),
-        reinterpret_cast<unsigned int>(lordHuntUnits)};
+        reinterpret_cast<unsigned int>(lordHuntUnits),
+        reinterpret_cast<unsigned int>(patrolExtraGroups),
+        reinterpret_cast<unsigned int>(patrolMinSize),
+        reinterpret_cast<unsigned int>(patrolRadius),
+        reinterpret_cast<unsigned int>(siegeScreen),
+        reinterpret_cast<unsigned int>(siegeScreenForward),
+        reinterpret_cast<unsigned int>(&patrolExtraGroupsFallback),
+        reinterpret_cast<unsigned int>(&patrolMinSizeFallback),
+        reinterpret_cast<unsigned int>(&patrolRadiusFallback),
+        reinterpret_cast<unsigned int>(&siegeScreenFallback),
+        reinterpret_cast<unsigned int>(&siegeScreenForwardFallback),
+        reinterpret_cast<unsigned int>(patrolRoutes), sizeof(PatrolRoute),
+        reinterpret_cast<unsigned int>(&screenSiegeDefenceMove)};
     typedef char ExportCount[sizeof(names) / sizeof(names[0]) == sizeof(values) / sizeof(values[0]) ? 1 : -1];
     createTable(state, 0, sizeof(names) / sizeof(names[0]));
     for (unsigned int i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {

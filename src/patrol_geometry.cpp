@@ -84,4 +84,78 @@ int mirrorPatrolStations(TilePoint first, TilePoint keep, TilePoint home, TilePo
     return 2;
 }
 
+namespace {
+// 1024 * (cos, sin) of direction * 22.5 degrees, rounded.
+const int ringX[PatrolRingDirections] = {1024, 946, 724, 392, 0, -392, -724, -946,
+    -1024, -946, -724, -392, 0, 392, 724, 946};
+const int ringY[PatrolRingDirections] = {0, 392, 724, 946, 1024, 946, 724, 392,
+    0, -392, -724, -946, -1024, -946, -724, -392};
+
+int scaled(int unit, int step)
+{
+    const int product = unit * step;
+    return (product + (product >= 0 ? 512 : -512)) / 1024;
+}
+} // namespace
+
+int patrolRingWrap(int direction)
+{
+    direction %= PatrolRingDirections;
+    return direction < 0 ? direction + PatrolRingDirections : direction;
+}
+
+void patrolRingVector(int direction, int& ux, int& uy)
+{
+    direction = patrolRingWrap(direction);
+    ux = ringX[direction];
+    uy = ringY[direction];
+}
+
+TilePoint patrolRingStep(TilePoint origin, int direction, int step)
+{
+    int ux, uy;
+    patrolRingVector(direction, ux, uy);
+    return point(origin.x + scaled(ux, step), origin.y + scaled(uy, step));
+}
+
+int patrolRingDirection(int dx, int dy)
+{
+    if (dx == 0 && dy == 0) return -1;
+    int best = 0, bestDot = dx * ringX[0] + dy * ringY[0];
+    for (int direction = 1; direction < PatrolRingDirections; ++direction) {
+        const int dot = dx * ringX[direction] + dy * ringY[direction];
+        if (dot > bestDot) { best = direction; bestDot = dot; }
+    }
+    return best;
+}
+
+int frontSweepDirection(int front, int position)
+{
+    return patrolRingWrap(front - FrontSweepSpan + position);
+}
+
+void nextRoutePoint(int kind, int& point, int& step)
+{
+    if (kind != FrontSweepRoute) {
+        point = patrolRingWrap(point + step);
+        return;
+    }
+    if (point + step < 0 || point + step >= FrontSweepPositions) step = -step;
+    point += step;
+}
+
+bool siegeScreenStation(TilePoint engine, TilePoint keep, int forward, TilePoint& out)
+{
+    const int distance = patrolDistance(engine, keep);
+    const int direction = patrolOctant(keep.x - engine.x, keep.y - engine.y);
+    if (forward <= 0 || distance < 2 || direction < 0) return false;
+    if (forward > distance / 2) forward = distance / 2;
+    int ux, uy;
+    patrolOctantVector(direction, ux, uy);
+    if (direction % 2) forward = (forward * 5 + 3) / 7;
+    if (forward <= 0) return false;
+    out = point(engine.x + ux * forward, engine.y + uy * forward);
+    return true;
+}
+
 } // namespace AicTactics

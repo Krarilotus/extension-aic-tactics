@@ -315,15 +315,47 @@
       "enum": [
         "Native",
         "Wing",
-        "Mirror"
+        "Mirror",
+        "Routes"
       ],
-      "description": "Where the second patrol group goes: Wing beside the first group, Mirror the other side of the target keep, Native its own route. Absent uses the module setting (default Wing)."
+      "description": "Where the patrol groups after the first go: Wing beside it in a line, Mirror the other side of the target keep, Routes on Smarter Patrols' routes (group 2 circles the target castle one way, group 3 sweeps along its front, group 4 circles the other way, later groups a quarter circle behind), Native their own route. Absent uses the module setting (default Routes)."
     },
     "AICTactics_PatrolSpacing": {
       "type": "integer",
       "minimum": 4,
       "maximum": 40,
-      "description": "Tiles between the two patrol groups in Wing. Absent uses the module setting (default 12)."
+      "description": "Tiles between neighbouring patrol groups in Wing and Mirror. Absent uses the module setting (default 12)."
+    },
+    "AICTactics_PatrolExtraGroups": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 6,
+      "description": "Extra patrol groups split off the native patrol groups while the army attacks, as long as each group keeps AICTactics_PatrolMinSize units; they rejoin when the attack ends. Absent uses the module setting (default 0)."
+    },
+    "AICTactics_PatrolMinSize": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50,
+      "description": "Smallest patrol group a split may leave. Absent uses the module setting (default 4)."
+    },
+    "AICTactics_PatrolRadius": {
+      "type": "integer",
+      "minimum": 4,
+      "maximum": 100,
+      "description": "Walking distance from the target castle of the ring that Routes patrols follow. Absent uses the module setting (default 12, the native patrol ring)."
+    },
+    "AICTactics_SiegeScreen": {
+      "enum": [
+        "Native",
+        "EngineApproach"
+      ],
+      "description": "EngineApproach stations the siege-defence groups (AttUnitSiegeDef) on the engines' approach, the second group at a different engine, until the native wall assault takes over; Native keeps the game's rally. Absent uses the module setting (default EngineApproach)."
+    },
+    "AICTactics_SiegeScreenForward": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10,
+      "description": "Tiles in front of the engines, toward the target castle, where melee siege-defence groups stand; ranged groups stay at the engines. Absent uses the module setting (default 4)."
     },
     "AICTactics_LordHuntRetarget": {
       "type": "boolean",

@@ -11,6 +11,13 @@
 namespace AicTactics {
 namespace SHC141 {
 
+// A per-character setting array (index = AIC character 1..16) holds 0 to use
+// the module setting, else the character's value + 1.
+inline int setting(const int values[17], int character, int fallback)
+{
+    return values[character] ? values[character] - 1 : fallback;
+}
+
 struct CharacterConfiguration {
     RecruitmentPolicy recruitment;
     RoleWeights baseRows[3];

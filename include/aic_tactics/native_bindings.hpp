@@ -95,6 +95,10 @@ struct NativeBindings {
     unsigned int areaPathFinder;
     unsigned int tileLogic;
     unsigned int tileWallOwner;
+    unsigned int distanceLayers;
+    unsigned int distanceLayerIndex;
+    unsigned int tribeRallyPoints;
+    unsigned int tribeRallyCount;
 };
 extern NativeBindings nativeBindings;
 int nativeRandom(void*);

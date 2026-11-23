@@ -30,6 +30,8 @@ function M.new(native, legacyInterval, fingerprint)
   local raids = require('raid-state').new(native)
   local groups = require('group-state').new(native)
   local hunts = require('lord-hunt-state').new(native)
+  local routes = require('patrol-state').new(native)
+  local patrolArrays = require('config.attacks').arrays
   local nativeIntegrity = core.exposeCode(native.captureIntegrity, 1, 0)
   local observeBoundary = core.exposeCode(native.observeIntegrityBoundary, 1, 0)
   local boundaryIntegrity = core.exposeCode(native.captureBoundaryIntegrity, 0, 0)
@@ -89,12 +91,9 @@ function M.new(native, legacyInterval, fingerprint)
   -- Those settings stay out of save admission: a save reloads with changed
   -- patrol settings and simply follows them from the next native decision.
   local function matchIdentity()
-    local result = {identity(), core.readString(native.patrolOrders + 4, 16 * 4),
-      core.readString(native.patrolFormation + 4, 16 * 4),
-      core.readString(native.patrolSpacing + 4, 16 * 4),
-      word(core.readInteger(native.patrolOrdersFallback)),
-      word(core.readInteger(native.patrolFormationFallback)),
-      word(core.readInteger(native.patrolSpacingFallback))}
+    local result = {identity()}
+    for _, name in ipairs(patrolArrays) do result[#result + 1] = core.readString(native[name] + 4, 16 * 4) end
+    for _, name in ipairs(patrolArrays) do result[#result + 1] = word(core.readInteger(native[name .. 'Fallback'])) end
     for _, name in ipairs(huntArrays) do result[#result + 1] = core.readString(native[name] + 4, 16 * 4) end
     for _, name in ipairs(huntFallbacks) do result[#result + 1] = word(core.readInteger(native[name])) end
     return table.concat(result)
@@ -113,12 +112,13 @@ function M.new(native, legacyInterval, fingerprint)
     end
     for _, value in ipairs(groups.capture()) do result[#result + 1] = word(value) end
     for _, value in ipairs(hunts.capture()) do result[#result + 1] = word(value) end
+    for _, value in ipairs(routes.capture()) do result[#result + 1] = word(value) end
     return table.concat(result)
   end
   local function validate(bytes)
     assert(type(bytes) == 'string', 'AIC Tactics: missing saved recruitment state')
     local expected = identity()
-    assert(#bytes == #expected + 8 + (censusWords + combat.wordCount + army.wordCount + raids.wordCount + harassWords + groups.wordCount + hunts.wordCount) * 4 and bytes:sub(1, #expected) == expected,
+    assert(#bytes == #expected + 8 + (censusWords + combat.wordCount + army.wordCount + raids.wordCount + harassWords + groups.wordCount + hunts.wordCount + routes.wordCount) * 4 and bytes:sub(1, #expected) == expected,
       'AIC Tactics: this save requires its original AIC configuration and module version')
     local offset = #expected + 1
     local tick, valid = number(bytes, offset), number(bytes, offset + 4)
@@ -170,10 +170,18 @@ function M.new(native, legacyInterval, fingerprint)
       huntValues[index + 1] = number(bytes, huntOffset + index * 4)
     end
     hunts.validate(huntValues, groupValues)
-    return tick, valid, counts, combatValues, armyValues, raidValues, planValues, groupValues, huntValues
+    local routeValues = {}
+    local routeOffset = huntOffset + hunts.wordCount * 4
+    for index = 0, routes.wordCount - 1 do
+      routeValues[index + 1] = number(bytes, routeOffset + index * 4)
+    end
+    routes.validate(routeValues)
+    return tick, valid, counts, combatValues, armyValues, raidValues, planValues, groupValues, huntValues,
+      routeValues
   end
   local function restore(bytes)
-    local tick, valid, counts, combatValues, armyValues, raidValues, planValues, groupValues, huntValues =
+    local tick, valid, counts, combatValues, armyValues, raidValues, planValues, groupValues, huntValues,
+      routeValues =
       validate(bytes)
     -- Validate the entire payload before writing any state.
     core.writeInteger(native.defenseCensusValid, 0)
@@ -185,6 +193,7 @@ function M.new(native, legacyInterval, fingerprint)
     raids.restore(raidValues)
     groups.restore(groupValues)
     hunts.restore(huntValues, groupValues)
+    routes.restore(routeValues)
     for index, value in ipairs(planValues) do
       core.writeInteger(native.siegeHarassPlans + (index - 1) * 4,
         value >= 2147483648 and value - 4294967296 or value)
@@ -204,6 +213,7 @@ function M.new(native, legacyInterval, fingerprint)
     raids.initialize()
     groups.initialize()
     hunts.initialize()
+    routes.initialize()
     core.setMemory(native.siegeHarassPlans, 0, harassWords * 4)
   end
   return {

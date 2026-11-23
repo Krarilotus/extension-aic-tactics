@@ -1,5 +1,6 @@
 local personality = require('config.personality')
 local lordHunt = require('config.lord-hunt')
+local patrolArrays = require('config.attacks').arrays
 local M = {}
 local huntArrays = {'lordHuntRetarget', 'lordHuntSiege', 'lordHuntSwitch', 'lordHuntShare', 'lordHuntSplit'}
 
@@ -33,7 +34,7 @@ function M.new(native)
           or core.readInteger(native.siegeHarassMinimum + ai * 4) ~= 0 then return true end
       if core.readInteger(native.largeSiegePolicy + ai * 4) ~= 0
           or core.readInteger(native.siegeForceMaximum + ai * 4) ~= 0 then return true end
-      for _, name in ipairs({'patrolOrders', 'patrolFormation', 'patrolSpacing'}) do
+      for _, name in ipairs(patrolArrays) do
         if core.readInteger(native[name] + ai * 4) ~= 0 then return true end
       end
       for _, name in ipairs(huntArrays) do
@@ -62,7 +63,7 @@ function M.new(native)
     local previousLarge = core.readInteger(native.largeSiegePolicy + ai * 4)
     local previousForceMaximum = core.readInteger(native.siegeForceMaximum + ai * 4)
     local previousPatrol = {}
-    for index, name in ipairs({'patrolOrders', 'patrolFormation', 'patrolSpacing'}) do
+    for index, name in ipairs(patrolArrays) do
       previousPatrol[index] = core.readInteger(native[name] + ai * 4)
     end
     local previousHunt = {}
@@ -83,8 +84,9 @@ function M.new(native)
       or envelope.siege[4] ~= 0 or previousMinimum ~= 0
       or envelope.siege[5] ~= 0 or previousLarge ~= 0
       or envelope.siege[6] ~= 0 or previousForceMaximum ~= 0
-      or attacks[1] ~= 0 or attacks[2] ~= 0 or attacks[3] ~= 0
-      or previousPatrol[1] ~= 0 or previousPatrol[2] ~= 0 or previousPatrol[3] ~= 0
+    for index = 1, #patrolArrays do
+      changesPolicy = changesPolicy or attacks[index] ~= 0 or previousPatrol[index] ~= 0
+    end
     if multiplayerLocked or changesPolicy or anyPolicyActive() then admission() end
     if compiled.mode == 1 then native.preflight() end
     if compiled.mode == 1 and compiled.defenseComposition == 1 then native.preflightComposition() end
@@ -105,6 +107,7 @@ function M.new(native)
     if envelope.siege[5] == 1 then native.preflightLargerSiegeForce() end
     if attacks[1] == 2 then native.preflightAttackPatrols() end
     if lordHunt.enables(hunt) then native.preflightLordHunt() end
+    if attacks[7] == 2 then native.preflightSiegeScreen() end
     local words = {compiled.mode, #compiled.conditions}
     for index = 1, 8 do
       local row = compiled.conditions[index]
@@ -147,15 +150,14 @@ function M.new(native)
       if envelope.siege[5] == 1 then native.activateLargerSiegeForce() end
       if attacks[1] == 2 then native.activateAttackPatrols() end
       if lordHunt.enables(hunt) then native.activateLordHunt() end
+      if attacks[7] == 2 then native.activateSiegeScreen() end
       writeRecord(ai, words)
       core.writeInteger(native.siegePaymentPolicy + ai * 4, envelope.siege[2])
       core.writeInteger(native.siegeHarassPolicy + ai * 4, envelope.siege[3])
       core.writeInteger(native.siegeHarassMinimum + ai * 4, envelope.siege[4])
       core.writeInteger(native.largeSiegePolicy + ai * 4, envelope.siege[5])
       core.writeInteger(native.siegeForceMaximum + ai * 4, envelope.siege[6])
-      core.writeInteger(native.patrolOrders + ai * 4, attacks[1])
-      core.writeInteger(native.patrolFormation + ai * 4, attacks[2])
-      core.writeInteger(native.patrolSpacing + ai * 4, attacks[3])
+      for index, name in ipairs(patrolArrays) do core.writeInteger(native[name] + ai * 4, attacks[index]) end
       for index, name in ipairs(huntArrays) do core.writeInteger(native[name] + ai * 4, hunt[index]) end
     end,
       rollback = function()
@@ -165,9 +167,9 @@ function M.new(native)
         core.writeInteger(native.siegeHarassMinimum + ai * 4, previousMinimum)
         core.writeInteger(native.largeSiegePolicy + ai * 4, previousLarge)
         core.writeInteger(native.siegeForceMaximum + ai * 4, previousForceMaximum)
-        core.writeInteger(native.patrolOrders + ai * 4, previousPatrol[1])
-        core.writeInteger(native.patrolFormation + ai * 4, previousPatrol[2])
-        core.writeInteger(native.patrolSpacing + ai * 4, previousPatrol[3])
+        for index, name in ipairs(patrolArrays) do
+          core.writeInteger(native[name] + ai * 4, previousPatrol[index])
+        end
         for index, name in ipairs(huntArrays) do core.writeInteger(native[name] + ai * 4, previousHunt[index]) end
       end}
   end}

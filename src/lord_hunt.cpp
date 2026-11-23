@@ -62,11 +62,6 @@ unsigned int unitAddress(int unit) { return nativeBindings.unitRecords + unit * 
 unsigned int tribeAddress(int tribe) { return nativeBindings.tribes + tribe * nativeBindings.tribeStride; }
 unsigned int buildingAddress(int building) { return nativeBindings.buildings + 0x14 + building * 0x32C; }
 
-int setting(const int values[17], int character, int fallback)
-{
-    return values[character] ? values[character] - 1 : fallback;
-}
-
 // AIC character 1..16 of an AI player; 0 for a human player.
 int character(int player)
 {
