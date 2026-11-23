@@ -15,21 +15,18 @@ return {
     local identity = require('build-identity')
     require('package-identity').verify(identity)
     local native = require('native').new(nativeGame)
-    if nativeGame.attackPatrolUnavailable then
-      log(WARNING, '[aic-tactics] attack patrol orders unavailable: ' .. tostring(nativeGame.attackPatrolUnavailable))
-    end
     local safePlacement = config and config.safeSiegePlacement
     if safePlacement == nil then safePlacement = true end
     local siegePayment = config and config.actualSiegeResourcePayment
-    if siegePayment == nil then siegePayment = false end
+    if siegePayment == nil then siegePayment = true end
     native.configureSiegePayment(siegePayment)
     local siegeHarassment = config and config.coordinatedSiegeHarassment
-    if siegeHarassment == nil then siegeHarassment = false end
+    if siegeHarassment == nil then siegeHarassment = true end
     local siegeHarassMinimum = config and config.siegeHarassMinEngines
     if siegeHarassMinimum == nil then siegeHarassMinimum = 3 end
     native.configureSiegeHarassment(siegeHarassment, siegeHarassMinimum)
     local largerSiege = config and config.largerSiegeForces
-    if largerSiege == nil then largerSiege = false end
+    if largerSiege == nil then largerSiege = true end
     local siegeForceMaximum = config and config.siegeForceMax
     if siegeForceMaximum == nil then siegeForceMaximum = 0 end
     native.configureLargerSiegeForce(largerSiege, siegeForceMaximum)
@@ -38,6 +35,7 @@ return {
     local roleCounting = config and config.correctEngineerRoleCounting
     if roleCounting == nil then roleCounting = true end
     native.configureEngineerRoles(roleCounting)
+    native.configureAttackPatrols(require('config.attacks').fallbacks(config))
     native.enableNativeTargetPolicy(config and config.nativeTargetPolicy or 'Native')
     local legacyInterval = config and config.legacyRecruitInterval
     assert(legacyInterval == nil or type(legacyInterval) == 'boolean',

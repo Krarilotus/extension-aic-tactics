@@ -92,6 +92,9 @@ void setup(unsigned int stride, unsigned int stance, int orders, int formation, 
     std::memset(patrolOrders, 0, sizeof(patrolOrders));
     std::memset(patrolFormation, 0, sizeof(patrolFormation));
     std::memset(patrolSpacing, 0, sizeof(patrolSpacing));
+    patrolOrdersFallback = 0;
+    patrolFormationFallback = 0;
+    patrolSpacingFallback = 12;
     configurationLocked = 0;
     dispatchCalls = destinationCalls = destinationTribe = pathCalls = moveCalls = moveX = moveY = 0;
     failingMoves = 0;
@@ -135,79 +138,91 @@ void run(unsigned int stride, unsigned int stance)
     assert(get<short>(tribe(6), stance) == 0 && configurationLocked == 0);
 
     // AllGroups with the native formation: the native destination routine for slot 16.
-    setup(stride, stance, 1, 0, 0);
+    setup(stride, stance, 2, 1, 0);
     dispatchAttackPatrols(AIC, 0, 1);
     assert(dispatchCalls == 1 && destinationCalls == 1 && destinationTribe == 6);
     assert(get<short>(tribe(6), stance) == 1 && get<short>(tribe(5), stance) == 0);
     assert(configurationLocked == 1 && pathCalls == 0 && moveCalls == 0);
 
     // Wing 14: the first group heads north; the east station is nearer the second leader.
-    setup(stride, stance, 1, 1, 14);
+    setup(stride, stance, 2, 2, 14);
     dispatchAttackPatrols(AIC, 0, 1);
     assert(pathCalls == 1 && moveCalls == 1 && moveX == 114 && moveY == 160 && destinationCalls == 0);
 
     // A rejected move falls back to the other station, then to the native search.
-    setup(stride, stance, 1, 1, 14);
+    setup(stride, stance, 2, 2, 14);
     failingMoves = 1;
     dispatchAttackPatrols(AIC, 0, 1);
     assert(pathCalls == 2 && moveCalls == 2 && moveX == 86 && moveY == 160 && destinationCalls == 0);
-    setup(stride, stance, 1, 1, 14);
+    setup(stride, stance, 2, 2, 14);
     failingMoves = 2;
     dispatchAttackPatrols(AIC, 0, 1);
     assert(pathCalls == 2 && moveCalls == 2 && destinationCalls == 1);
 
     // An unreachable station is skipped.
-    setup(stride, stance, 1, 1, 14);
+    setup(stride, stance, 2, 2, 14);
     blockedTile = 160 * 200 + 114;
     dispatchAttackPatrols(AIC, 0, 1);
     assert(pathCalls == 2 && moveCalls == 1 && moveX == 86);
 
     // A station outside the playable map is not even queried.
-    setup(stride, stance, 1, 1, 14);
+    setup(stride, stance, 2, 2, 14);
     playable[160 * 400 + 114] = 0;
     dispatchAttackPatrols(AIC, 0, 1);
     assert(pathCalls == 1 && moveCalls == 1 && moveX == 86);
 
     // Already at the station: no new order, no native search.
-    setup(stride, stance, 1, 1, 14);
+    setup(stride, stance, 2, 2, 14);
     put<short>(unit(3), 0xC4, 113);
     put<short>(unit(3), 0xC6, 161);
     dispatchAttackPatrols(AIC, 0, 1);
     assert(pathCalls == 0 && moveCalls == 0 && destinationCalls == 0);
 
     // A leader that no longer links back, a dying leader or a recycled UID: no order at all.
-    setup(stride, stance, 1, 1, 14);
+    setup(stride, stance, 2, 2, 14);
     put<unsigned int>(unit(3), 0x2E4, 1);
     dispatchAttackPatrols(AIC, 0, 1);
     assert(dispatchCalls == 1 && destinationCalls == 0 && moveCalls == 0 && get<short>(tribe(6), stance) == 0);
-    setup(stride, stance, 1, 0, 0);
+    setup(stride, stance, 2, 1, 0);
     put<short>(unit(3), 0x2A0, 1);
     dispatchAttackPatrols(AIC, 0, 1);
     assert(destinationCalls == 0 && get<short>(tribe(6), stance) == 0);
-    setup(stride, stance, 1, 0, 0);
+    setup(stride, stance, 2, 1, 0);
     put<unsigned int>(player(1), 0x329C + 16 * 4, 999);
     dispatchAttackPatrols(AIC, 0, 1);
     assert(destinationCalls == 0);
 
     // Without a target keep the native search is used.
-    setup(stride, stance, 1, 1, 14);
+    setup(stride, stance, 2, 2, 14);
     put<int>(player(2), 0x94, 0);
     dispatchAttackPatrols(AIC, 0, 1);
     assert(pathCalls == 0 && destinationCalls == 1);
 
     // Mirror on the home axis uses the keep's flanks; far away it waits for the native search.
-    setup(stride, stance, 1, 2, 0);
+    setup(stride, stance, 2, 3, 0);
     put<short>(unit(2), 0xC6, 140);
     put<short>(unit(3), 0xC4, 120);
     put<short>(unit(3), 0xC6, 150);
     dispatchAttackPatrols(AIC, 0, 1);
     assert(pathCalls == 1 && moveCalls == 1 && moveX == 60 && moveY == 100);
-    setup(stride, stance, 1, 2, 0);
+    setup(stride, stance, 2, 3, 0);
     dispatchAttackPatrols(AIC, 0, 1);
     assert(pathCalls == 0 && destinationCalls == 1);
 
+    // An absent field uses the module setting; an explicit Native switches it off.
+    setup(stride, stance, 0, 0, 0);
+    patrolOrdersFallback = 1;
+    patrolFormationFallback = 1;
+    patrolSpacingFallback = 14;
+    dispatchAttackPatrols(AIC, 0, 1);
+    assert(pathCalls == 1 && moveCalls == 1 && moveX == 114 && moveY == 160 && destinationCalls == 0);
+    setup(stride, stance, 1, 0, 0);
+    patrolOrdersFallback = 1;
+    dispatchAttackPatrols(AIC, 0, 1);
+    assert(dispatchCalls == 1 && destinationCalls == 0 && moveCalls == 0 && configurationLocked == 0);
+
     // Human players are never ordered.
-    setup(stride, stance, 1, 1, 14);
+    setup(stride, stance, 2, 2, 14);
     put<int>(player(1), 0x2300, 0);
     dispatchAttackPatrols(AIC, 0, 1);
     assert(dispatchCalls == 1 && destinationCalls == 0 && moveCalls == 0 && configurationLocked == 0);

@@ -27,7 +27,7 @@ options:
   url: aic-tactics.actualSiegeResourcePayment
   contents:
     type: boolean
-    value: false
+    value: true
 - category: ['{{ai}}', '{{improvements}}']
   name: coordinatedSiegeHarassment
   header: '{{coordinatedSiegeHarassment}}'
@@ -36,7 +36,7 @@ options:
   url: aic-tactics.coordinatedSiegeHarassment
   contents:
     type: boolean
-    value: false
+    value: true
 - category: ['{{ai}}', '{{improvements}}']
   name: siegeHarassMinEngines
   header: '{{siegeHarassMinEngines}}'
@@ -56,7 +56,7 @@ options:
   url: aic-tactics.largerSiegeForces
   contents:
     type: boolean
-    value: false
+    value: true
 - category: ['{{ai}}', '{{improvements}}']
   name: siegeForceMax
   header: '{{siegeForceMax}}'
@@ -68,6 +68,45 @@ options:
     value: 0
     min: 0
     max: 64
+- category: ['{{ai}}', '{{improvements}}']
+  name: patrolOrders
+  header: '{{patrolOrders}}'
+  text: '{{patrolOrders_descr}}'
+  display: Choice
+  url: aic-tactics.patrolOrders
+  contents:
+    choices:
+    - name: AllGroups
+      text: '{{patrolOrders_all}}'
+    - name: Native
+      text: '{{patrolOrders_native}}'
+    value: AllGroups
+- category: ['{{ai}}', '{{improvements}}']
+  name: patrolFormation
+  header: '{{patrolFormation}}'
+  text: '{{patrolFormation_descr}}'
+  display: Choice
+  url: aic-tactics.patrolFormation
+  contents:
+    choices:
+    - name: Wing
+      text: '{{patrolFormation_wing}}'
+    - name: Mirror
+      text: '{{patrolFormation_mirror}}'
+    - name: Native
+      text: '{{patrolFormation_native}}'
+    value: Wing
+- category: ['{{ai}}', '{{improvements}}']
+  name: patrolSpacing
+  header: '{{patrolSpacing}}'
+  text: '{{patrolSpacing_descr}}'
+  display: Number
+  url: aic-tactics.patrolSpacing
+  contents:
+    type: integer
+    value: 12
+    min: 4
+    max: 40
 - category: [AIC Tactics]
   name: nativeTargetPolicy
   header: '{{nativeTargetPolicy}}'

@@ -20,9 +20,9 @@ Una proporción de salidas activa `WeightedRoles` automáticamente. Las reglas d
 
 ### Patrullas de ataque
 
-- `PatrolGroupOrders`: `Native` solo da órdenes al primer grupo de patrulla de ataque; el segundo espera en su punto de reunión. `AllGroups` envía también al segundo grupo durante un asalto. Necesita `AttUnitPatrolGroupsCount` en 2 para tener tropas.
-- `PatrolFormation`: adónde va el segundo grupo. `Native` le deja elegir sus propios pasos; `Wing` lo mantiene junto al primer grupo; `Mirror` lo envía al otro lado de la fortaleza objetivo. Requiere `AllGroups`.
-- `PatrolSpacing` (4–40, predeterminado 12): casillas entre ambos grupos en `Wing`.
+- `AICTactics_PatrolOrders`: `Native` solo da órdenes al primer grupo de patrulla de ataque; el segundo espera en su punto de reunión. `AllGroups` envía también al segundo grupo durante un asalto. Necesita `AttUnitPatrolGroupsCount` en 2 para tener tropas.
+- `AICTactics_PatrolFormation`: adónde va el segundo grupo. `Native` le deja elegir sus propios pasos; `Wing` lo mantiene junto al primer grupo; `Mirror` lo envía al otro lado de la fortaleza objetivo. Requiere `AllGroups`.
+- `AICTactics_PatrolSpacing` (4–40, predeterminado 12): casillas entre ambos grupos en `Wing`.
 
 Los ajustes de patrulla no guardan estado: al cargar una partida guardada, ambos grupos siguen en sus ranuras originales. `AttUnitPatrol` y `AttUnitPatrolMax` siguen vigentes.
 

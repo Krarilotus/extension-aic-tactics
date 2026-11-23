@@ -20,9 +20,9 @@ Une part de sortie active `WeightedRoles` automatiquement. Les règles de situat
 
 ### Patrouilles d’attaque
 
-- `PatrolGroupOrders` : `Native` ne donne d’ordres qu’au premier groupe de patrouille d’attaque ; le second attend à son point de rassemblement. `AllGroups` envoie aussi le second groupe lors d’un assaut. Il lui faut `AttUnitPatrolGroupsCount` 2 pour disposer de troupes.
-- `PatrolFormation` : destination du second groupe. `Native` le laisse choisir ses propres déplacements ; `Wing` le garde à côté du premier groupe ; `Mirror` l’envoie de l’autre côté du donjon ciblé. Exige `AllGroups`.
-- `PatrolSpacing` (4–40, défaut 12) : cases entre les deux groupes en `Wing`.
+- `AICTactics_PatrolOrders` : `Native` ne donne d’ordres qu’au premier groupe de patrouille d’attaque ; le second attend à son point de rassemblement. `AllGroups` envoie aussi le second groupe lors d’un assaut. Il lui faut `AttUnitPatrolGroupsCount` 2 pour disposer de troupes.
+- `AICTactics_PatrolFormation` : destination du second groupe. `Native` le laisse choisir ses propres déplacements ; `Wing` le garde à côté du premier groupe ; `Mirror` l’envoie de l’autre côté du donjon ciblé. Exige `AllGroups`.
+- `AICTactics_PatrolSpacing` (4–40, défaut 12) : cases entre les deux groupes en `Wing`.
 
 Les réglages de patrouille ne conservent aucun état sauvegardé : une sauvegarde se recharge avec les deux groupes toujours dans leurs emplacements d’origine. `AttUnitPatrol` et `AttUnitPatrolMax` restent valables.
 

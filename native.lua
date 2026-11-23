@@ -376,6 +376,12 @@ coordinated:
     require('native-patrol-bindings').install(game, native.dispatchAttackPatrols)
     patrolCallsInstalled = true
   end
+  function native.configureAttackPatrols(orders, formation, spacing)
+    core.writeInteger(native.patrolOrdersFallback, orders)
+    core.writeInteger(native.patrolFormationFallback, formation)
+    core.writeInteger(native.patrolSpacingFallback, spacing)
+    if orders == 1 then native.activateAttackPatrols() end
+  end
   function native.preflightEngineerRoles()
     if engineerRoleHook then return end
     require('native-context').verify(game.engineerRoleHook, 'AI engineer role recount',

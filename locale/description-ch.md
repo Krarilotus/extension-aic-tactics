@@ -20,9 +20,9 @@ AIC Tactics 可分别调整每个已安装 AI 的招兵、进攻、袭扰和攻�
 
 ### 进攻巡逻队
 
-- `PatrolGroupOrders`：`Native` 仅指挥第一支进攻巡逻队，第二支留在集结点待命；`AllGroups` 会在进攻时同时派出第二支队伍。第二支队伍需要 `AttUnitPatrolGroupsCount` 为 2 才有兵力。
-- `PatrolFormation`：第二支队伍的去向。`Native` 让其自行决定行动步骤；`Wing` 让其保持在第一支队伍身旁；`Mirror` 将其派往目标主堡的另一侧。需要启用 `AllGroups`。
-- `PatrolSpacing`（4–40，默认 12）：在 `Wing` 阵型下两支队伍之间的格数。
+- `AICTactics_PatrolOrders`：`Native` 仅指挥第一支进攻巡逻队，第二支留在集结点待命；`AllGroups` 会在进攻时同时派出第二支队伍。第二支队伍需要 `AttUnitPatrolGroupsCount` 为 2 才有兵力。
+- `AICTactics_PatrolFormation`：第二支队伍的去向。`Native` 让其自行决定行动步骤；`Wing` 让其保持在第一支队伍身旁；`Mirror` 将其派往目标主堡的另一侧。需要启用 `AllGroups`。
+- `AICTactics_PatrolSpacing`（4–40，默认 12）：在 `Wing` 阵型下两支队伍之间的格数。
 
 巡逻设置不保存额外状态：读取存档后，两支队伍仍处于各自原有槽位。原有 `AttUnitPatrol` 和 `AttUnitPatrolMax` 继续生效。
 

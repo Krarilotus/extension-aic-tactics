@@ -18,6 +18,7 @@ def state():
         largeSiegeFallback=191100,siegeForceMaximumFallback=191104,
         largeSiegePolicy=191200,siegeForceMaximum=191300,
         patrolOrders=191400,patrolFormation=191500,patrolSpacing=191600,
+        patrolOrdersFallback=191700,patrolFormationFallback=191704,patrolSpacingFallback=191708,
         game={gameTick=0x1FE7DA8,initialDefenseTicks=0x4D34B1,aicRecords=0x23FC8E8+676,unitCapacity=2500,buildingCapacity=2000,tribeMemberWords=157,players=0x115BDF8,tribes=0x1667F78,tribeStride=0x334},
         defenseCensusTick=23000,defenseCensusValid=23004, legacyTargetPolicy=23008,
         incidentSize=2632,combatCensusTick=24000,combatCensusValid=24004,
@@ -262,6 +263,7 @@ def test_patrol_settings_enter_match_identity_but_not_save_admission():
       memory[native.patrolOrders+4*4]=1
       memory[native.patrolFormation+4*4]=1
       memory[native.patrolSpacing+4*4]=14
+      memory[native.patrolOrdersFallback]=1
       assert(state.identity()==saveIdentity)
       assert(state.matchIdentity()~=matchIdentity)
       -- A save made before the change still validates and restores.

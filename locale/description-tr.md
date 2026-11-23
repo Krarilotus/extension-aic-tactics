@@ -20,9 +20,9 @@ AIC Tactics, kurulu her yapay zekânın asker alımını, saldırılarını, bas
 
 ### Saldırı devriyeleri
 
-- `PatrolGroupOrders`: `Native` yalnızca ilk saldırı devriye grubuna emir verir; ikinci grup toplanma noktasında bekler. `AllGroups` saldırı sırasında ikinci grubu da gönderir. Birlik alabilmesi için `AttUnitPatrolGroupsCount` değerinin 2 olması gerekir.
-- `PatrolFormation`: ikinci grubun nereye gideceği. `Native` kendi adımlarını seçmesine izin verir; `Wing` onu ilk grubun yanında tutar; `Mirror` hedef iç kalenin diğer tarafına gönderir. `AllGroups` gerekir.
-- `PatrolSpacing` (4–40, varsayılan 12): `Wing` düzeninde iki grup arasındaki kare sayısı.
+- `AICTactics_PatrolOrders`: `Native` yalnızca ilk saldırı devriye grubuna emir verir; ikinci grup toplanma noktasında bekler. `AllGroups` saldırı sırasında ikinci grubu da gönderir. Birlik alabilmesi için `AttUnitPatrolGroupsCount` değerinin 2 olması gerekir.
+- `AICTactics_PatrolFormation`: ikinci grubun nereye gideceği. `Native` kendi adımlarını seçmesine izin verir; `Wing` onu ilk grubun yanında tutar; `Mirror` hedef iç kalenin diğer tarafına gönderir. `AllGroups` gerekir.
+- `AICTactics_PatrolSpacing` (4–40, varsayılan 12): `Wing` düzeninde iki grup arasındaki kare sayısı.
 
 Devriye ayarları kayıtlı durum tutmaz: bir kayıt yüklendiğinde iki grup da özgün yuvalarında kalır. `AttUnitPatrol` ve `AttUnitPatrolMax` geçerlidir.
 

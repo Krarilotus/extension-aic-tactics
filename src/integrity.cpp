@@ -60,6 +60,9 @@ template<class Sink> void visitIntegrity(Sink& digest, int legacyInterval)
     digest.block(patrolOrders + 1, sizeof(int) * 16);
     digest.block(patrolFormation + 1, sizeof(int) * 16);
     digest.block(patrolSpacing + 1, sizeof(int) * 16);
+    digest.word(static_cast<unsigned int>(patrolOrdersFallback));
+    digest.word(static_cast<unsigned int>(patrolFormationFallback));
+    digest.word(static_cast<unsigned int>(patrolSpacingFallback));
     digest.block(configurations + 1, sizeof(CharacterConfiguration) * 16);
     digest.block(reinterpret_cast<const void*>(nativeBindings.aicRecords), 676 * 16);
     digest.word(defenseCensusTick);
@@ -85,7 +88,7 @@ typedef char BoundaryCapacity[(sizeof(CharacterConfiguration) * 16 + 676 * 16
     + sizeof(targetLifecycle) + sizeof(incidents) + sizeof(reserves)
     + sizeof(raidStates) + sizeof(raidGroupCensus) + sizeof(raidUnitPower)
     + sizeof(raidStaticDefenses) + sizeof(siegeHarassPlans)
-    + sizeof(int) * 82 + sizeof(patrolOrders) * 3 + 128 <= sizeof(boundaryWords)) ? 1 : -1];
+    + sizeof(int) * 85 + sizeof(patrolOrders) * 3 + 128 <= sizeof(boundaryWords)) ? 1 : -1];
 }
 
 // Observational, allocation-free checkpoint of the explicitly serialized words.

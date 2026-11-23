@@ -8,6 +8,9 @@ namespace SHC141 {
 int patrolOrders[17];
 int patrolFormation[17];
 int patrolSpacing[17];
+int patrolOrdersFallback = 1;
+int patrolFormationFallback = WingPatrolFormation;
+int patrolSpacingFallback = 12;
 
 namespace {
 const unsigned int PlayerStride = 0x39F4;
@@ -21,6 +24,11 @@ typedef void (__thiscall *PlayerAction)(void*, int);
 typedef void (__thiscall *TribeAction)(void*, int);
 typedef int (__thiscall *TribeQuery)(void*, int, int);
 typedef int (__thiscall *TribeMove)(void*, int, int, int, int, int, int);
+
+int setting(const int values[17], int character, int fallback)
+{
+    return values[character] ? values[character] - 1 : fallback;
+}
 
 unsigned int playerAddress(int player) { return nativeBindings.players + player * PlayerStride; }
 unsigned int tribeAddress(int tribe) { return nativeBindings.tribes + tribe * nativeBindings.tribeStride; }
@@ -82,7 +90,7 @@ void nativeDestination(int tribe)
 // handled (ordered, or already reached); false asks for the native search.
 bool orderStation(void* aic, int player, int character, int tribe, TilePoint secondLeader)
 {
-    const int formation = patrolFormation[character];
+    const int formation = setting(patrolFormation, character, patrolFormationFallback);
     if (formation != WingPatrolFormation && formation != MirrorPatrolFormation) return false;
     TilePoint firstLeader, keep, home;
     const int target = at<int>(playerAddress(player) + 0x2BD8);
@@ -91,7 +99,8 @@ bool orderStation(void* aic, int player, int character, int tribe, TilePoint sec
     TilePoint stations[2];
     int count = 0;
     if (formation == WingPatrolFormation) {
-        count = wingPatrolStations(firstLeader, keep, secondLeader, patrolSpacing[character], stations);
+        const int spacing = patrolSpacing[character] ? patrolSpacing[character] : patrolSpacingFallback;
+        count = wingPatrolStations(firstLeader, keep, secondLeader, spacing, stations);
     } else {
         if (!keepPosition(player, home)) return false;
         count = mirrorPatrolStations(firstLeader, keep, home, stations);
@@ -117,7 +126,7 @@ void __fastcall dispatchAttackPatrols(void* aic, void*, int player)
     reinterpret_cast<PlayerAction>(nativeBindings.attackPatrolDispatch)(aic, player);
     if (player < 1 || player > 8) return;
     const int character = at<int>(playerAddress(player) + 0x2300) - 1;
-    if (character < 1 || character > 16 || patrolOrders[character] != 1) return;
+    if (character < 1 || character > 16 || setting(patrolOrders, character, patrolOrdersFallback) != 1) return;
     // A running match fixes the configuration, as the census does for others.
     configurationLocked = 1;
     TilePoint leader;

@@ -1,4 +1,5 @@
 {
   "AttUnitPatrolGroupsCount": 2,
-  "PatrolGroupOrders": "AllGroups"
+  "AICTactics_PatrolOrders": "AllGroups",
+  "AICTactics_PatrolFormation": "Native"
 }

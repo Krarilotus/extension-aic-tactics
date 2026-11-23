@@ -20,11 +20,11 @@ Sortie shares enable `WeightedRoles` automatically. Situation rules, defense com
 
 ### Attack patrols
 
-- `PatrolGroupOrders`: `Native` orders only the first attack patrol group; the second waits at its staging point. `AllGroups` also sends the second group out during an assault. It needs `AttUnitPatrolGroupsCount` 2 to have troops.
-- `PatrolFormation`: where the second group goes. `Native` lets it pick its own steps; `Wing` keeps it beside the first group; `Mirror` sends it to the other side of the target keep. Requires `AllGroups`.
-- `PatrolSpacing` (4–40, default 12): tiles between the two groups in `Wing`.
+- `AICTactics_PatrolOrders`: `AllGroups` also sends the second attack patrol group into an assault; `Native` orders only the first. It needs `AttUnitPatrolGroupsCount` 2 to have troops.
+- `AICTactics_PatrolFormation`: `Wing` keeps the second group beside the first; `Mirror` sends it to the other side of the target keep; `Native` lets it choose its own steps.
+- `AICTactics_PatrolSpacing` (4–40): tiles between the two groups in `Wing`.
 
-Patrol settings keep no saved state: a save reloads with both groups still in their native slots. Existing `AttUnitPatrol` and `AttUnitPatrolMax` still apply.
+Omitted values use the module settings (both groups, `Wing`, 12 tiles).
 
 ### Raids
 

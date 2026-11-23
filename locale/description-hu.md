@@ -20,9 +20,9 @@ A kitörési arány automatikusan bekapcsolja a `WeightedRoles` módot. A helyze
 
 ### Támadó járőrök
 
-- `PatrolGroupOrders`: a `Native` csak az első támadó járőrcsoportnak ad parancsot; a második a gyülekezési pontján várakozik. Az `AllGroups` roham közben a második csoportot is elindítja. Ehhez az `AttUnitPatrolGroupsCount` értéke 2 legyen, hogy legyenek egységei.
-- `PatrolFormation`: hová megy a második csoport. A `Native` hagyja, hogy maga válassza meg a lépéseit; a `Wing` az első csoport mellett tartja; a `Mirror` a célpont vártornyának túloldalára küldi. Az `AllGroups` szükséges hozzá.
-- `PatrolSpacing` (4–40, alapérték 12): a két csoport közötti távolság mezőkben `Wing` módban.
+- `AICTactics_PatrolOrders`: a `Native` csak az első támadó járőrcsoportnak ad parancsot; a második a gyülekezési pontján várakozik. Az `AllGroups` roham közben a második csoportot is elindítja. Ehhez az `AttUnitPatrolGroupsCount` értéke 2 legyen, hogy legyenek egységei.
+- `AICTactics_PatrolFormation`: hová megy a második csoport. A `Native` hagyja, hogy maga válassza meg a lépéseit; a `Wing` az első csoport mellett tartja; a `Mirror` a célpont vártornyának túloldalára küldi. Az `AllGroups` szükséges hozzá.
+- `AICTactics_PatrolSpacing` (4–40, alapérték 12): a két csoport közötti távolság mezőkben `Wing` módban.
 
 A járőrbeállítások nem tárolnak mentett állapotot: betöltéskor mindkét csoport az eredeti csoporthelyén marad. Az `AttUnitPatrol` és `AttUnitPatrolMax` továbbra is érvényes.
 

@@ -49,7 +49,8 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         "suppressNativeSiegeHarassMove", "largeSiegeFallback",
         "siegeForceMaximumFallback", "largeSiegePolicy", "siegeForceMaximum",
         "buildLargerSiegeForce", "patrolOrders", "patrolFormation", "patrolSpacing",
-        "dispatchAttackPatrols"};
+        "dispatchAttackPatrols", "patrolOrdersFallback", "patrolFormationFallback",
+        "patrolSpacingFallback"};
     const unsigned int values[] = {
         reinterpret_cast<unsigned int>(configurations), sizeof(CharacterConfiguration),
         reinterpret_cast<unsigned int>(observations), sizeof(RecruitmentObservation),
@@ -108,7 +109,10 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         reinterpret_cast<unsigned int>(patrolOrders),
         reinterpret_cast<unsigned int>(patrolFormation),
         reinterpret_cast<unsigned int>(patrolSpacing),
-        reinterpret_cast<unsigned int>(&dispatchAttackPatrols)};
+        reinterpret_cast<unsigned int>(&dispatchAttackPatrols),
+        reinterpret_cast<unsigned int>(&patrolOrdersFallback),
+        reinterpret_cast<unsigned int>(&patrolFormationFallback),
+        reinterpret_cast<unsigned int>(&patrolSpacingFallback)};
     typedef char ExportCount[sizeof(names) / sizeof(names[0]) == sizeof(values) / sizeof(values[0]) ? 1 : -1];
     createTable(state, 0, sizeof(names) / sizeof(names[0]));
     for (unsigned int i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {

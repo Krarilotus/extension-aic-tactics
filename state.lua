@@ -81,6 +81,9 @@ function M.new(native, legacyInterval, fingerprint)
     return identity() .. core.readString(native.patrolOrders + 4, 16 * 4)
       .. core.readString(native.patrolFormation + 4, 16 * 4)
       .. core.readString(native.patrolSpacing + 4, 16 * 4)
+      .. word(core.readInteger(native.patrolOrdersFallback))
+      .. word(core.readInteger(native.patrolFormationFallback))
+      .. word(core.readInteger(native.patrolSpacingFallback))
   end
   local function capture()
     local result = {identity(), word(core.readInteger(native.defenseCensusTick)),

@@ -21,6 +21,7 @@ def backend():
         largeSiegePolicy=22400,siegeForceMaximum=22500,
         largeSiegeFallback=22600,
         patrolOrders=22700,patrolFormation=22800,patrolSpacing=22900,
+        patrolOrdersFallback=23000,patrolFormationFallback=23004,patrolSpacingFallback=23008,
         game={gameTick=0x1FE7DA8},
         preflight=function()end,activate=function()end,preflightComposition=function()end,activateComposition=function()end,
         preflightCombat=function()end,activateCombat=function()end,
@@ -329,66 +330,53 @@ def test_random_nearby_raids_and_percentage_focus_are_per_ai():
     ''')
 
 
-def test_patrol_orders_are_per_ai_with_native_absent_default():
+def test_patrol_fields_store_inherit_or_explicit_values_per_ai():
     backend().execute('''
       prepare(4,{}).commit()
       for _,name in ipairs({'patrolOrders','patrolFormation','patrolSpacing'}) do
         assert(memory[native[name]+16]==0)
       end
       assert(patrolPreflights==nil and patrolActivations==nil)
-      prepare(4,{PatrolGroupOrders='AllGroups'}).commit()
+      prepare(4,{AICTactics_PatrolOrders='AllGroups'}).commit()
       -- The save-admission record stays identical to a native character's.
       for address=10000+4*352,10000+4*352+348,4 do assert((memory[address] or 0)==0) end
-      assert(memory[native.patrolOrders+16]==1 and memory[native.patrolFormation+16]==0)
-      assert(memory[native.patrolSpacing+16]==0)
+      assert(memory[native.patrolOrders+16]==2 and memory[native.patrolFormation+16]==0)
       assert(patrolPreflights==1 and patrolActivations==1)
-      prepare(5,{PatrolGroupOrders='AllGroups',PatrolFormation='Wing',PatrolSpacing=14}).commit()
-      assert(memory[native.patrolOrders+20]==1 and memory[native.patrolFormation+20]==1)
-      assert(memory[native.patrolSpacing+20]==14)
-      prepare(6,{PatrolGroupOrders='AllGroups',PatrolFormation='Mirror'}).commit()
-      assert(memory[native.patrolFormation+24]==2 and memory[native.patrolSpacing+24]==0)
-      local op=prepare(5,{PatrolGroupOrders='Native'})
+      prepare(5,{AICTactics_PatrolOrders='Native'}).commit()
+      assert(memory[native.patrolOrders+20]==1 and patrolActivations==1)
+      prepare(6,{AICTactics_PatrolFormation='Mirror',AICTactics_PatrolSpacing=20}).commit()
+      assert(memory[native.patrolOrders+24]==0 and memory[native.patrolFormation+24]==3)
+      assert(memory[native.patrolSpacing+24]==20)
+      local op=prepare(6,{AICTactics_PatrolFormation='Native'})
       op.commit()
-      assert(memory[native.patrolOrders+20]==0 and memory[native.patrolFormation+20]==0)
+      assert(memory[native.patrolFormation+24]==1 and memory[native.patrolSpacing+24]==0)
       op.rollback()
-      assert(memory[native.patrolOrders+20]==1 and memory[native.patrolSpacing+20]==14)
+      assert(memory[native.patrolFormation+24]==3 and memory[native.patrolSpacing+24]==20)
     ''')
 
 
-def test_patrol_dependent_fields_are_rejected_without_their_parent():
+def test_patrol_field_values_are_validated():
     backend().execute('''
-      assert(not pcall(prepare,4,{PatrolFormation='Wing'}))
-      assert(not pcall(prepare,4,{PatrolGroupOrders='AllGroups',PatrolSpacing=10}))
-      assert(not pcall(prepare,4,{PatrolGroupOrders='AllGroups',PatrolFormation='Mirror',PatrolSpacing=10}))
       for _,value in ipairs({3,41,10.5,'12',false}) do
-        assert(not pcall(prepare,4,{PatrolGroupOrders='AllGroups',PatrolFormation='Wing',PatrolSpacing=value}))
+        assert(not pcall(prepare,4,{AICTactics_PatrolSpacing=value}))
       end
-      assert(not pcall(prepare,4,{PatrolGroupOrders='Both'}))
-      assert(not pcall(prepare,4,{PatrolGroupOrders='AllGroups',PatrolFormation='Ring'}))
-      assert(pcall(prepare,4,{PatrolGroupOrders='AllGroups',PatrolFormation='Wing',PatrolSpacing=4}))
-      assert(pcall(prepare,4,{PatrolGroupOrders='AllGroups',PatrolFormation='Wing',PatrolSpacing=40}))
+      assert(not pcall(prepare,4,{AICTactics_PatrolOrders='Both'}))
+      assert(not pcall(prepare,4,{AICTactics_PatrolFormation='Ring'}))
+      assert(pcall(prepare,4,{AICTactics_PatrolSpacing=4}))
+      assert(pcall(prepare,4,{AICTactics_PatrolSpacing=40}))
+      local fallback=require('config.attacks').fallbacks
+      local orders,formation,spacing=fallback(nil)
+      assert(orders==1 and formation==1 and spacing==12)
+      orders,formation,spacing=fallback({patrolOrders='Native',patrolFormation='Mirror',patrolSpacing=20})
+      assert(orders==0 and formation==2 and spacing==20)
+      assert(not pcall(fallback,{patrolSpacing=3}))
     ''')
 
 
 def test_patrol_policy_requires_a_fresh_process_like_other_policies():
     backend().execute('''
-      prepare(4,{PatrolGroupOrders='AllGroups'}).commit()
+      prepare(4,{AICTactics_PatrolOrders='AllGroups'}).commit()
       assert(backend.policyActive())
       memory[native.game.gameTick]=500
-      assert(not pcall(prepare,5,{PatrolGroupOrders='AllGroups'}))
-    ''')
-
-
-def test_patrol_partial_edits_keep_dependent_fields_tied_to_active_parents():
-    backend().execute('''
-      local wing=schema.prepare(nil,{PatrolGroupOrders='AllGroups',PatrolFormation='Wing',PatrolSpacing=16},
-        function() return 0 end,false)
-      local native=schema.prepare(wing,{PatrolGroupOrders='Native'},function() return 0 end,false)
-      assert(native.PatrolFormation=='Wing' and native.PatrolSpacing==16)
-      assert(not pcall(schema.prepare,native,{PatrolSpacing=20},function() return 0 end,false))
-      assert(not pcall(schema.prepare,wing,{PatrolGroupOrders='Native',PatrolSpacing=20},function() return 0 end,false))
-      local mirror=schema.prepare(wing,{PatrolFormation='Mirror'},function() return 0 end,false)
-      assert(not pcall(schema.prepare,mirror,{PatrolSpacing=20},function() return 0 end,false))
-      local _,compiled=schema.prepare(native,{PatrolGroupOrders='AllGroups'},function() return 0 end,false)
-      assert(compiled.attacks[1]==1 and compiled.attacks[2]==1 and compiled.attacks[3]==16)
+      assert(not pcall(prepare,5,{AICTactics_PatrolFormation='Wing'}))
     ''')

@@ -4,18 +4,23 @@
 namespace AicTactics {
 namespace SHC141 {
 
-// Attack patrol slot duties, indexed by installed AIC character 1..16.
-// patrolOrders: 0 native (slot 15 only), 1 both native patrol slots.
-// patrolFormation: 0 native leader search, 1 wing, 2 mirror (PatrolFormation).
-// patrolSpacing: wing distance in tiles, 0 unless the formation is wing.
+// Attack patrol settings, indexed by installed AIC character 1..16. Each
+// value is 0 (use the module setting) or the character's choice + 1:
+// patrolOrders 1 native (slot 15 only), 2 both native patrol slots;
+// patrolFormation 1 native leader search, 2 wing, 3 mirror;
+// patrolSpacing the wing distance in tiles.
 extern int patrolOrders[17];
 extern int patrolFormation[17];
 extern int patrolSpacing[17];
+// Module settings: orders 0/1, formation 0/1/2 (PatrolFormation), spacing.
+extern int patrolOrdersFallback;
+extern int patrolFormationFallback;
+extern int patrolSpacingFallback;
 
 // Replaces the three native calls to the attack patrol dispatcher inside the
 // AI state update. Runs the unchanged native dispatcher first, then the
-// second patrol slot duty for opted-in characters. No state is kept here:
-// every decision uses saved native slot, tribe and unit records.
+// second patrol slot duty when it is on for that character. No state is
+// kept: every decision uses saved native slot, tribe and unit records.
 void __fastcall dispatchAttackPatrols(void* aic, void*, int player);
 
 } // namespace SHC141

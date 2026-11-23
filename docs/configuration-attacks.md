@@ -1,38 +1,41 @@
 # Attack patrol configuration
 
-The native game recruits up to two attack patrol groups (`AttUnitPatrolGroupsCount` 2) but orders only the first. The second waits at its staging point for the whole assault. These per-character AIC fields let the second group join in. Leave them out and the AI behaves exactly as before.
+The native game recruits up to two attack patrol groups (`AttUnitPatrolGroupsCount` 2) but orders only the first; the second waits at its staging point for the whole assault. With AIC Tactics active, the second group joins in. Per-character AIC fields change this for one AI; module settings in Customizations are the default for every AI.
 
-| Field | Values | Default | Effect |
-| --- | --- | --- | --- |
-| `PatrolGroupOrders` | `Native`, `AllGroups` | `Native` | `AllGroups` sends the second native patrol group out whenever the game re-orders its first patrol (attack states 3–5). |
-| `PatrolFormation` | `Native`, `Wing`, `Mirror` | `Native` | `Native`: the second group searches its own next step from its leader, like the first. `Wing`: it takes a station beside the first group, across its line of advance. `Mirror`: once the first group is within 48 tiles of the target keep, it takes the first group's position reflected to the other side of the keep (measured from the keep entrance); when the first group comes straight from home, it takes one of the keep's flanks. Requires `AllGroups`. |
-| `PatrolSpacing` | 4–40 tiles | 12 | Distance of the `Wing` station from the first group's leader (diagonal approaches use an equivalent shorter step). Requires `Wing`. |
+| AIC field | Module setting | Values | Default | Effect |
+| --- | --- | --- | --- | --- |
+| `AICTactics_PatrolOrders` | `patrolOrders` | `AllGroups`, `Native` | `AllGroups` | `AllGroups` orders the second native patrol group whenever the game re-orders its first patrol (attack states 3–5). `Native` keeps the game's single-group order. |
+| `AICTactics_PatrolFormation` | `patrolFormation` | `Wing`, `Mirror`, `Native` | `Wing` | `Wing`: a station beside the first group, across its line of advance. `Mirror`: once the first group is within 48 tiles of the target keep, its position reflected to the other side of the keep (measured from the keep entrance); when the first group comes straight from home, one of the keep's flanks. `Native`: the second group searches its own next step from its leader, like the first. |
+| `AICTactics_PatrolSpacing` | `patrolSpacing` | 4–40 tiles | 12 | Distance of the `Wing` station from the first group's leader (diagonal approaches use an equivalent shorter step). |
 
-A formation station must be reachable for the second group (the game's own tribe path check). Otherwise the other side is tried, then the native search. A group that has reached its station (within three tiles) gets no new order until the first group moves on; while it is still on its way it is re-ordered at the native patrol cadence, like the first group.
+A station must lie on the playable map and be reachable for the second group (the game's own tribe path check). Otherwise the other side is tried, then the native search. A group that has reached its station (within three tiles) gets no new order until the first group moves on; while it is on its way it is re-ordered at the native patrol cadence, like the first group.
 
 ## Example
 
-Add these fields to the `aic` object of a copied personality that recruits patrol troops (`AttUnitPatrol` set, `AttUnitPatrolMax` 16 or more):
+To keep the game's single patrol order for one AI while the module setting is on:
+
+```json
+"AICTactics_PatrolOrders": "Native"
+```
+
+To give an AI two wing patrols 14 tiles apart:
 
 ```json
 "AttUnitPatrolGroupsCount": 2,
-"PatrolGroupOrders": "AllGroups",
-"PatrolFormation": "Wing",
-"PatrolSpacing": 14
+"AICTactics_PatrolFormation": "Wing",
+"AICTactics_PatrolSpacing": 14
 ```
 
 More fragments are in `examples/attack-behaviour/`. They are examples and test fixtures, not presets.
 
 ## Saves, replays and multiplayer
 
-- **Saves.** Patrol duties keep no state of their own (other AIC Tactics policies, and its default-on siege placement and engineer counting switches, can still make a save require the module). The groups are the game's two native patrol slots, which every save already contains. After a reload the next native patrol order finds the second group again; nothing is swept back. These fields do not make a save require AIC Tactics.
-  - **Module off:** the second group waits at staging, as in the native game.
-  - **Changed settings:** a save loads and follows the new settings from the next order.
+- **Saves.** Patrol duties keep no state of their own: the groups are the game's two native patrol slots, which every save already contains. After a reload the next native patrol order finds the second group again; nothing is swept back. A save loads with changed patrol settings and follows them from the next order.
 - **Replays and multiplayer.** Decisions use only synchronized game state at the native order, in fixed slot order, without random numbers. All peers must use the same values: they are part of AIC Tactics' multiplayer admission check.
 
 ## Compatibility
 
-- **Smarter Patrols** replaces the same native patrol dispatch and forces a single patrol group. If it, or another module, already changed the dispatch, a character with `PatrolGroupOrders` is refused at load with a message, and nothing is patched over the other module. Use one of the two for patrols.
-- **UCP2-Legacy** attack options touch different code and remain compatible.
+- AIC Tactics provides what Smarter Patrols did for attack patrols; using both at once is not supported.
+- UCP2-Legacy attack options touch different code and remain compatible.
 
 Concept credit for split attack patrols: Monsterfish (Smarter Patrols). AIC Tactics uses its own implementation built on the game's native patrol slots.

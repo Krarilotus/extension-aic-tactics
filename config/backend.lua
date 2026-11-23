@@ -31,7 +31,9 @@ function M.new(native)
           or core.readInteger(native.siegeHarassMinimum + ai * 4) ~= 0 then return true end
       if core.readInteger(native.largeSiegePolicy + ai * 4) ~= 0
           or core.readInteger(native.siegeForceMaximum + ai * 4) ~= 0 then return true end
-      if core.readInteger(native.patrolOrders + ai * 4) ~= 0 then return true end
+      for _, name in ipairs({'patrolOrders', 'patrolFormation', 'patrolSpacing'}) do
+        if core.readInteger(native[name] + ai * 4) ~= 0 then return true end
+      end
       local address = native.configuration + ai * native.configurationSize
       for _, offset in ipairs({0,288,292,296,316,320,344}) do
         if core.readInteger(address + offset) ~= 0 then return true end
@@ -70,7 +72,8 @@ function M.new(native)
       or envelope.siege[4] ~= 0 or previousMinimum ~= 0
       or envelope.siege[5] ~= 0 or previousLarge ~= 0
       or envelope.siege[6] ~= 0 or previousForceMaximum ~= 0
-      or attacks[1] ~= 0 or previousPatrol[1] ~= 0
+      or attacks[1] ~= 0 or attacks[2] ~= 0 or attacks[3] ~= 0
+      or previousPatrol[1] ~= 0 or previousPatrol[2] ~= 0 or previousPatrol[3] ~= 0
     if multiplayerLocked or changesPolicy or anyPolicyActive() then admission() end
     if compiled.mode == 1 then native.preflight() end
     if compiled.mode == 1 and compiled.defenseComposition == 1 then native.preflightComposition() end
@@ -89,7 +92,7 @@ function M.new(native)
     if envelope.siege[2] == 1 then native.preflightSiegePayment() end
     if envelope.siege[3] == 1 then native.preflightSiegeHarassment() end
     if envelope.siege[5] == 1 then native.preflightLargerSiegeForce() end
-    if attacks[1] ~= 0 then native.preflightAttackPatrols() end
+    if attacks[1] == 2 then native.preflightAttackPatrols() end
     local words = {compiled.mode, #compiled.conditions}
     for index = 1, 8 do
       local row = compiled.conditions[index]
@@ -130,7 +133,7 @@ function M.new(native)
       if envelope.siege[2] == 1 then native.activateSiegePayment() end
       if envelope.siege[3] == 1 then native.activateSiegeHarassment() end
       if envelope.siege[5] == 1 then native.activateLargerSiegeForce() end
-      if attacks[1] ~= 0 then native.activateAttackPatrols() end
+      if attacks[1] == 2 then native.activateAttackPatrols() end
       writeRecord(ai, words)
       core.writeInteger(native.siegePaymentPolicy + ai * 4, envelope.siege[2])
       core.writeInteger(native.siegeHarassPolicy + ai * 4, envelope.siege[3])
