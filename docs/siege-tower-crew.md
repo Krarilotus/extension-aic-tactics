@@ -15,3 +15,11 @@ AIC Tactics already recognizes the native siege-defence groups sourced from `Att
 UNVERIFIED: the exact wall-bound departure transition, wave membership at that transition, and boarding before docking in each executable. The command and scheduler matches identify existing code, while an actual tower departure needs separate evidence. No feature hook or runtime binding was added. Proposed per-character field `AICTactics_SiegeTowerCrew` defaults to true when AIC Tactics is active and applies only with working climbing support. The field and round-robin assignment remain pending the rider interface.
 
 Baseline verification: 130 Python tests passed with AIC Loader fixture `82a9a18`; all 37 tracked Lua files parsed via Lupa. Feature tests and live gameplay were skipped because the integration is blocked.
+
+## Rider interface handoff
+
+Improved Siegeengines commit `29c46bf0d8f09c67bcda7b0bf8c16b4e787ab823` exposes `isClimbingReady()`, `getFreeSeats(towerIndex)`, and `boardUnit(towerIndex, unitIndex)` through the UCP3 public module table. The implementation reuses the live rider mask and the existing AI seat assignment template. Automatic boarding still runs independently and can fill seats before a crew request.
+
+The owning module's `sendToWall` writes targeting `0x17` and order state `0x65` directly after setting the destination. With tower orders enabled, it bypasses the vanilla tower-order branch in `aiCommandSiegeEngineTribes`. Its rider wrapper can also auto-board before calling the original `UpdateSiegeTower`. A hook at either vanilla site alone therefore cannot guarantee first access to seats for the wave crew. The three operations expose existing passenger capabilities, while a departure ordering contract and wave membership still need verification before integrating the AIC policy.
+
+UNVERIFIED: departure ordering, wave selection, round-robin allocation, the per-character switch, and live boarding through the public interface. No gameplay test ran.
