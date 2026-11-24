@@ -51,6 +51,7 @@ return {
       'AIC Tactics requires full multiplayer content admission')
     local backend=require('config.backend').new(native)
     require('config.provider').register(modules.aicloader, backend)
+    require('siege-tower-crew').register(modules['improved-siegeengines'], native, nativeGame)
     if legacyInterval then native.enableLegacyInterval() end
     self.recruitmentState = require('state').new(native, legacyInterval, identity.sha256)
     protocol:registerMultiplayerAdmission('aic-tactics',function()

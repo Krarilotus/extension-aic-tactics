@@ -23,3 +23,29 @@ Improved Siegeengines commit `29c46bf0d8f09c67bcda7b0bf8c16b4e787ab823` exposes 
 The owning module's `sendToWall` writes targeting `0x17` and order state `0x65` directly after setting the destination. With tower orders enabled, it bypasses the vanilla tower-order branch in `aiCommandSiegeEngineTribes`. Its rider wrapper can also auto-board before calling the original `UpdateSiegeTower`. A hook at either vanilla site alone therefore cannot guarantee first access to seats for the wave crew. The three operations expose existing passenger capabilities, while a departure ordering contract and wave membership still need verification before integrating the AIC policy.
 
 UNVERIFIED: departure ordering, wave selection, round-robin allocation, the per-character switch, and live boarding through the public interface. No gameplay test ran.
+
+## Implementation
+
+AIC Tactics registers one policy with Improved Siegeengines at `f7c654c`, which
+runs it from the existing rider update before proximity boarding. This sees the
+wall order from either the native order path or Improved Siegeengines'
+`sendToWall`. Moving towers have wall targeting `0x17` and order state `0x65`.
+The policy reserves seats for siege-wave towers for characters with crew assignment enabled, then calls the existing
+`getFreeSeats` and `boardUnit` operations for the moving towers. The owner retains
+rider state, eligibility validation, and docking. A missing policy or a false
+return preserves the proximity boarder. The public callback is additive and
+registration supports either module enable order.
+
+OpenSHC's `Tribe.hpp` identifies the wave field and `Unit.hpp` identifies the
+unit-to-tribe ID and UID. The existing AIC Tactics siege construction resolver
+decodes the wave offset from the native write, including the Extreme tribe
+layout. The policy compares the unit's live tribe and wave with the AI's current
+attack wave. The existing configuration record's last word stores explicit OFF
+and participates in the existing save and multiplayer identity.
+
+The read-only binary check found each AIC siege and layout AOB once in
+Reconquista-Test Crusader and Extreme. The rider update-table AOB matched once
+in each binary at `0x57A1AA` and `0x57A5CA`. The decoded tower entries were
+`0x544750` and `0x544B70`, and both compare the tower order state with `0x65`.
+The callback uses that existing update binding and introduces no extra game
+patch site. Live seat assignment, distribution, and docking remain UNVERIFIED.

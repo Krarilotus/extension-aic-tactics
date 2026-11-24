@@ -211,7 +211,7 @@ function M.resolve(game)
     siegeGroupMove = groupMove, siegePlaceTent = placeTent,
     popUnitFromTribe = popUnit, siegeAssaultPlacementCall = assaultPlacementCall,
     siegeAssaultBatchCall = assaultCall, siegeAssaultBatch = assault,
-    siegeUnitCount = unitCount, siegeGetUnitForIndex = getUnit,
+    tribeAttackWave = tribeAttackWave, siegeUnitCount = unitCount, siegeGetUnitForIndex = getUnit,
     siegeHarassTargeting = harassTargeting,
     siegeCatapultRange = harassTargeting + 0x1fe,
     siegeFireRange = harassTargeting + 0x1ec,

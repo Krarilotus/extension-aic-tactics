@@ -49,7 +49,7 @@ function M.new(native)
         if core.readInteger(native[name] + ai * 4) ~= 0 then return true end
       end
       local address = native.configuration + ai * native.configurationSize
-      for _, offset in ipairs({0,288,292,296,316,320,344}) do
+      for _, offset in ipairs({0,288,292,296,316,320,344,348}) do
         if core.readInteger(address + offset) ~= 0 then return true end
       end
     end
@@ -89,7 +89,7 @@ function M.new(native)
     for word = 1, allyWords do
       if allies[word] ~= 0 or previousAllies[word] ~= 0 then alliesChange = true end
     end
-    local changesPolicy = changesHunt or alliesChange or compiled.mode ~= 0 or previous[1] ~= 0
+    local changesPolicy = (attacks[9] or 0) ~= 0 or previous[88] ~= 0 or changesHunt or alliesChange or compiled.mode ~= 0 or previous[1] ~= 0
       or targeting.policy ~= 0 or targeting.commitment ~= 0 or targeting.activation ~= 0
       or previous[73] ~= 0 or previous[74] ~= 0 or previous[75] ~= 0
       or envelope.preparation ~= 0 or previous[80] ~= 0
@@ -148,7 +148,6 @@ function M.new(native)
     words[#words + 1] = envelope.preparation
     for _, value in ipairs(envelope.raids) do words[#words + 1] = value end
     words[#words + 1] = envelope.siege[1]
-    words[#words + 1] = 0 -- reserved; retain the 352-byte configuration ABI
     -- Native neighbours may be visited before or after the first opt-in, when
     -- provider admission starts covering every update. Keep their unused
     -- storage identical to an unvisited record for save/MP/replay identity.
@@ -156,6 +155,7 @@ function M.new(native)
     if not personality.recordActive(authored) then
       for index = 1, #words do words[index] = 0 end
     end
+    words[88] = attacks[9] or 0
     return {commit = function()
       if multiplayerLocked or changesPolicy or anyPolicyActive() then admission() end
       if compiled.mode == 1 then native.activate() end

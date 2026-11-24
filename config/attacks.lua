@@ -5,7 +5,7 @@
 -- value itself.
 local M = {fields = {'AICTactics_PatrolOrders', 'AICTactics_PatrolFormation', 'AICTactics_PatrolSpacing',
   'AICTactics_PatrolExtraGroups', 'AICTactics_PatrolMinSize', 'AICTactics_PatrolRadius',
-  'AICTactics_SiegeScreen', 'AICTactics_SiegeScreenForward'}}
+  'AICTactics_SiegeScreen', 'AICTactics_SiegeScreenForward', 'AICTactics_SiegeTowerCrew'}}
 local orders = {Native = 0, AllGroups = 1}
 local formations = {Native = 0, Wing = 1, Mirror = 2, Routes = 3}
 local screens = {Native = 0, EngineApproach = 1}
@@ -45,6 +45,8 @@ function M.prepare(previous, spec, resetting)
     'AICTactics_PatrolFormation must be Native, Wing, Mirror or Routes')
   assert(spacing == nil or integer(spacing, 4, 40), 'AICTactics_PatrolSpacing must be an integer from 4 to 40')
   assert(screen == nil or screens[screen] ~= nil, 'AICTactics_SiegeScreen must be Native or EngineApproach')
+  local crew = result.AICTactics_SiegeTowerCrew
+  assert(crew == nil or type(crew) == 'boolean', 'AICTactics_SiegeTowerCrew must be a boolean')
   local stored = {}
   for _, number in ipairs(numbers) do
     local value = result[number[1]]
@@ -56,7 +58,7 @@ function M.prepare(previous, spec, resetting)
   return result, {order == nil and 0 or orders[order] + 1, formation == nil and 0 or formations[formation] + 1,
     spacing or 0, stored.AICTactics_PatrolExtraGroups, stored.AICTactics_PatrolMinSize,
     stored.AICTactics_PatrolRadius, screen == nil and 0 or screens[screen] + 1,
-    stored.AICTactics_SiegeScreenForward}
+    stored.AICTactics_SiegeScreenForward, crew == false and 1 or 0}
 end
 
 function M.active(candidate)

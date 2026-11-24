@@ -104,3 +104,8 @@ More fragments are in `examples/attack-behaviour/`. They are examples and test f
 - **UCP2-Legacy.** Its attack options touch different code and remain compatible.
 
 Smarter Patrols by Monsterfish, under GPL-3.0; see [CREDITS.md](../CREDITS.md).
+
+`AICTactics_SiegeTowerCrew` is a boolean and defaults to `true`. With compatible
+Improved Siegeengines climbing active, the AI assigns troops from its current
+siege wave to wall-bound towers. Set it to `false` to retain standard boarding
+for this character.

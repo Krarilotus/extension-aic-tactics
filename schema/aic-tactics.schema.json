@@ -344,6 +344,11 @@
       "maximum": 100,
       "description": "Walking distance from the target castle of the ring that Routes patrols follow. Absent uses the module setting (default 12, the native patrol ring)."
     },
+    "AICTactics_SiegeTowerCrew": {
+      "type": "boolean",
+      "default": true,
+      "description": "Board troops from this AI's siege wave on its wall-bound towers when climbing is active."
+    },
     "AICTactics_SiegeScreen": {
       "enum": [
         "Native",
