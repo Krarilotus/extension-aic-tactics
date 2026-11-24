@@ -115,6 +115,10 @@ options:
   text: '{{lordHuntRetarget_descr}}'
   display: UCP2Switch
   url: aic-tactics.lordHuntRetarget
+  contents:
+    type: boolean
+    value: true
+- category: ['{{ai}}', '{{improvements}}']
   name: allyRelief
   header: '{{allyRelief}}'
   text: '{{allyRelief_descr}}'
