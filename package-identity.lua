@@ -25,7 +25,7 @@ function M.verify(identity)
     assert(total <= 4 * 1024 * 1024, 'AIC Tactics: package exceeds identity limit')
     chunks[#chunks + 1] = word(#name) .. name .. word(#data) .. word(0) .. data
   end
-  -- Startup only: no hashing, file reads or allocation on the simulation path.
+  -- Runs once, at the first multiplayer admission check; never on the simulation path.
   assert(sha.sha256(table.concat(chunks)) == identity.sha256,
     'AIC Tactics: package files changed; rebuild the package before starting a match')
   return identity.sha256

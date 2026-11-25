@@ -13,7 +13,6 @@ return {
     assert(saveInterface and saveInterface.failureHandling == 1 and saveInterface.readContext == 1,
       'AIC Tactics requires Map Extensions 1.1.4 for native load context and rejected state handling')
     local identity = require('build-identity')
-    require('package-identity').verify(identity)
     local native = require('native').new(nativeGame)
     local safePlacement = config and config.safeSiegePlacement
     if safePlacement == nil then safePlacement = true end
@@ -54,7 +53,12 @@ return {
     require('siege-tower-crew').register(modules['improved-siegeengines'], native, nativeGame)
     if legacyInterval then native.enableLegacyInterval() end
     self.recruitmentState = require('state').new(native, legacyInterval, identity.sha256)
+    local packageVerified = false
     protocol:registerMultiplayerAdmission('aic-tactics',function()
+      if not packageVerified then
+        require('package-identity').verify(identity)
+        packageVerified = true
+      end
       backend.freezeMultiplayer()
       return sha.sha256(self.recruitmentState.matchIdentity())
     end,function(reason)
