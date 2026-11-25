@@ -3,8 +3,8 @@ local lordHunt = require('config.lord-hunt')
 local patrolArrays = require('config.attacks').arrays
 local M = {}
 local huntArrays = {'lordHuntRetarget', 'lordHuntSiege', 'lordHuntSwitch', 'lordHuntShare', 'lordHuntSplit'}
--- Per-AI ally settings: 7 words per character (src/allies.cpp allySettings).
-local allyWords = 7
+-- Per-AI ally settings: one word per setting and character (src/allies.cpp allySettings).
+local allyWords = #require('config.allies').settings
 
 function M.new(native)
   local multiplayerLocked=false
@@ -89,7 +89,7 @@ function M.new(native)
     for word = 1, allyWords do
       if allies[word] ~= 0 or previousAllies[word] ~= 0 then alliesChange = true end
     end
-    local changesPolicy = (attacks[9] or 0) ~= 0 or previous[88] ~= 0 or changesHunt or alliesChange or compiled.mode ~= 0 or previous[1] ~= 0
+    local changesPolicy = (attacks[10] or 0) ~= 0 or previous[88] ~= 0 or changesHunt or alliesChange or compiled.mode ~= 0 or previous[1] ~= 0
       or targeting.policy ~= 0 or targeting.commitment ~= 0 or targeting.activation ~= 0
       or previous[73] ~= 0 or previous[74] ~= 0 or previous[75] ~= 0
       or envelope.preparation ~= 0 or previous[80] ~= 0
@@ -109,6 +109,8 @@ function M.new(native)
     local needsCombat = targeting.policy ~= 0 or targeting.commitment ~= 0 or targeting.activation ~= 0
       or envelope.preparation ~= 0 or envelope.raids[1] ~= 0
       or envelope.siege[3] == 1
+      -- Extra siege-defence groups are handed back from the per-AI attack update.
+      or attacks[9] > 1
     if compiled.mode == 1 then
       for _, row in ipairs(compiled.conditions) do
         if row.requiredFacts % 2 == 1 or row.forbiddenFacts % 2 == 1 then needsCombat = true end
@@ -125,6 +127,7 @@ function M.new(native)
     if attacks[7] == 2 then native.preflightSiegeScreen() end
     if allies[1] == 2 then native.preflightAllyRelief() end
     if allies[2] == 2 then native.preflightAllyGoods() end
+    if allies[8] == 2 then native.preflightAllyGates() end
     -- Per-AI values of a feature that is off are stored as unset.
     local off = native.unavailableFeatures
     if off.Raids then envelope.raids[1] = 0 end
@@ -133,9 +136,11 @@ function M.new(native)
     end
     if off.AttackPatrols then attacks[1] = 0 end
     if off.SiegeScreen then attacks[7] = 0 end
+    if off.Combat or off.SiegeScreen then attacks[9] = 0 end
     if off.LordHunt then hunt[1], hunt[4] = 0, 0 end
     if off.AllyRelief then allies[1] = 0 end
     if off.AllyGoods then allies[2] = 0 end
+    if off.AllyGates then allies[8] = 0 end
     local words = {compiled.mode, #compiled.conditions}
     for index = 1, 8 do
       local row = compiled.conditions[index]
@@ -165,7 +170,7 @@ function M.new(native)
     if not personality.recordActive(authored) then
       for index = 1, #words do words[index] = 0 end
     end
-    words[88] = attacks[9] or 0
+    words[88] = attacks[10] or 0
     return {commit = function()
       if multiplayerLocked or changesPolicy or anyPolicyActive() then admission() end
       if compiled.mode == 1 then native.activate() end
@@ -181,6 +186,7 @@ function M.new(native)
       if attacks[7] == 2 then native.activateSiegeScreen() end
       if allies[1] == 2 then native.activateAllyRelief() end
       if allies[2] == 2 then native.activateAllyGoods() end
+      if allies[8] == 2 then native.activateAllyGates() end
       writeRecord(ai, words)
       core.writeInteger(native.siegePaymentPolicy + ai * 4, envelope.siege[2])
       core.writeInteger(native.siegeHarassPolicy + ai * 4, envelope.siege[3])

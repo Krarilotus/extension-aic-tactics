@@ -15,6 +15,7 @@ int patrolMinSize[17];
 int patrolRadius[17];
 int siegeScreen[17];
 int siegeScreenForward[17];
+int siegeScreenExtraGroups[17];
 int patrolOrdersFallback = 1;
 int patrolFormationFallback = RoutesPatrolFormation;
 int patrolSpacingFallback = 12;
@@ -23,6 +24,7 @@ int patrolMinSizeFallback = 4;
 int patrolRadiusFallback = 12;
 int siegeScreenFallback = 1;
 int siegeScreenForwardFallback = 4;
+int siegeScreenExtraGroupsFallback = 0;
 PatrolRoute patrolRoutes[9][PatrolRoutesPerPlayer];
 
 namespace {
@@ -32,6 +34,7 @@ const int SecondPatrolSlot = 16;
 const int FirstSiegeDefenceSlot = 190;
 const int SecondSiegeDefenceSlot = 191;
 const int PatrolRole = 16;
+const int SiegeDefenceRole = 19;
 const int TribeCapacity = 1250;
 // Packed isometric tile count of a 400x400 map (OpenSHC Map/TileMapState.hpp),
 // also the size of one distance layer.
@@ -382,8 +385,8 @@ int handBack(void* aic, int player, int index, int budget)
     return before > left ? before - left : 0;
 }
 
-// The highest-numbered patrol member below the entry's cursor, except the leader.
-int nextMember(Pool& entry)
+// The highest-numbered member of the role below the entry's cursor, except the leader.
+int nextMember(Pool& entry, int role)
 {
     const int leader = at<short>(tribeAddress(entry.tribe) + 0x5A);
     for (; entry.word >= 0; --entry.word, entry.bit = 15) {
@@ -393,7 +396,7 @@ int nextMember(Pool& entry)
             const int unit = entry.word * 16 + entry.bit;
             if (unit == leader || unit <= 0 || unit >= static_cast<int>(nativeBindings.unitCapacity)
                 || at<short>(unitAddress(unit) + 0x2D8) != entry.tribe
-                || at<short>(unitAddress(unit) + 0x42A) != PatrolRole) continue;
+                || at<short>(unitAddress(unit) + 0x42A) != role) continue;
             --entry.bit;
             return unit;
         }
@@ -401,21 +404,22 @@ int nextMember(Pool& entry)
     return 0;
 }
 
-// Splits the native patrol slots into the character's extra detached groups and
-// keeps them balanced (Smarter Patrols' sizing: at most the wanted number of
-// groups while each keeps the minimum size; tight balance while a group is
-// still below it, then within the minimum). Units only move into detached
-// groups: the native slots refill from the game's own recruitment. Surplus
-// groups go back to the native slots, smallest first.
-void organizeDetachedPatrols(void* aic, int player, int ai, Budget& budget)
+// Splits the two native slots of a role (patrol 15-16, siege defence 190-191)
+// into `extra` detached groups of the duty and keeps them balanced (Smarter
+// Patrols' sizing: at most the wanted number of groups while each keeps the
+// minimum size; tight balance while a group is still below it, then within
+// the minimum). Units only move into detached groups: the native slots refill
+// from the game's own recruitment. Surplus groups go back to the native
+// slots, smallest first.
+void organizeDetachedGroups(void* aic, int player, int ai, int duty, int firstSlot, int role, int extra,
+    Budget& budget)
 {
-    const int extra = setting(patrolExtraGroups, ai, patrolExtraGroupsFallback);
     int minimum = setting(patrolMinSize, ai, patrolMinSizeFallback);
     if (minimum < 1) minimum = 1;
     Pool pool[2 + DetachedGroupsPerPlayer];
     int count = 0, slots = 0, live = 0, total = 0;
     const int words = static_cast<int>(nativeBindings.tribeMemberWords);
-    for (int slot = FirstPatrolSlot; slot <= SecondPatrolSlot; ++slot) {
+    for (int slot = firstSlot; slot <= firstSlot + 1; ++slot) {
         const int tribe = slotTribe(player, slot);
         if (!tribe) continue;
         const Pool entry = {tribe, -1, tribeSize(tribe), words - 1, 15};
@@ -424,7 +428,7 @@ void organizeDetachedPatrols(void* aic, int player, int ai, Budget& budget)
         ++slots;
     }
     for (int index = 0; index < DetachedGroupsPerPlayer; ++index) {
-        if (detachedGroups[player][index].duty != PatrolDuty) continue;
+        if (detachedGroups[player][index].duty != duty) continue;
         if (!detachedGroupValid(player, index) || detachedGroups[player][index].returning) {
             budget.moves -= handBack(aic, player, index, budget.moves);
             continue;
@@ -451,7 +455,7 @@ void organizeDetachedPatrols(void* aic, int player, int ai, Budget& budget)
         pool[smallest] = pool[--count];
         --live;
     } else if (live < desired) {
-        const int index = openDetachedGroup(player, PatrolDuty);
+        const int index = openDetachedGroup(player, duty);
         if (index >= 0) {
             diagnostic("player %d: extra patrol group %d opens (%d patrol troops)", player, index + 1, total);
             detachedGroups[player][index].target = at<int>(playerAddress(player) + 0x2BD8);
@@ -471,7 +475,7 @@ void organizeDetachedPatrols(void* aic, int player, int ai, Budget& budget)
             if (pool[entry].record >= 0 && (small < 0 || pool[entry].size < pool[small].size)) small = entry;
         }
         if (small < 0 || pool[big].size - pool[small].size <= tolerance) break;
-        const int unit = nextMember(pool[big]);
+        const int unit = nextMember(pool[big], role);
         if (!unit) break;
         --budget.moves;
         if (!moveUnitToDetachedGroup(player, pool[small].record, unit)) continue;
@@ -480,11 +484,81 @@ void organizeDetachedPatrols(void* aic, int player, int ai, Budget& budget)
     }
 }
 
-bool patrolRecordsExist(int player)
+bool recordsExist(int player, int duty)
 {
     for (int index = 0; index < DetachedGroupsPerPlayer; ++index)
-        if (detachedGroups[player][index].duty == PatrolDuty) return true;
+        if (detachedGroups[player][index].duty == duty) return true;
     return false;
+}
+
+bool siegeDefenceRecord(int player, int index)
+{
+    return detachedGroups[player][index].duty == SiegeDefenceDuty && detachedGroupValid(player, index)
+        && !detachedGroups[player][index].returning;
+}
+
+// One siege-defence group's station at `engine`: in front of it toward the
+// target keep for a melee leader, then the engine itself. Returns true when
+// ordered.
+bool stationSiegeDefence(void* tribes, int player, int ai, int tribe, TilePoint engine)
+{
+    TilePoint candidates[2], keep, station;
+    int count = 0;
+    const int type = at<short>(unitAddress(at<short>(tribeAddress(tribe) + 0x5A)) + 0x8E);
+    if (!ranged(type) && keepPosition(at<int>(playerAddress(player) + 0x2BD8), keep)
+        && siegeScreenStation(engine, keep, setting(siegeScreenForward, ai, siegeScreenForwardFallback), station))
+        candidates[count++] = station;
+    candidates[count++] = engine;
+    Budget budget = {2, 2, 0};
+    for (int candidate = 0; candidate < count; ++candidate)
+        if (tryStation(tribes, tribe, candidates[candidate], budget) == Ordered) return true;
+    return false;
+}
+
+// The siege-defence groups: the two native slots and the live detached ones.
+int siegeDefenceGroups(int player)
+{
+    int groups = 2;
+    for (int index = 0; index < DetachedGroupsPerPlayer; ++index)
+        if (siegeDefenceRecord(player, index)) ++groups;
+    return groups;
+}
+
+// The engine of group `order` (0 = slot 190) of `groups`: the groups spread
+// evenly over the tribe's rally list from its current entry.
+TilePoint rallyEngine(int tribe, int order, int groups, TilePoint current)
+{
+    const int points = at<short>(tribeAddress(tribe) + nativeBindings.tribeRallyCount);
+    const int index = at<short>(tribeAddress(tribe) + nativeBindings.tribeRallyCount - 2);
+    if (points <= 1 || points > 10 || index < 0 || index >= points) return current;
+    const unsigned int entry = tribeAddress(tribe) + nativeBindings.tribeRallyPoints
+        + ((index + order * points / groups) % points) * 4;
+    TilePoint engine;
+    engine.x = at<short>(entry);
+    engine.y = at<short>(entry + 2);
+    return engine;
+}
+
+// Slot 190 moved on along its rally list: every detached siege-defence group
+// that is not fighting takes its own engine after slot 191's.
+void moveDetachedSiegeDefence(void* tribes, int player, int ai, int tribe, int groups, TilePoint current)
+{
+    int order = 2;
+    for (int index = 0; index < DetachedGroupsPerPlayer; ++index) {
+        if (!siegeDefenceRecord(player, index)) continue;
+        DetachedGroup& group = detachedGroups[player][index];
+        const TilePoint engine = rallyEngine(tribe, order++, groups, current);
+        TilePoint leader;
+        if (!leaderPosition(player, group.tribe, leader)
+            || at<short>(unitAddress(at<short>(tribeAddress(group.tribe) + 0x5A)) + UnitClosestEnemy) <= FightRange)
+            continue;
+        // The native rally sets this stance on the slot tribes it orders.
+        at<short>(tribeAddress(group.tribe) + nativeBindings.tribeStance) = 2;
+        if (stationSiegeDefence(tribes, player, ai, group.tribe, engine)) {
+            group.x = engine.x;
+            group.y = engine.y;
+        }
+    }
 }
 } // namespace
 
@@ -497,7 +571,8 @@ void __fastcall dispatchAttackPatrols(void* aic, void*, int player)
     // A running match fixes the configuration, as the census does for others.
     configurationLocked = 1;
     Budget budget = {PatrolPathBudget, PatrolOrderBudget, PatrolMoveBudget};
-    organizeDetachedPatrols(aic, player, ai, budget);
+    organizeDetachedGroups(aic, player, ai, PatrolDuty, FirstPatrolSlot, PatrolRole,
+        setting(patrolExtraGroups, ai, patrolExtraGroupsFallback), budget);
     Group groups[1 + PatrolRoutesPerPlayer];
     std::memset(groups, 0, sizeof(groups));
     int count = 1;
@@ -529,7 +604,7 @@ void __cdecl finishAttackPatrols(void* aic, int player)
     const int state = at<int>(playerAddress(player) + 0x2BA4);
     if (state >= 3 && state <= 5 && patrolsOn(player, ai)) return;
     if (patrolRoutes[player][0].uid) std::memset(&patrolRoutes[player][0], 0, sizeof(PatrolRoute));
-    if (!patrolRecordsExist(player)) return;
+    if (!recordsExist(player, PatrolDuty)) return;
     int budget = PatrolReturnBudget;
     for (int index = 0; index < DetachedGroupsPerPlayer && budget > 0; ++index)
         if (detachedGroups[player][index].duty == PatrolDuty) budget -= handBack(aic, player, index, budget);
@@ -539,14 +614,41 @@ void __cdecl retreatAttackPatrols(void* aic, int player)
 {
     if (player < 1 || player > 8) return;
     std::memset(&patrolRoutes[player][0], 0, sizeof(PatrolRoute));
-    if (!patrolRecordsExist(player)) return;
+    if (!recordsExist(player, PatrolDuty) && !recordsExist(player, SiegeDefenceDuty)) return;
     int budget = PatrolRetreatBudget;
-    for (int index = 0; index < DetachedGroupsPerPlayer; ++index)
-        if (detachedGroups[player][index].duty == PatrolDuty) budget -= handBack(aic, player, index, budget);
+    for (int index = 0; index < DetachedGroupsPerPlayer; ++index) {
+        const int duty = detachedGroups[player][index].duty;
+        if (duty == PatrolDuty || duty == SiegeDefenceDuty) budget -= handBack(aic, player, index, budget);
+    }
     // Members beyond the budget walk home as a group and rejoin at later updates.
-    for (int index = 0; index < DetachedGroupsPerPlayer; ++index)
-        if (patrolRecord(player, index) && detachedGroupSize(player, index) > 0)
+    for (int index = 0; index < DetachedGroupsPerPlayer; ++index) {
+        const int duty = detachedGroups[player][index].duty;
+        if ((duty == PatrolDuty || duty == SiegeDefenceDuty) && detachedGroupValid(player, index)
+            && detachedGroupSize(player, index) > 0)
             reinterpret_cast<TribeReturn>(nativeBindings.returnTribe)(aic, detachedGroups[player][index].tribe, player);
+    }
+}
+
+void __cdecl organizeSiegeDefence(void* aic, int player)
+{
+    if (player < 1 || player > 8) return;
+    const int ai = character(player);
+    const int state = at<int>(playerAddress(player) + 0x2BA4);
+    const int extra = state >= 3 && state <= 4 && ai >= 1 && ai <= 16
+        && setting(siegeScreen, ai, siegeScreenFallback) == 1
+        ? setting(siegeScreenExtraGroups, ai, siegeScreenExtraGroupsFallback) : 0;
+    if (extra > 0) {
+        configurationLocked = 1;
+        Budget budget = {0, 0, PatrolMoveBudget};
+        organizeDetachedGroups(aic, player, ai, SiegeDefenceDuty, FirstSiegeDefenceSlot, SiegeDefenceRole,
+            extra, budget);
+        return;
+    }
+    if (!recordsExist(player, SiegeDefenceDuty)) return;
+    // The whole group at once, so the wall assault orders every member.
+    for (int index = 0; index < DetachedGroupsPerPlayer; ++index)
+        if (detachedGroups[player][index].duty == SiegeDefenceDuty)
+            handBack(aic, player, index, static_cast<int>(nativeBindings.unitCapacity));
 }
 
 int __fastcall screenSiegeDefenceMove(void* tribes, void*, int tribe, int x, int y, int rally, int store, int speed)
@@ -566,16 +668,12 @@ int __fastcall screenSiegeDefenceMove(void* tribes, void*, int tribe, int x, int
     TilePoint engine;
     engine.x = x;
     engine.y = y;
-    // The second group walks the same native rally list half a lap ahead, so the
-    // two groups cover different engines.
-    const int points = at<short>(tribeAddress(tribe) + nativeBindings.tribeRallyCount);
-    const int current = at<short>(tribeAddress(tribe) + nativeBindings.tribeRallyCount - 2);
-    if (slot == SecondSiegeDefenceSlot && points > 1 && points <= 10 && current >= 0 && current < points) {
-        const unsigned int spread = tribeAddress(tribe) + nativeBindings.tribeRallyPoints
-            + ((current + points / 2) % points) * 4;
-        engine.x = at<short>(spread);
-        engine.y = at<short>(spread + 2);
-    }
+    // The second group and the detached ones walk the same native rally list
+    // ahead of the first (half a lap with two groups), so they cover different
+    // engines.
+    const int groups = siegeDefenceGroups(player);
+    if (slot == FirstSiegeDefenceSlot) moveDetachedSiegeDefence(tribes, player, ai, tribe, groups, engine);
+    else engine = rallyEngine(tribe, 1, groups, engine);
     TilePoint candidates[2], keep, station;
     int count = 0;
     const int type = at<short>(unitAddress(at<short>(tribeAddress(tribe) + 0x5A)) + 0x8E);

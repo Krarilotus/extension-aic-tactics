@@ -1,6 +1,6 @@
 # Attack patrol and siege-defence configuration
 
-The native game recruits up to two attack patrol groups (`AttUnitPatrolGroupsCount` 2) but orders only the first; the second waits at its staging point for the whole assault. Its siege-defence groups (`AttUnitSiegeDef`) walk together from one siege engine to the next. With AIC Tactics active, every patrol group joins in, a patrol can split into more groups during an attack, and siege-defence groups stand on the engines' approach. Per-character AIC fields change this for one AI; module settings in Customizations are the default for every AI.
+The native game recruits up to two attack patrol groups (`AttUnitPatrolGroupsCount` 2) but orders only the first; the second waits at its staging point for the whole assault. Its siege-defence groups (`AttUnitSiegeDef`) walk together from one siege engine to the next. With AIC Tactics active, every patrol group joins in, a patrol can split into more groups during an attack, and siege-defence groups stand on the engines' approach, split into more groups if wanted. Per-character AIC fields change this for one AI; module settings in Customizations are the default for every AI.
 
 ## Fields
 
@@ -10,10 +10,11 @@ The native game recruits up to two attack patrol groups (`AttUnitPatrolGroupsCou
 | `AICTactics_PatrolFormation` | `patrolFormation` | `Routes`, `Wing`, `Mirror`, `Native` | `Routes` | Where the groups after the first go. See [Formations](#formations). |
 | `AICTactics_PatrolSpacing` | `patrolSpacing` | 4–40 tiles | 12 | Distance between neighbouring groups in `Wing` and `Mirror` (diagonal approaches use an equivalent shorter step). |
 | `AICTactics_PatrolExtraGroups` | `patrolExtraGroups` | 0–6 | 0 | Extra groups split off the native patrol groups while the army attacks. 0 keeps the AI's own groups. |
-| `AICTactics_PatrolMinSize` | `patrolMinSize` | 1–50 units | 4 | A patrol is only split as far as every group keeps this many units. |
+| `AICTactics_PatrolMinSize` | `patrolMinSize` | 1–50 units | 4 | A patrol or the siege defence is only split as far as every group keeps this many units. |
 | `AICTactics_PatrolRadius` | `patrolRadius` | 4–100 | 12 | Walking distance from the target castle of the ring that `Routes` follow. 12 is the ring of the game's own patrol. |
 | `AICTactics_SiegeScreen` | `siegeScreen` | `EngineApproach`, `Native` | `EngineApproach` | `EngineApproach` stations the siege-defence groups in front of their engines while the engines work. `Native` keeps the game's rally. |
 | `AICTactics_SiegeScreenForward` | `siegeScreenForward` | 0–10 tiles | 4 | How far in front of the engines, toward the target castle, melee siege-defence groups stand. Ranged groups stay at the engines. |
+| `AICTactics_SiegeScreenExtraGroups` | `siegeScreenExtraGroups` | 0–6 | 0 | Extra groups split off the two native siege-defence groups while the engines work (states 3–4), with `EngineApproach`. 0 keeps the AI's own groups. See [Extra siege-defence groups](#extra-siege-defence-groups). |
 
 An absent field uses the module setting; an explicit value changes it for that character only. The split and screen defaults are those Smarter Patrols was tested with.
 
@@ -49,7 +50,7 @@ While the AI attacks (states 3–5), at its native patrol order:
 - **Other ends.** When the attack leaves states 3–5 any other way (a breach, the lord's death), up to 16 units per update rejoin.
 - **How.** Units rejoin through the game's own choice of the smallest patrol group. Nothing else is swept: troops in groups AIC Tactics did not record are left alone.
 
-Extra groups use AIC Tactics' shared detached-group records, at most eight per AI across every duty. The count is capped at 6 so that other duties still find room.
+Extra groups use AIC Tactics' shared detached-group records, at most eight per AI across every duty, extra patrol and siege-defence groups included. The count is capped at 6 so that other duties still find room.
 
 ## Siege-defence screen
 
@@ -57,10 +58,18 @@ The game walks both siege-defence groups (slots 190 and 191) round its list of t
 
 With `EngineApproach`:
 
-- **Second group.** It takes the engine half a lap further round the same list, so the two groups cover different engines.
+- **Second group.** It takes the engine half a lap further round the same list, so the two groups cover different engines. With extra groups, all groups spread evenly round the list instead.
 - **Melee groups.** A group whose leader is a melee unit stands `SiegeScreenForward` tiles in front of the engine, toward the target keep, and never more than half way there. Ranged groups stay at the engine.
 - **Checks and fallback.** Each station is checked like a patrol station; if it is rejected, the game's own rally point is used.
 - **Wall assault.** In state 5 the native wall assault orders both groups as before.
+
+## Extra siege-defence groups
+
+The game has two siege-defence slots (190 and 191, `AttUnitSiegeDefGroupsCount` at most 2); a third group would recruit into the main army's slot. With `SiegeScreenExtraGroups` above 0 and `EngineApproach`, more groups are split off those two while the engines work:
+
+- **Splitting.** At the start of each AI attack update in states 3 and 4, by the rules of [extra patrol groups](#extra-groups): one new group per update, at most the two native groups plus `SiegeScreenExtraGroups`, only as far as every group keeps `PatrolMinSize` units, up to 16 units moved per update.
+- **Orders.** Whenever the game moves slot 190 on to its next engine, every extra group that is not fighting moves too, each to its own engine of slot 190's list, spread evenly with the two native groups. Melee groups stand `SiegeScreenForward` tiles in front of the engine, ranged groups at it; each station is checked like a patrol station.
+- **Handing back.** At the start of the first update outside states 3 and 4 every member rejoins the native slots at once, so the native wall assault in state 5 orders all of them. A retreat hands them back like extra patrol groups.
 
 ## Example
 

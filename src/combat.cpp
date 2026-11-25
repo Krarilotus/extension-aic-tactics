@@ -380,6 +380,7 @@ void __fastcall updateOffensiveArmy(void* aic, void*, int player)
 {
     AllyUpdate allies(aic, player);
     finishAttackPatrols(aic, player);
+    organizeSiegeDefence(aic, player);
     if (!offensiveActionsAllowed(player)) return;
     const int phaseBefore = playerValue(player, (nativeBindings.players + 0x2BA4));
     prepareArmyUpdate(aic, player);

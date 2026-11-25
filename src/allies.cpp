@@ -10,7 +10,7 @@ namespace SHC141 {
 
 AllyBindings allyBindings;
 int allySettings[17][AllySettingCount];
-int allyFallback[AllySettingCount] = {1, 1, 1000, 300, 25, 30, 75};
+int allyFallback[AllySettingCount] = {1, 1, 1000, 300, 25, 30, 75, 0, 0, 0};
 AllyState allyStates[9];
 
 namespace {
@@ -25,12 +25,21 @@ const unsigned int RetryTicks = AllyTicksPerMonth;
 // cannot defend itself, so wood and stone reach it first while it rebuilds.
 const int KeyBuildings[AllyKeyBuildingCount] = {8, 9, 11, 19, 26};
 // Native player fields (PlayerData).
-const unsigned int Keep = 0x94, KeyX = 0x98, KeyY = 0x9C, CampX = 0x1D8, CampY = 0x1DC;
+const unsigned int Keep = 0x94, KeyX = 0x98, KeyY = 0x9C, KeepTile = 0x1E0, CampX = 0x1D8, CampY = 0x1DC;
 const unsigned int Resources = 0x4D0, TotalFood = 0x209C, AivID = 0x22FC, Character = 0x2300;
 const unsigned int ToAcquire = 0x2A70, StrengthState = 0x2B74, Phase = 0x2BA4, AttackEngineers = 0x2BA8;
 const unsigned int AttackTroops = 0x30F0, StrengthFeeling = 0x30F4, Nervous = 0x3820;
 const unsigned int HelpRequest = 0x384C, RequestDelay = 0x3898, WaveExtra = 0x38A0, HelpAsker = 0x38E4;
 const int RequestHelp = 2, WeakFeeling = 1;
+// Native building fields (record = buildings + 0x14 + id * 0x32C).
+const unsigned int BuildingStride = 0x32C, BuildingLife = 0xD0, BuildingType = 0xD2, BuildingOwner = 0xD6;
+const unsigned int BuildingX = 0xEE, BuildingY = 0xF0, BuildingSize = 0xF8, GateLink = 0x2A2, GateState = 0x2A3;
+const int GateClosed = 2, GateOpening = 0xB;
+// Tiles beyond a gatehouse's edge that count as at its door.
+const int GateReach = 5;
+// Doors tried per order: the nearest first, each with one path query.
+const int DoorAttempts = 3;
+const int TileCapacity = 80400;
 // AIC record fields (AIC Loader field index * 4).
 const int AicRequestDelay = 0xA0, AicMinimumGoods = 0xA4, AicVariance = 0xC0, AicRecruitGold = 0xC4;
 const int AicAttackForce = 0x1F4, AicSupportThreshold = 0x1FC;
@@ -449,30 +458,154 @@ int reliefGroup(int player)
     return -1;
 }
 
+bool reachable(void* aic, int tribe, TilePoint point)
+{
+    const int tile = movableTile(point);
+    return tile && reinterpret_cast<TribeQuery>(nativeBindings.tribePath)(aic, tribe, tile);
+}
+
 bool move(void* aic, int tribe, int x, int y)
 {
     TilePoint point = {x, y};
-    const int tile = movableTile(point);
-    if (!tile || !reinterpret_cast<TribeQuery>(nativeBindings.tribePath)(aic, tribe, tile)) return false;
+    if (!reachable(aic, tribe, point)) return false;
     return reinterpret_cast<TribeMove>(nativeBindings.siegeGroupMove)(
         reinterpret_cast<void*>(nativeBindings.tribes), tribe, x, y, 0, 0, 0) != 0;
 }
 
-// The helped keep's entrance, else its camp if the keep cannot be reached.
-// Returns false when neither can be reached by the group. Members that just
-// joined get the order even at the station: the native add gives none.
+unsigned int buildingAddress(int building) { return nativeBindings.buildings + 0x14 + building * BuildingStride; }
+bool building(int id) { return id > 0 && id < static_cast<int>(nativeBindings.buildingCapacity); }
+bool gatehouse(unsigned int record)
+{
+    const int type = at<short>(record + BuildingType);
+    return type >= 45 && type <= 48;
+}
+int area(int tile) { return tile > 0 && tile < TileCapacity ? at<unsigned short>(nativeBindings.areaMap + tile * 2) : 0; }
+// The ground inside the player's walls: the area map is built with every gate shut.
+int keepArea(int player) { return hasKeep(player) ? area(field(player, KeepTile)) : 0; }
+
+// Inside the player's walls, or on its keep (the keep's roof is not part of
+// the ground area).
+bool insideWalls(int unit, int player)
+{
+    const unsigned int address = unitAddress(unit);
+    const int home = keepArea(player);
+    if (home && area(at<int>(address + 0xD4)) == home) return true;
+    const int keep = field(player, Keep);
+    if (!building(keep)) return false;
+    const unsigned int record = buildingAddress(keep);
+    const int size = at<int>(record + BuildingSize);
+    const int x = at<short>(address + 0xC4) - at<short>(record + BuildingX);
+    const int y = at<short>(address + 0xC6) - at<short>(record + BuildingY);
+    return x >= 0 && y >= 0 && x < size && y < size;
+}
+
+// A living member of the relief inside the helped ally's walls (`inside`) or
+// outside them; with reach >= 0 only within `reach` tiles of (x, y).
+bool memberAt(int helper, const DetachedGroup& group, bool inside, int x, int y, int reach)
+{
+    const int words = static_cast<int>(nativeBindings.tribeMemberWords);
+    for (int word = 0; word < words; ++word) {
+        const unsigned int bits = at<unsigned short>(tribeAddress(group.tribe) + 0x60 + word * 2);
+        for (int bit = 0; bit < 16 && bits; ++bit) {
+            if (!(bits & (1U << bit))) continue;
+            const int unit = word * 16 + bit;
+            if (unit >= static_cast<int>(nativeBindings.unitCapacity)) continue;
+            const unsigned int address = unitAddress(unit);
+            if (at<short>(address + 0x96) != helper || at<short>(address + 0x8C) != 2
+                || at<short>(address + 0x2A0) != 0 || at<short>(address + 0x2D8) != group.tribe) continue;
+            if (reach >= 0) {
+                const int dx = at<short>(address + 0xC4) - x, dy = at<short>(address + 0xC6) - y;
+                if (dx > reach || dx < -reach || dy > reach || dy < -reach) continue;
+            }
+            if (insideWalls(unit, group.target) == inside) return true;
+        }
+    }
+    return false;
+}
+
+// Orders the group to a door of one of the ally's gatehouses, on the outside
+// (going in) or the inside (leaving): the tile beside the middle of a
+// gatehouse side, nearest the leader first, that the group can walk to.
+bool orderToGate(void* aic, DetachedGroup& group, TilePoint leader, bool inside)
+{
+    const int home = keepArea(group.target);
+    if (!home) return false;
+    TilePoint tried[DoorAttempts];
+    for (int attempt = 0; attempt < DoorAttempts; ++attempt) {
+        TilePoint best = {0, 0};
+        int bestDistance = -1;
+        for (int id = 1; building(id); ++id) {
+            const unsigned int record = buildingAddress(id);
+            if (at<short>(record + BuildingLife) != 2 || at<short>(record + BuildingOwner) != group.target
+                || !gatehouse(record)) continue;
+            const int size = at<int>(record + BuildingSize);
+            const int x = at<short>(record + BuildingX), y = at<short>(record + BuildingY);
+            const TilePoint doors[4] = {{x + size / 2, y - 1}, {x + size / 2, y + size},
+                {x - 1, y + size / 2}, {x + size, y + size / 2}};
+            for (int door = 0; door < 4; ++door) {
+                const int doorArea = area(movableTile(doors[door]));
+                if (!doorArea || (doorArea == home) != inside) continue;
+                bool seen = false;
+                for (int index = 0; index < attempt; ++index)
+                    if (tried[index].x == doors[door].x && tried[index].y == doors[door].y) seen = true;
+                const int distance = patrolDistance(doors[door], leader);
+                if (!seen && (bestDistance < 0 || distance < bestDistance)) {
+                    best = doors[door];
+                    bestDistance = distance;
+                }
+            }
+        }
+        if (bestDistance < 0) return false;
+        tried[attempt] = best;
+        if (move(aic, group.tribe, best.x, best.y)) {
+            group.x = best.x;
+            group.y = best.y;
+            return true;
+        }
+    }
+    return false;
+}
+
+// The relief's place inside: on the helped keep with the native help's order,
+// or at the keep's entrance. False when the entrance cannot be reached.
+bool orderInside(void* aic, int helper, DetachedGroup& group)
+{
+    const TilePoint entrance = {field(group.target, KeyX), field(group.target, KeyY)};
+    const int keep = field(group.target, Keep);
+    if (setting(helper, AllyReliefKeep) && building(keep)) {
+        if (!reachable(aic, group.tribe, entrance)) return false;
+        reinterpret_cast<TwoAction>(allyBindings.sendToKeep)(aic, group.tribe, group.target);
+        // The tile the native order sends the group to.
+        group.x = at<short>(buildingAddress(keep) + BuildingX) + 3;
+        group.y = at<short>(buildingAddress(keep) + BuildingY) + 4;
+        return true;
+    }
+    if (!move(aic, group.tribe, entrance.x, entrance.y)) return false;
+    group.x = entrance.x;
+    group.y = entrance.y;
+    return true;
+}
+
+// The helped keep, else its camp if the keep cannot be reached. With gate
+// opening on, a relief shut out walks to the nearest gate first and waits
+// there for it to open. Returns false when the group can reach none of them.
+// Members that just joined get the order even at the station: the native add
+// gives none.
 bool orderRelief(void* aic, int helper, DetachedGroup& group, bool joined)
 {
     TilePoint leader;
     if (!tribeLeaderTile(helper, group.tribe, leader)) return true;
-    TilePoint station = {group.x, group.y};
-    if (!joined && patrolDistance(station, leader) <= 4) return true;
+    const TilePoint station = {group.x, group.y};
+    const bool there = !joined && patrolDistance(station, leader) <= 4;
+    const bool gates = setting(helper, AllyReliefGates) != 0;
+    if (there && (!gates || memberAt(helper, group, true, 0, 0, -1))) return true;
     // The native help order sets this stance on the tribes it sends.
     at<short>(tribeAddress(group.tribe) + nativeBindings.tribeStance) = 2;
-    if (move(aic, group.tribe, field(group.target, KeyX), field(group.target, KeyY))) {
-        group.x = field(group.target, KeyX);
-        group.y = field(group.target, KeyY);
-        return true;
+    if (orderInside(aic, helper, group)) return true;
+    if (gates) {
+        // Waiting at a door until the gate opens.
+        if (there && (group.x != field(group.target, CampX) || group.y != field(group.target, CampY))) return true;
+        if (orderToGate(aic, group, leader, false)) return true;
     }
     if (move(aic, group.tribe, field(group.target, CampX), field(group.target, CampY))) {
         group.x = field(group.target, CampX);
@@ -487,6 +620,17 @@ bool requestStands(int helper, int ally)
     return field(helper, HelpRequest) == RequestHelp && field(helper, HelpAsker) == ally;
 }
 
+// Home, or for troops shut inside the ally's walls the inside door of its
+// nearest gate, which opens for them.
+void leaveAlly(void* aic, int helper, DetachedGroup& group)
+{
+    TilePoint leader;
+    if (move(aic, group.tribe, field(helper, CampX), field(helper, CampY))
+        || !tribeLeaderTile(helper, group.tribe, leader)) return;
+    const TilePoint station = {group.x, group.y};
+    if (patrolDistance(station, leader) > 4) orderToGate(aic, group, leader, true);
+}
+
 void endRelief(void* aic, int helper, int index, int reason)
 {
     DetachedGroup& group = detachedGroups[helper][index];
@@ -495,10 +639,16 @@ void endRelief(void* aic, int helper, int index, int reason)
         "switched off"};
     diagnostic("player %d stops helping player %d (%s)", helper, group.target,
         reason > 0 && reason <= ReliefCancelled ? reasons[reason] : "");
-    move(aic, group.tribe, field(helper, CampX), field(helper, CampY));
     if (state.reliefRequested && requestStands(helper, group.target)) field(helper, HelpRequest) = 0;
     state.reliefRequested = 0;
     state.reliefPauseUntil = reason == ReliefAttack ? 0 : now() + ReliefPauseTicks;
+    if (setting(helper, AllyReliefGates) && allied(helper, group.target)
+        && memberAt(helper, group, true, 0, 0, -1)) {
+        group.leaving = now() ? now() : 1;
+        leaveAlly(aic, helper, group);
+        return;
+    }
+    move(aic, group.tribe, field(helper, CampX), field(helper, CampY));
     returnDetachedGroup(aic, helper, index, TransferBudget);
 }
 
@@ -579,6 +729,19 @@ void updateRelief(void* aic, int helper)
         endRelief(aic, helper, index, ReliefAllyGone);
         return;
     }
+    // An ended relief leaves the ally's walls before its troops rejoin, for
+    // at most one month.
+    if (group.leaving) {
+        if (allied(helper, group.target) && now() - group.leaving < ReliefCalmTicks
+            && memberAt(helper, group, true, 0, 0, -1)) {
+            leaveAlly(aic, helper, group);
+            return;
+        }
+        group.leaving = 0;
+        move(aic, group.tribe, field(helper, CampX), field(helper, CampY));
+        returnDetachedGroup(aic, helper, index, TransferBudget);
+        return;
+    }
     if (homeThreat(group.target) >= ReliefThreatPower) state.reliefCalmSince = now();
     // The helped ally asked while the relief was already on its way.
     if (requestStands(helper, group.target)) state.reliefRequested = 1;
@@ -590,6 +753,7 @@ void updateRelief(void* aic, int helper)
     status.requested = state.reliefRequested ? (requestStands(helper, group.target) ? 1 : -1) : 0;
     status.age = now() - group.startTick;
     status.calm = now() - state.reliefCalmSince;
+    status.minimum = static_cast<unsigned int>(setting(helper, AllyReliefMinMonths)) * AllyTicksPerMonth;
     int reason = reliefOn(helper) ? allyReliefEnd(status) : ReliefCancelled;
     if (reason == ReliefContinues) {
         const int size = detachedGroupSize(helper, index);
@@ -682,6 +846,31 @@ int __cdecl allyGoldRequestCommand(int giver, int resourceIndex, int amount, int
         int send = humanGoldLimit(giver);
         if (send > amount) send = amount;
         if (send > 0) sendGold(giver, receiver, send);
+    }
+    return 1;
+}
+
+int __cdecl allyGateHeld(int id)
+{
+    if (!building(id)) return 0;
+    const unsigned int record = buildingAddress(id);
+    const int owner = at<short>(record + BuildingOwner);
+    if (owner < 1 || owner > 8 || !gatehouse(record)) return 0;
+    const int size = at<int>(record + BuildingSize);
+    const int x = at<short>(record + BuildingX) + size / 2, y = at<short>(record + BuildingY) + size / 2;
+    bool held = false;
+    for (int helper = 1; helper <= 8 && !held; ++helper) {
+        const int index = reliefGroup(helper);
+        if (index < 0 || !setting(helper, AllyReliefGates) || !detachedGroupValid(helper, index)) continue;
+        const DetachedGroup& group = detachedGroups[helper][index];
+        // Going in, members wait outside; leaving, inside.
+        held = !group.returning && group.target == owner
+            && memberAt(helper, group, group.leaving != 0, x, y, size / 2 + GateReach);
+    }
+    if (!held) return 0;
+    if (at<unsigned char>(record + GateLink) == GateClosed) {
+        at<unsigned char>(record + GateState) = GateOpening;
+        reinterpret_cast<ThreeAction>(allyBindings.gateChange)(reinterpret_cast<void*>(nativeBindings.buildings), id, 1, 0);
     }
     return 1;
 }

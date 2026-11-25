@@ -105,11 +105,12 @@ void __fastcall add(void* owner, void*, int id, int to)
     put<short>(unit(id), 0x2D8, static_cast<short>(to));
     put<unsigned int>(unit(id), 0x2E4, get<unsigned int>(tribe(to), 0x34));
 }
-// The game's smallest-patrol-slot choice: here always slot 15.
+// The game's smallest-group choice: here always slot 15 or slot 190.
 int __fastcall find(void* aic, void*, int id, int, int role)
 {
     assert(aic == AIC && id == 1);
-    return role == 16 ? get<short>(player(1), 0x310C + 15 * 2) : 0;
+    return role == 16 ? get<short>(player(1), 0x310C + 15 * 2)
+        : role == 19 ? get<short>(player(1), 0x310C + 190 * 2) : 0;
 }
 void __fastcall home(void* aic, void*, int id, int owner)
 {
@@ -168,6 +169,7 @@ void setup(unsigned int stride, unsigned int stance, int orders, int formation, 
     std::memset(patrolRadius, 0, sizeof(patrolRadius));
     std::memset(siegeScreen, 0, sizeof(siegeScreen));
     std::memset(siegeScreenForward, 0, sizeof(siegeScreenForward));
+    std::memset(siegeScreenExtraGroups, 0, sizeof(siegeScreenExtraGroups));
     patrolOrdersFallback = 0;
     patrolFormationFallback = 0;
     patrolSpacingFallback = 12;
@@ -176,6 +178,7 @@ void setup(unsigned int stride, unsigned int stance, int orders, int formation, 
     patrolRadiusFallback = 12;
     siegeScreenFallback = 0;
     siegeScreenForwardFallback = 4;
+    siegeScreenExtraGroupsFallback = 0;
     configurationLocked = 0;
     dispatchCalls = destinationCalls = destinationTribe = pathCalls = moveCalls = moveTribe = moveX = moveY = 0;
     failingMoves = returnCalls = returnedTribe = 0;
@@ -579,6 +582,68 @@ void screens(unsigned int stride, unsigned int stance)
     assert(moveX == 100 && moveY == 140);
 }
 
+int siegeRecords()
+{
+    int count = 0;
+    for (int index = 0; index < DetachedGroupsPerPlayer; ++index)
+        if (detachedGroups[1][index].duty == SiegeDefenceDuty) ++count;
+    return count;
+}
+
+void siegeDefence(unsigned int stride, unsigned int stance)
+{
+    setup(stride, stance, 0, 0, 0);
+    group(190, 7, 707, 40, 100, 150, 11);
+    group(191, 8, 808, 52, 104, 150, 3);
+    // Off by default, and the extra groups need the engine escort.
+    organizeSiegeDefence(AIC, 1);
+    siegeScreenExtraGroupsFallback = 2;
+    organizeSiegeDefence(AIC, 1);
+    assert(siegeRecords() == 0 && configurationLocked == 0);
+    // One new group per update, each keeping the minimum size of 4.
+    siegeScreenFallback = 1;
+    organizeSiegeDefence(AIC, 1);
+    assert(siegeRecords() == 1 && configurationLocked == 1);
+    organizeSiegeDefence(AIC, 1);
+    organizeSiegeDefence(AIC, 1);
+    assert(siegeRecords() == 2);
+    int detached = 0;
+    for (int index = 0; index < DetachedGroupsPerPlayer; ++index)
+        if (detachedGroups[1][index].duty == SiegeDefenceDuty) {
+            assert(detachedGroupSize(1, index) >= 4);
+            detached += detachedGroupSize(1, index);
+        }
+    assert(detached + get<short>(tribe(7), 0x5C) + get<short>(tribe(8), 0x5C) == 16);
+    // Slot 190 moving on takes the detached groups along: groups 3 and 4 of 4
+    // stand at the rally entries two and three after slot 190's.
+    for (int index = 0; index < 4; ++index) {
+        put<short>(tribe(7), rallyPoints + index * 4, static_cast<short>(90 + index * 10));
+        put<short>(tribe(7), rallyPoints + index * 4 + 2, 140);
+    }
+    put<short>(tribe(7), rallyCount, 4);
+    put<short>(tribe(7), rallyCount - 2, 0);
+    moveCalls = 0;
+    screenSiegeDefenceMove(tribes, 0, 7, 90, 140, 0, 0, 0);
+    assert(moveCalls == 3 && moveTribe == 7 && moveX == 90);
+    int stations = 0;
+    for (int index = 0; index < DetachedGroupsPerPlayer; ++index)
+        if (detachedGroups[1][index].duty == SiegeDefenceDuty) {
+            assert(detachedGroups[1][index].y == 140);
+            stations += detachedGroups[1][index].x;
+        }
+    assert(stations == 110 + 120);
+    // Before the wall assault (state 5) every member is back in a native slot.
+    put<int>(player(1), 0x2BA4, 5);
+    organizeSiegeDefence(AIC, 1);
+    assert(siegeRecords() == 0 && get<short>(tribe(7), 0x5C) == 12);
+    // A retreat hands them back too.
+    put<int>(player(1), 0x2BA4, 4);
+    organizeSiegeDefence(AIC, 1);
+    assert(siegeRecords() == 1);
+    retreatAttackPatrols(AIC, 1);
+    assert(siegeRecords() == 0);
+}
+
 void run(unsigned int stride, unsigned int stance, unsigned int points, unsigned int count)
 {
     rallyPoints = points;
@@ -587,6 +652,7 @@ void run(unsigned int stride, unsigned int stance, unsigned int points, unsigned
     splits(stride, stance);
     routes(stride, stance);
     screens(stride, stance);
+    siegeDefence(stride, stance);
 }
 }
 

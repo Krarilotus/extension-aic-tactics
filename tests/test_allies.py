@@ -10,14 +10,15 @@ from test_state import state
 ROOT = Path(__file__).resolve().parents[1]
 FIELDS = ['AICTactics_AllyRelief', 'AICTactics_AllyGoods', 'AICTactics_AllyGoldKeep',
           'AICTactics_AllyRecruitGoldBuffer', 'AICTactics_AllyGoldSharePercent',
-          'AICTactics_AllyMonthlyGivePercent', 'AICTactics_AllyArmySharePercent']
+          'AICTactics_AllyMonthlyGivePercent', 'AICTactics_AllyArmySharePercent',
+          'AICTactics_AllyReliefGates', 'AICTactics_AllyReliefKeep', 'AICTactics_AllyReliefMinMonths']
 
 
 def test_fields_store_inherit_or_explicit_values_per_ai():
     backend().execute('''
       local function words(ai)
         local result={}
-        for word=0,6 do result[#result+1]=memory[native.allySettings+(ai*7+word)*4] or 0 end
+        for word=0,9 do result[#result+1]=memory[native.allySettings+(ai*10+word)*4] or 0 end
         return result
       end
       prepare(4,{}).commit()
@@ -36,6 +37,12 @@ def test_fields_store_inherit_or_explicit_values_per_ai():
       assert(stored[2]==1 and stored[5]==1 and goodsActivations==nil)
       prepare(6,{AICTactics_AllyGoods=true}).commit()
       assert(goodsPreflights==1 and goodsActivations==1)
+      -- Gate opening installs its gate hook; keep standing and the minimum stay install nothing.
+      prepare(7,{AICTactics_AllyReliefKeep=true,AICTactics_AllyReliefMinMonths=6}).commit()
+      stored=words(7)
+      assert(stored[9]==2 and stored[10]==7 and gatePreflights==nil)
+      prepare(8,{AICTactics_AllyReliefGates=true}).commit()
+      assert(words(8)[8]==2 and gatePreflights==1 and gateActivations==1)
       -- A rollback restores every earlier word.
       local op=prepare(4,{AICTactics_AllyGoldKeep=0})
       op.commit()
@@ -68,12 +75,13 @@ def test_module_settings_default_on_and_validate():
     backend().execute('''
       local fallbacks=require('config.allies').fallbacks
       local words=fallbacks(nil)
-      assert(#words==7 and words[1]==1 and words[2]==1 and words[3]==1000 and words[4]==300
-        and words[5]==25 and words[6]==30 and words[7]==75)
+      assert(#words==10 and words[1]==1 and words[2]==1 and words[3]==1000 and words[4]==300
+        and words[5]==25 and words[6]==30 and words[7]==75 and words[8]==0 and words[9]==0
+        and words[10]==0)
       words=fallbacks({allyRelief=false,allyGoods=false,allyGoldKeep=0,allyArmySharePercent=100})
       assert(words[1]==0 and words[2]==0 and words[3]==0 and words[7]==100)
       assert(not pcall(fallbacks,{allyGoldKeep=-1}) and not pcall(fallbacks,{allyArmySharePercent=101}))
-      assert(not pcall(fallbacks,{allyRelief='yes'}))
+      assert(not pcall(fallbacks,{allyRelief='yes'}) and not pcall(fallbacks,{allyReliefMinMonths=13}))
     ''')
 
 
@@ -148,7 +156,7 @@ def test_settings_enter_match_identity_but_not_save_admission():
     state().execute('''
       local saveIdentity,matchIdentity=state.identity(),state.matchIdentity()
       local bytes=state.capture()
-      memory[native.allySettings+(4*7+2)*4]=2501
+      memory[native.allySettings+(4*10+2)*4]=2501
       memory[native.allyFallback+6*4]=75
       assert(state.identity()==saveIdentity and state.matchIdentity()~=matchIdentity)
       state.restore(bytes)
@@ -163,7 +171,7 @@ def test_ally_settings_require_the_saved_section():
       memory[native.allyFallback]=1
       assert(state.callbacks.isRequired())
       memory[native.allyFallback]=0
-      memory[native.allySettings+(5*7+6)*4]=1
+      memory[native.allySettings+(5*10+6)*4]=1
       assert(state.callbacks.isRequired())
     ''')
 
@@ -179,7 +187,8 @@ def test_schema_options_and_locales_match_the_lua_bounds():
               'AICTactics_AllyRecruitGoldBuffer': (0, 5000, 'allyRecruitGoldBuffer', 300),
               'AICTactics_AllyGoldSharePercent': (0, 100, 'allyGoldSharePercent', 25),
               'AICTactics_AllyMonthlyGivePercent': (0, 100, 'allyMonthlyGivePercent', 30),
-              'AICTactics_AllyArmySharePercent': (0, 100, 'allyArmySharePercent', 75)}
+              'AICTactics_AllyArmySharePercent': (0, 100, 'allyArmySharePercent', 75),
+              'AICTactics_AllyReliefMinMonths': (0, 12, 'allyReliefMinMonths', 0)}
     for field in FIELDS:
         assert field in schema['properties']
     for field, (low, high, name, default) in bounds.items():
@@ -188,10 +197,12 @@ def test_schema_options_and_locales_match_the_lua_bounds():
         assert [option(name, key) for key in ('min', 'max', 'value')] == [str(low), str(high), str(default)]
     for name in ('allyRelief', 'allyGoods'):
         assert option(name, 'value') == 'true'
+    for name in ('allyReliefGates', 'allyReliefKeep'):
+        assert option(name, 'value') == 'false'
     locales = sorted((ROOT / 'locale').glob('*.yml'))
     assert len(locales) == 9
     for path in locales:
         text = path.read_text(encoding='utf-8')
-        for name in ['allyRelief', 'allyGoods'] + [value[2] for value in bounds.values()]:
+        for name in ['allyRelief', 'allyGoods', 'allyReliefGates', 'allyReliefKeep'] + [value[2] for value in bounds.values()]:
             for key in (name, name + '_descr'):
                 assert re.search(r'^%s: "[^"]+"' % key, text, re.M), (path.name, key)

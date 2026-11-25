@@ -46,6 +46,15 @@ local helpSignature = '56 8B 74 24 08 8B C6 69 C0 F4 39 00 00 8B 90 ? ? ? ? 85 D
 local aivSignature = '83 3D ? ? ? ? 0A 75 0C 6A 00 B9 ? ? ? ? E8 ? ? ? ? 5B C3'
 local aivPlanSignature = '69 FF 98 6D 00 00 83 BF ? ? ? ? 00 0F 84'
 local aivStepSignature = '69 C0 22 09 00 00 03 C2 8D 14 40 8B 44 24 6C 80 7C 90 38 00'
+-- sendUnitsToPlayerIDsKeepIfPossible(player, asker), the native help order:
+-- reads the helper's camp, then per attack tribe sends it to the asker's
+-- campfire (+0x13B) or onto the asker's keep (+0x142).
+local helpSendSignature = '83 EC 18 8B 44 24 1C 53 55 8B 6C 24 28 56 8B F0 69 F6 F4 39 00 00'
+local helpSendKeep = 0x142
+-- sendUnitsToKeep(tribe, player): the group move to the player's keep
+-- building x + 3, y + 4.
+local sendToKeepSignature = '8B 44 24 08 69 C0 F4 39 00 00 8B 80 ? ? ? ? 85 C0 7E 2D 69 C0 2C 03 00 00 '..
+  '0F BF 88 ? ? ? ? 0F BF 90 ? ? ? ? 8B 44 24 04 6A 00 83 C1 04 51 83 C2 03 52 50 B9'
 
 function M.resolve(game)
   local read = core.readInteger
@@ -88,6 +97,15 @@ function M.resolve(game)
   context.find('AI castle plan steps', aivStepSignature)
   assert(aivState > 0 and read(plan + 0x08) == aivState + 0x14,
     'AIC Tactics: inconsistent native AI castle plans')
+  local helpSend = context.find('native help order', helpSendSignature)
+  local sendToKeep = context.call(helpSend + helpSendKeep, 'send to keep')
+  context.verify(sendToKeep, 'send to keep', sendToKeepSignature)
+  assert(read(helpSend + 0x18) == players + 0x1DC and read(helpSend + 0x1F) == players + 0x1D8
+      and read(sendToKeep + 0x0C) == players + 0x94
+      and read(sendToKeep + 0x1D) == game.buildings + 0x14 + 0xF0
+      and read(sendToKeep + 0x24) == game.buildings + 0x14 + 0xEE
+      and read(sendToKeep + 0x38) == game.tribes,
+    'AIC Tactics: inconsistent native help order')
   return {allyAnswerHandler = handler, allyEnoughTest = enough,
     allyResourceGain = context.call(gift + 0x1E, 'resource gain'),
     allyResourceLoss = context.call(gift + 0x2D, 'resource loss'),
@@ -95,13 +113,13 @@ function M.resolve(game)
     allyGoodsReceived = read(gift + 0x42), allyGoodsSent = read(gift + 0x51),
     allyRequestGoods = request, allySentSpeech = context.call(gift + 0x0D, 'goods sent speech'),
     allyLordAlive = context.call(request + 0xC4, 'lord alive'), allyAIState = aiState,
-    allyAIVState = aivState, allyDetermineHelp = help}
+    allyAIVState = aivState, allyDetermineHelp = help, allySendToKeep = sendToKeep}
 end
 
 -- Order of AllyBindings in include/aic_tactics/allies.hpp.
 M.names = {'allyResourceGain', 'allyResourceLoss', 'allySellPrice', 'allyBuyPrice',
   'allyGoodsReceived', 'allyGoodsSent', 'allyEnoughTest', 'allyRequestGoods', 'allySentSpeech',
-  'allyLordAlive', 'allyAIState', 'allyAIVState'}
+  'allyLordAlive', 'allyAIState', 'allyAIVState', 'allySendToKeep', 'allyGateChange'}
 
 -- The player's gold request to an AI ally: the ally screen's test and the
 -- command handler. `hooks` is nil before install, else the installed stubs.

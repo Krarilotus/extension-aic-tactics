@@ -6,16 +6,18 @@ namespace SHC141 {
 
 // Detached attack groups: troops an AI duty moves out of the native role
 // slots into a tribe of their own (a lord hunt, a split assault, an extra
-// patrol, an ally relief force). The native AI never orders a tribe outside
-// its slot table, so the owning duty does, and the record below is saved so
-// a reload continues the same duty with the same troops.
+// patrol, an ally relief force, an extra siege-defence group). The native AI
+// never orders a tribe outside its slot table, so the owning duty does, and
+// the record below is saved so a reload continues the same duty with the
+// same troops.
 enum GroupDuty {
     NoDuty = 0,
     PatrolDuty = 1,
     HuntDuty = 2,
     SplitDuty = 3,
     ReliefDuty = 4,
-    GroupDutyCount = 5
+    SiegeDefenceDuty = 5,
+    GroupDutyCount = 6
 };
 
 struct DetachedGroup {
@@ -30,7 +32,7 @@ struct DetachedGroup {
     int launchSize;        // members when the duty began, for loss checks
     int returning;         // members are being handed back to native slots
     int cursor;            // member word to continue from
-    int reserved;
+    unsigned int leaving;  // relief: tick its troops began to leave the ally's walls; 0 none
 };
 
 const int DetachedGroupsPerPlayer = 8;

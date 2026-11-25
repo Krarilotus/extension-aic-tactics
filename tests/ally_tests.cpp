@@ -108,6 +108,16 @@ void relief()
     assert(allyReliefEnd(status) == ReliefContinues);
     status.calm = ReliefCalmTicks;
     assert(allyReliefEnd(status) == ReliefThreatOver);
+    // The minimum stay holds a calm relief, not the other ends.
+    status.minimum = 6 * AllyTicksPerMonth;
+    assert(allyReliefEnd(status) == ReliefContinues);
+    status.attackDue = 1;
+    assert(allyReliefEnd(status) == ReliefAttack);
+    status.attackDue = 0;
+    status.age = status.minimum;
+    assert(allyReliefEnd(status) == ReliefThreatOver);
+    status.age = 100;
+    status.minimum = 0;
     // A standing request keeps the relief until it is withdrawn.
     status.requested = 1;
     assert(allyReliefEnd(status) == ReliefContinues);

@@ -14,12 +14,13 @@ function M.new(native)
     for index = 0, players * groups - 1 do
       local start = index * words + 1
       range(values[start], 1249)
-      range(values[start + 2], 4)
+      range(values[start + 2], 5)
       if values[start + 2] == 0 then range(values[start], 0) end
       range(values[start + 8], native.game.unitCapacity)
       range(values[start + 9], 1)
       range(values[start + 10], native.game.tribeMemberWords - 1)
-      range(values[start + 11], 0)
+      -- Only a relief records when its troops began to leave.
+      if values[start + 2] ~= 4 then range(values[start + 11], 0) end
     end
     return values
   end

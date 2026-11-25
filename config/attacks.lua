@@ -5,7 +5,8 @@
 -- value itself.
 local M = {fields = {'AICTactics_PatrolOrders', 'AICTactics_PatrolFormation', 'AICTactics_PatrolSpacing',
   'AICTactics_PatrolExtraGroups', 'AICTactics_PatrolMinSize', 'AICTactics_PatrolRadius',
-  'AICTactics_SiegeScreen', 'AICTactics_SiegeScreenForward', 'AICTactics_SiegeTowerCrew'}}
+  'AICTactics_SiegeScreen', 'AICTactics_SiegeScreenForward', 'AICTactics_SiegeScreenExtraGroups',
+  'AICTactics_SiegeTowerCrew'}}
 local orders = {Native = 0, AllGroups = 1}
 local formations = {Native = 0, Wing = 1, Mirror = 2, Routes = 3}
 local screens = {Native = 0, EngineApproach = 1}
@@ -15,13 +16,14 @@ local numbers = {
   {'AICTactics_PatrolMinSize', 'patrolMinSize', 1, 50, 4},
   {'AICTactics_PatrolRadius', 'patrolRadius', 4, 100, 12},
   {'AICTactics_SiegeScreenForward', 'siegeScreenForward', 0, 10, 4},
+  {'AICTactics_SiegeScreenExtraGroups', 'siegeScreenExtraGroups', 0, 6, 0},
 }
 
 M.orders, M.formations, M.screens = orders, formations, screens
 -- The native per-AI arrays (int[17]) the compiled values go to; each has a
 -- module setting word named <array>Fallback.
 M.arrays = {'patrolOrders', 'patrolFormation', 'patrolSpacing', 'patrolExtraGroups', 'patrolMinSize',
-  'patrolRadius', 'siegeScreen', 'siegeScreenForward'}
+  'patrolRadius', 'siegeScreen', 'siegeScreenForward', 'siegeScreenExtraGroups'}
 
 local function integer(value, low, high)
   return type(value) == 'number' and value == math.floor(value) and value >= low and value <= high
@@ -58,7 +60,7 @@ function M.prepare(previous, spec, resetting)
   return result, {order == nil and 0 or orders[order] + 1, formation == nil and 0 or formations[formation] + 1,
     spacing or 0, stored.AICTactics_PatrolExtraGroups, stored.AICTactics_PatrolMinSize,
     stored.AICTactics_PatrolRadius, screen == nil and 0 or screens[screen] + 1,
-    stored.AICTactics_SiegeScreenForward, crew == false and 1 or 0}
+    stored.AICTactics_SiegeScreenForward, stored.AICTactics_SiegeScreenExtraGroups, crew == false and 1 or 0}
 end
 
 function M.active(candidate)
@@ -92,7 +94,8 @@ function M.fallbacks(config)
       string.format('AIC Tactics: %s must be an integer from %d to %d', number[2], number[3], number[4]))
     values[#values + 1] = value
   end
-  return orders[order], formations[formation], spacing, values[1], values[2], values[3], screens[screen], values[4]
+  return orders[order], formations[formation], spacing, values[1], values[2], values[3], screens[screen], values[4],
+    values[5]
 end
 
 return M
