@@ -617,7 +617,8 @@ handled:
         local ok, failure = pcall(preflight)
         if ok then return end
         if installed then error(failure, 0) end
-        reason = 'another module changed its game code: ' .. tostring(failure)
+        reason = 'another module changed its game code: '
+          .. (tostring(failure):gsub('; restart with compatible modules$', ''))
       end
       off[key] = true
       log(WARNING, string.format('[aic-tactics] %s is off; %s', name, reason))
