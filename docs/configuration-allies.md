@@ -39,5 +39,6 @@ Booleans and numbers are validated when the AIC is loaded; an invalid value reje
 - AIC Tactics provides what Ally Support did; using both is not supported.
 - AIC Tactics does not hold allied gates open for relief troops. Gate opening belongs to the gate owners (Smarter Gatehouses, Gatehouse Capture Fix); when closed gates make the keep unreachable, relief troops go to the ally's camp instead.
 - AI target policies keep their existing deferral of the native help request; relief serves it instead.
+- With the module setting `diagnostics` on (default off), every relief sent and ended (with its reason) and every goods and gold gift is written to the UCP log as an `[aic-tactics]` line.
 
 Ally help is Ally Support by Monsterfish, under GPL-3.0; see [CREDITS.md](../CREDITS.md).

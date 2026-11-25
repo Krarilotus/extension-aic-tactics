@@ -1,4 +1,5 @@
 #include "aic_tactics/allies.hpp"
+#include "aic_tactics/diagnostics.hpp"
 #include "aic_tactics/groups.hpp"
 #include "aic_tactics/patrols.hpp"
 #include "aic_tactics/runtime.hpp"
@@ -147,6 +148,7 @@ void sendGoods(int giver, int receiver, int resource, int amount)
     addStatistic(allyBindings.goodsReceived, receiver, value);
     addStatistic(allyBindings.goodsSent, giver, value);
     recordGift(giver, receiver, resource, amount);
+    diagnostic("player %d sends player %d %d of resource %d", giver, receiver, amount, resource);
     // The wish is met, as a purchase meets it; left standing it is asked again.
     field(receiver, ToAcquire + resource * 4) = 0;
 }
@@ -158,6 +160,7 @@ void sendGold(int giver, int receiver, int amount)
     addStatistic(allyBindings.goodsReceived, receiver, amount);
     addStatistic(allyBindings.goodsSent, giver, amount);
     recordGift(giver, receiver, AllyGold, amount);
+    diagnostic("player %d sends player %d %d gold", giver, receiver, amount);
     if (!isAI(receiver))
         reinterpret_cast<TwoAction>(allyBindings.goodsSentSpeech)(
             reinterpret_cast<void*>(allyBindings.aiState), giver, receiver);
@@ -488,6 +491,10 @@ void endRelief(void* aic, int helper, int index, int reason)
 {
     DetachedGroup& group = detachedGroups[helper][index];
     AllyState& state = allyStates[helper];
+    static const char* const reasons[] = {"", "ally gone", "own danger", "own attack", "time up", "threat over",
+        "switched off"};
+    diagnostic("player %d stops helping player %d (%s)", helper, group.target,
+        reason > 0 && reason <= ReliefCancelled ? reasons[reason] : "");
     move(aic, group.tribe, field(helper, CampX), field(helper, CampY));
     if (state.reliefRequested && requestStands(helper, group.target)) field(helper, HelpRequest) = 0;
     state.reliefRequested = 0;
@@ -538,6 +545,8 @@ void openRelief(void* aic, int helper)
     AllyState& state = allyStates[helper];
     state.reliefRequested = requested;
     state.reliefCalmSince = now();
+    diagnostic("player %d helps player %d with %d troops%s", helper, ally, detachedGroupSize(helper, index),
+        requested ? " on request" : "");
     if (!orderRelief(aic, helper, group, true)) endRelief(aic, helper, index, ReliefAllyGone);
 }
 

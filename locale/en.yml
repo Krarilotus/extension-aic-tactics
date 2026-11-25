@@ -1,13 +1,3 @@
-legacyRecruitInterval: Keep Legacy recruitment timing
-nativeInitialDefenseMonths: Initial defense period for Native AIs
-nativeInitialDefenseMonths_descr: '0–30 months; default 6. Copy the former Legacy initial-timer value here, then turn that Legacy option OFF. WeightedRoles uses RecruitInitialDefenseMonths instead.'
-legacyRecruitInterval_descr: 'Replaces Legacy ai_recruitinterval for Native personalities: use interval 1. WeightedRoles keeps each personality’s AIC intervals. Turn the Legacy option OFF; leave this OFF if it was already disabled.'
-nativeTargetPolicy: "Target choice for Native AIs"
-nativeTargetPolicy_descr: "Replaces Legacy ai_attacktarget. Copy its choice here and turn that Legacy option OFF when using new target policies. Native keeps TargetChoice."
-nativeTargetPolicy_native: "Existing TargetChoice"
-nativeTargetPolicy_nearest: "Nearest"
-nativeTargetPolicy_richest: "Richest"
-nativeTargetPolicy_weakest: "Weakest"
 correctEngineerRoleCounting: "Count engineers in AI troop quotas"
 correctEngineerRoleCounting_descr: "Count assigned engineers toward their troop quota. Siege crews, moat diggers and oil workers keep their separate roles."
 safeSiegePlacement: "Protect units at siege sites"
@@ -72,3 +62,5 @@ allyGoldSharePercent: "Gold share with goods"
 allyGoldSharePercent_descr: "Percent of the gold above the kept gold that an AI adds to a goods gift unasked. 0 adds none, but asked gold is still sent; default 25."
 allyMonthlyGivePercent: "Monthly gift limit"
 allyMonthlyGivePercent_descr: "Percent of each good, gold included, an AI gives away per month. 0 gives nothing; default 30."
+diagnostics: "Diagnostics log"
+diagnostics_descr: "Writes every AI's lord hunt, ally help, gift and extra patrol decisions to the UCP log. Off by default."

@@ -1,13 +1,3 @@
-legacyRecruitInterval: Conserver le rythme de recrutement Legacy
-legacyRecruitInterval_descr: 'Remplace ai_recruitinterval de Legacy pour les personnalités Native : intervalle 1. WeightedRoles conserve les intervalles AIC. Désactivez l’option Legacy ; laissez celle-ci désactivée si vous ne l’utilisiez pas.'
-nativeInitialDefenseMonths: Période de défense initiale des IA Native
-nativeInitialDefenseMonths_descr: '0–30 mois, 6 par défaut. Recopiez ici la durée initiale de Legacy, puis désactivez cette option Legacy. WeightedRoles utilise RecruitInitialDefenseMonths.'
-nativeTargetPolicy: "Cible des IA Native"
-nativeTargetPolicy_descr: "Remplace Legacy ai_attacktarget. Recopiez son choix ici et désactivez cette option Legacy pour les nouvelles règles de ciblage. Native conserve TargetChoice."
-nativeTargetPolicy_native: "TargetChoice existant"
-nativeTargetPolicy_nearest: "Plus proche"
-nativeTargetPolicy_richest: "Plus riche"
-nativeTargetPolicy_weakest: "Plus faible"
 correctEngineerRoleCounting: "Compter les ingénieurs dans les quotas"
 correctEngineerRoleCounting_descr: "Compte les ingénieurs affectés à leur groupe. Les servants de siège, les fossoyeurs et les préposés à l’huile gardent leurs rôles distincts."
 safeSiegePlacement: "Protéger les unités lors d’un siège"
@@ -72,3 +62,5 @@ allyGoldSharePercent: "Gold share with goods"
 allyGoldSharePercent_descr: "Percent of the gold above the kept gold that an AI adds to a goods gift unasked. 0 adds none, but asked gold is still sent; default 25."
 allyMonthlyGivePercent: "Monthly gift limit"
 allyMonthlyGivePercent_descr: "Percent of each good, gold included, an AI gives away per month. 0 gives nothing; default 30."
+diagnostics: "Journal de diagnostic"
+diagnostics_descr: "Écrit dans le journal UCP les décisions de chaque IA sur la chasse au seigneur, l’aide aux alliés, les dons et les patrouilles supplémentaires. Désactivé par défaut."

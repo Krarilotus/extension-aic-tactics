@@ -146,7 +146,7 @@ package.loaded['aicTactics.dll']={configurationSize=352,configuration=0x3050000,
   nativeBindings=0x3051000,nativeBindingsSize=368,allyBindings=0x3052000,allyBindingsSize=48,
   resetDefenseCensus=0x3070000,countDefenseUnit=0x3070020}
 native=require('native').new(preparedGame)
-native.preflightCombat();native.preflightTargets();native.preflightRaids()
+native.preflightCombat();native.preflightRaids()
 ''')
 assert scan_count==before_enable_scans, 'Enable must consume load-phase bindings without rescanning'
 assert get(0x3051000+54*4)==g.preparedGame.selectAttackTarget
@@ -332,7 +332,7 @@ if a.combat:
     hooks=g.native.game.combatSites
     occupied_cases=0
     for name,pattern in g.native.game.combatOriginals.items():
-        preflight=g.native.preflightTargets if name=='targetChoice' else g.native.preflightRaids if name.startswith('building') else g.native.preflightCombat
+        preflight=g.native.preflightRaids if name.startswith('building') else g.native.preflightCombat
         for offset in range(len(pattern.split())):
             address=hooks[name]+offset;old=bytes(uc.mem_read(address,1))
             uc.mem_write(address,bytes([old[0]^1]))
@@ -446,42 +446,20 @@ if a.combat:
     (a.output/'combat-result.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps(result))
 
-    # Compare explicit replacement policies to the real, unchanged Legacy port
-    # through the native selection loop's comparison and stack updates.
+    # AIC writes no target-choice code; it reads Legacy's applied choice back.
     target_port=lua.execute(a.legacy.with_name('ai_attacktarget.lua').read_text())
     choice_site=hooks.targetChoice
     original_choice=pe.get_data(choice_site-base,5)
+    assert g.native.legacyTargetChoice()==0
     policy_cases=0
-    for choice in ('Nearest','Richest','Weakest'):
-        uc.mem_write(choice_site,original_choice)
-        target_port.init(target_port,lua.table_from({'choice':choice.lower()}))
+    for number,choice in enumerate(('nearest','richest','weakest'),1):
+        target_port.init(target_port,lua.table_from({'choice':choice}))
         target_port.enable(target_port,lua.table())
-        legacy_patch=bytes(uc.mem_read(choice_site,5))
-        uc.mem_write(choice_site,original_choice)
-        candidate=lua.table_from({'game':game,'legacyTargetPolicy':0x306F100})
-        lua.eval("require('combat-native').attach")(candidate)
-        candidate.enableNativeTargetPolicy(choice)
-        replacement=bytes(uc.mem_read(choice_site,5))
-        for configured in range(5):
-            for flags in (0x202,0x247,0xA92):
-                results=[]
-                for patch in (legacy_patch,replacement):
-                    uc.mem_write(choice_site,patch);uc.ctl_remove_cache(choice_site,choice_site+5)
-                    initial=[configured,0x98765432,0x12345678,0x10203040,
-                        game.players+0x39F4+0x50C,2,0,0x308F000,flags]
-                    frame=bytearray(64)
-                    uc.mem_write(initial[7],bytes(frame));put(initial[7]+0x10,10000)
-                    put(initial[7]+0x18,1000000)
-                    put(initial[4],300)
-                    for register,value in zip(registers,initial):uc.reg_write(register,value)
-                    uc.emu_start(choice_site,game.selectAttackTarget+0x1C7,count=100)
-                    results.append(([uc.reg_read(register) for register in registers],
-                        bytes(uc.mem_read(initial[7],64))))
-                assert results[0]==results[1],(choice,configured,flags,results)
-                policy_cases+=1
+        assert g.native.legacyTargetChoice()==number,choice
         uc.mem_write(choice_site,original_choice);uc.ctl_remove_cache(choice_site,choice_site+5)
+        policy_cases+=1
     policy_result={'variant':a.variant,'cases':policy_cases,
         'legacySHA256':hashlib.sha256(a.legacy.with_name('ai_attacktarget.lua').read_bytes()).hexdigest(),
-        'scope':'Actual Legacy target-policy patch versus actual AIC FASM/native selection loop; no active-game acceptance'}
+        'scope':'Actual Legacy target-policy patch read back by AIC; no active-game acceptance'}
     (a.output/'target-policy-result.json').write_text(json.dumps(policy_result,indent=2)+'\n')
     print(json.dumps(policy_result))

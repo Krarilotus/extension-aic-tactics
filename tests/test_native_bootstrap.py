@@ -13,7 +13,8 @@ def runtime():
       -- its own real-executable and failure-before-write checks.
       package.loaded['native-bindings']={initialize=function()end}
       package.loaded['config.grace']={preflight=function()end}
-      package.loaded['aicTactics.dll']={configurationSize=352,configuration=0x3100000,
+      package.loaded['aicTactics.dll']={configurationSize=352,configuration=0x3100000,legacyWallCounts=0x3200000,
+        rangedSortie=0x3300000,meleeSortie=0x3300100,
         game={players=0x115BDF8,rangedSortieNative=0x4CD560,meleeSortieNative=0x4CD690,
           recruitmentSites={interval=0x4D3B41,ranged=0x4D543B,melee=0x4D5443,opportunity=0x4D3BA5}}}
       package.loaded['native-recruitment']={legacyCounter=function()return 0x4100000 end}
@@ -27,6 +28,7 @@ def runtime():
       memory[0x4D5443]=0xE8;memory[0x4D5444]=0x4CD690-0x4D5448
       memory[0x4D3BA5]=0x8B;memory[0x4D3BA6]=0x86;memory[0x4D3BA7]=0x115EEF0
       core={readByte=function(a)return memory[a] end,readInteger=function(a)return memory[a] end,
+        writeInteger=function(a,v)memory[a]=v end,
         AOBScan=function(pattern)
           if pattern:sub(1,5)=='57 8B' then return 0x4D5438 end
           if pattern:sub(1,5)=='8B 86' then return 0x4D3BA5 end
@@ -115,22 +117,30 @@ def test_larger_assault_uses_verified_native_batch_and_recovery_calls():
     ''')
 
 
-def test_interval_override_is_explicit_and_installed_once():
+def test_native_interval_gets_no_override():
     runtime().execute('''
-      native.enableLegacyInterval();native.enableLegacyInterval()
-      assert(#writes==1 and writes[1]==0x4D3B41 and #allocations==1)
-      memory[0x4D3E6F]=0xE9;memory[0x4D3E70]=0x4000000-0x4D3E74
-      memory[0x4000000]=0x0424548B;memory[0x4000004]=0x8B
-      memory[0x4000005]=0x14;memory[0x4000006]=0x95;memory[0x4000007]=0x4100000
-      native.preflight()
-      memory[0x4D3B42]=1
-      assert(not pcall(native.preflight))
+      native.activate()
+      for _,address in ipairs(writes) do assert(address~=0x4D3B41 and address~=0x4D3B48) end
     ''')
 
 
-def test_legacy_or_foreign_interval_patch_rejected_before_write():
+def test_legacy_interval_stays_and_weighted_roles_reload_theirs_once():
+    runtime().execute('''
+      for i,v in ipairs({0xB8,1,0,0,0,0x90,0x90}) do memory[0x4D3B40+i]=v end
+      native.activate();native.activate()
+      local chained=0
+      for _,address in ipairs(writes) do
+        assert(address~=0x4D3B41)
+        if address==0x4D3B48 then chained=chained+1 end
+      end
+      assert(chained==1 and allocations[1]:find('mov eax, dword [edx + ebp * 4 + 0x164]',1,true))
+      native.preflight()
+    ''')
+
+
+def test_foreign_interval_patch_rejected_before_write():
     runtime().execute('''
       memory[0x4D3B41]=0xE9
-      assert(not pcall(native.enableLegacyInterval))
+      assert(not pcall(native.activate))
       assert(#writes==0 and #allocations==0)
     ''')

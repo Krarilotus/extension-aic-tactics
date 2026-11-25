@@ -6,7 +6,7 @@ AIC Tactics, kurulu her yapay zekânın asker alımını, saldırılarını, bas
 - `RecruitConditions`: duruma göre farklı paylar. Örneğin kale tehdit altındaysa %70 savunma, %20 saldırı, %10 çıkış. Her asker alımında ilk eşleşen kural uygulanır.
 - `RecruitPolicy`: isteğe bağlı uyumluluk ayarı. `Native` özgün seçimi korur; `WeightedRoles` dört payı açıkça etkinleştirir.
 - `DefRecruitComposition`: `PreserveSlots`, `DefUnit1..8` oranlarını korur; `Native` önceki seçimi kullanır.
-- `RecruitInitialDefenseMonths`: baskın ve ana ordunun savunma kotasını beklediği süre. 0 beklemeyi kapatır; varsayılan 6 aydır.
+- `RecruitInitialDefenseMonths`: baskın ve ana ordunun savunma kotasını beklediği süre. 0 beklemeyi kapatır; ayarlanmazsa oyunun başlangıç zamanlayıcısı geçerlidir (6 ay ya da Legacy `ai_recruitstate_initialtimer` değeri).
 
 Çıkış payı `WeightedRoles` ayarını otomatik açar. Durum kuralları, savunma dağılımı ve `RecruitInitialDefenseMonths` için bunu açıkça seçmek gerekir. Asker alım aralıkları ve kotaları geçerliliğini korur.
 

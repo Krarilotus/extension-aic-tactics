@@ -1,13 +1,3 @@
-legacyRecruitInterval: Legacy asker alım hızını koru
-legacyRecruitInterval_descr: 'Legacy ai_recruitinterval seçeneğinin yerine geçer: Native kişiliklerde aralık 1 olur. WeightedRoles, AIC aralıklarını kullanmaya devam eder. Legacy seçeneğini kapatın; önceden kapalıysa bu seçeneği de kapalı bırakın.'
-nativeInitialDefenseMonths: Native yapay zekâlar için başlangıç savunma süresi
-nativeInitialDefenseMonths_descr: '0–30 ay; varsayılan 6. Legacy başlangıç süresini buraya kopyalayıp o Legacy seçeneğini kapatın. WeightedRoles, RecruitInitialDefenseMonths değerini kullanır.'
-nativeTargetPolicy: "Native yapay zekâ hedef seçimi"
-nativeTargetPolicy_descr: "Legacy ai_attacktarget yerine geçer. Seçimini buraya kopyalayın ve yeni hedef kurallarında bu Legacy seçeneğini kapatın. Native, TargetChoice ayarını korur."
-nativeTargetPolicy_native: "Mevcut TargetChoice"
-nativeTargetPolicy_nearest: "En yakın"
-nativeTargetPolicy_richest: "En zengin"
-nativeTargetPolicy_weakest: "En zayıf"
 correctEngineerRoleCounting: "Mühendisleri birlik kotasında say"
 correctEngineerRoleCounting_descr: "Atanmış mühendisleri birlik kotasına sayar. Kuşatma mürettebatı, hendek kazıcıları ve yağ görevlileri ayrı rollerinde kalır."
 safeSiegePlacement: "Kuşatma alanındaki birlikleri koru"
@@ -72,3 +62,5 @@ allyGoldSharePercent: "Gold share with goods"
 allyGoldSharePercent_descr: "Percent of the gold above the kept gold that an AI adds to a goods gift unasked. 0 adds none, but asked gold is still sent; default 25."
 allyMonthlyGivePercent: "Monthly gift limit"
 allyMonthlyGivePercent_descr: "Percent of each good, gold included, an AI gives away per month. 0 gives nothing; default 30."
+diagnostics: "Tanılama günlüğü"
+diagnostics_descr: "Her yapay zekânın lord avı, müttefik yardımı, hediye ve ek devriye kararlarını UCP günlüğüne yazar. Varsayılan olarak kapalıdır."

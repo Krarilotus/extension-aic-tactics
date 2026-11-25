@@ -1,13 +1,3 @@
-legacyRecruitInterval: Сохранить темп найма Legacy
-legacyRecruitInterval_descr: 'Заменяет ai_recruitinterval из Legacy: для личностей Native используется интервал 1. WeightedRoles сохраняет интервалы AIC. Отключите опцию Legacy; если она уже была отключена, оставьте эту опцию выключенной.'
-nativeInitialDefenseMonths: Начальный период обороны для ИИ Native
-nativeInitialDefenseMonths_descr: '0–30 месяцев, по умолчанию 6. Перенесите сюда прежнее значение начального таймера Legacy и отключите эту настройку Legacy. Для WeightedRoles действует RecruitInitialDefenseMonths.'
-nativeTargetPolicy: "Выбор цели для Native ИИ"
-nativeTargetPolicy_descr: "Заменяет Legacy ai_attacktarget. Перенесите его выбор сюда и отключите эту опцию Legacy для новых правил выбора цели. Native сохраняет TargetChoice."
-nativeTargetPolicy_native: "Исходный TargetChoice"
-nativeTargetPolicy_nearest: "Ближайший"
-nativeTargetPolicy_richest: "Самый богатый"
-nativeTargetPolicy_weakest: "Самый слабый"
 correctEngineerRoleCounting: "Учитывать инженеров в квотах войск"
 correctEngineerRoleCounting_descr: "Учитывает назначенных инженеров в их отрядах. Осадные расчёты, землекопы и работники с маслом сохраняют отдельные роли."
 safeSiegePlacement: "Защищать войска при осадном строительстве"
@@ -72,3 +62,5 @@ allyGoldSharePercent: "Gold share with goods"
 allyGoldSharePercent_descr: "Percent of the gold above the kept gold that an AI adds to a goods gift unasked. 0 adds none, but asked gold is still sent; default 25."
 allyMonthlyGivePercent: "Monthly gift limit"
 allyMonthlyGivePercent_descr: "Percent of each good, gold included, an AI gives away per month. 0 gives nothing; default 30."
+diagnostics: "Журнал диагностики"
+diagnostics_descr: "Записывает в журнал UCP решения каждого ИИ об охоте на лорда, помощи союзникам, подарках и дополнительных патрулях. По умолчанию выключено."

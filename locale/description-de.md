@@ -6,7 +6,7 @@ AIC Tactics steuert für jede installierte KI Rekrutierung, Angriffe, Überfäll
 - `RecruitConditions`: andere Anteile für bestimmte Situationen. Beispiel: Bei Gefahr zu Hause 70 % Verteidigung, 20 % Angriff und 10 % Ausfälle. Die erste passende Regel gilt für diese Rekrutierung.
 - `RecruitPolicy`: optionaler Kompatibilitätsschalter. `Native` behält die ursprüngliche Auswahl; `WeightedRoles` aktiviert die vier Anteile ausdrücklich.
 - `DefRecruitComposition`: `PreserveSlots` hält die Anteile aus `DefUnit1..8` ein; `Native` behält die bisherige Auswahl.
-- `RecruitInitialDefenseMonths`: So lange warten Überfälle und Hauptarmee auf eine volle Verteidigung. 0 schaltet die Wartezeit aus; Standard sind 6 Monate.
+- `RecruitInitialDefenseMonths`: So lange warten Überfälle und Hauptarmee auf eine volle Verteidigung. 0 schaltet die Wartezeit aus; ohne Wert gilt der Starttimer des Spiels (6 Monate oder der Wert von Legacy `ai_recruitstate_initialtimer`).
 
 Ein Ausfallanteil aktiviert `WeightedRoles` automatisch. Für Situationsregeln, Verteidigermix und `RecruitInitialDefenseMonths` musst du es ausdrücklich setzen. Rekrutierungsintervalle und Kontingente gelten weiter.
 

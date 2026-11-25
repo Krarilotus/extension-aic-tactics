@@ -13,8 +13,8 @@ The context is the same owner used by unchanged Legacy
 `port/ai_recruitstate_initialtimer.lua`. It decodes the tick operand, timer
 immediate, RNG singleton/value and relative next-RNG call. The 16-bit RNG value
 must be two bytes into that singleton. Every subsequent preflight checks the
-resolved original instructions, permitting only the module's own timer value
-change. There are no repeated scans or fixed-address fallbacks.
+resolved original instructions around the timer immediate, which Legacy owns.
+There are no repeated scans or fixed-address fallbacks.
 
 Loader 1.1.4's `getNativeAICLayout` exposes the storage already resolved by its
 `addresses.lua:getAIStartAddress`. The existing value getter could read one
@@ -137,8 +137,8 @@ framework allocation/write facilities preserve the displaced instructions and
 original native calls; the three damage gateways adapt native C++ callbacks.
 Framework `core.hookCode`/`detourCode` expose Lua callbacks, so using them here
 would add Lua dispatch to every observed hit. No additional dispatcher was added.
-The explicit Legacy target-policy replacement reaches the original selection
-paths and is compared with unchanged `ai_attacktarget.lua` below.
+Legacy `ai_attacktarget` owns the target choice; AIC Tactics only reads its
+short jump back for the match identity.
 
 No fixed executable addresses remain in AIC production Lua/C++ bindings. The
 remaining long hex values are integer limits, digest constants and a building
@@ -156,9 +156,9 @@ is untouched. The call-site preflight rejects another owner's replacement.
 Validation performed:
 
 - Actual SHC and Extreme instruction images resolve the complete context and
-  Loader storage; all 31 timer settings match unchanged Legacy patch bytes.
+  Loader storage; all 31 unchanged Legacy timer settings pass the preflight.
 - The recruitment binding ABI is checked against actual Lua writes on both images;
-  repeated timer changes perform zero scans. Classic calendar test executes
+  repeated preflights perform zero scans. Classic calendar test executes
   9,600 ticks. That calendar test has not been run on Extreme.
 - Ten failure checks cover missing/ambiguous/RNG-layout contexts and invalid
   DLL/Loader contracts, rejecting before native binding writes.
@@ -185,8 +185,9 @@ Validation performed:
   Legacy trampoline-byte checks. Repeated preflights perform no scans. Sortie
   cases cover the no-personality return path; these do not prove recruitment in
   an active game. The classic combat-wrapper regression also passes 297 cases.
-- The actual interval wrapper passes 11,520 FASM/Unicorn cases covering explicit
-  Legacy interval fallback, opted-in intervals, registers, flags and caller stack.
+- The actual interval hook, chained after Legacy `ai_recruitinterval`, passes
+  11,520 Unicorn cases against the original and Legacy instructions: Legacy's
+  interval 1, WeightedRoles intervals, registers, flags and caller stack.
 - `tests/check_aic_queries_native.py` resolves nine query/table contexts on both
   actual images and rejects 35 missing/ambiguous/inconsistent/occupied bindings.
   Each executes 1,920 native role-selection cases (including main-roster cursor
@@ -198,9 +199,8 @@ Validation performed:
   native lifecycle early-return/nervousness cases. These do not test active armies.
 - Actual FASM combat/raid/damage gateways pass 297 cases on each image, preserving
   displaced effects, callback arguments, registers, flags and stack. Ninety-one
-  occupied hook-byte/call checks reject before allocation. Forty-five cases per
-  image compare the explicit target-policy replacement with unchanged Legacy
-  through the original selection loop, including its stack and flags effects.
+  occupied hook-byte/call checks reject before allocation. Legacy's three target
+  choices are read back from the same site on both images.
 - Seventy-six AIC Python/Lua tests and forty Loader tests passed. The initial
   full AIC run lacked `AICLOADER_TEST_ROOT`; rerunning with the actual prerequisite
   checkout passed.

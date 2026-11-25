@@ -199,8 +199,7 @@ function M.resolve(game)
     unitDamage=sites.unitDamage,entityDamage=sites.entityDamage,fireDamage=sites.fireDamage,
     launch=sites.attackUpdate+130,launchWait=sites.attackUpdate+213,randomWave=sites.waveReadiness+87,
     tunnelers=sites.tunnelers+26,nextTunneler=sites.tunnelers+63,
-    targetChoice=sites.targetSelection+306,nearest=sites.targetSelection+325,richest=sites.targetSelection+371,
-    weakest=sites.targetSelection+390,notPlayer=sites.targetSelection+362,player=sites.targetSelection+311,
+    targetChoice=sites.targetSelection+306,
     callAttack=sites.attackScheduler+28,callTarget=sites.targetScheduler+13,
     callRaid=game.recruitmentSites.ranged+64,callReturn1=sites.returnCall1+27,
     callReturn2=sites.returnCall2+11,callReturn3=sites.returnCall3+74,
@@ -213,7 +212,7 @@ function M.resolve(game)
     assert(context.call(hooks[name],name)==target,'AIC Tactics: modified native combat scheduler')
   end
   local lengths={buildingReset=5,buildingCount=8,buildingComplete=8,unitReset=7,unitCount=8,unitComplete=5,
-    unitDamage=6,entityDamage=7,fireDamage=5,launch=6,randomWave=6,tunnelers=7,targetChoice=5}
+    unitDamage=6,entityDamage=7,fireDamage=5,launch=6,randomWave=6,tunnelers=7}
   local original={}
   for name,length in pairs(lengths) do
     local bytes={}

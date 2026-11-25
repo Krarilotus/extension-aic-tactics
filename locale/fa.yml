@@ -1,13 +1,3 @@
-legacyRecruitInterval: حفظ آهنگ سربازگیری Legacy
-legacyRecruitInterval_descr: 'جایگزین ai_recruitinterval در Legacy می‌شود: شخصیت‌های Native از فاصلهٔ ۱ استفاده می‌کنند. WeightedRoles فاصله‌های AIC را نگه می‌دارد. گزینهٔ Legacy را خاموش کنید؛ اگر قبلاً خاموش بود، این گزینه را هم خاموش بگذارید.'
-nativeInitialDefenseMonths: مدت دفاع اولیه برای هوش مصنوعی Native
-nativeInitialDefenseMonths_descr: '۰ تا ۳۰ ماه؛ پیش‌فرض ۶. مقدار قبلی زمان‌سنج اولیهٔ Legacy را اینجا وارد کنید و آن گزینهٔ Legacy را خاموش کنید. WeightedRoles از RecruitInitialDefenseMonths استفاده می‌کند.'
-nativeTargetPolicy: "انتخاب هدف برای هوش مصنوعی Native"
-nativeTargetPolicy_descr: "جایگزین Legacy ai_attacktarget است. انتخاب آن را اینجا وارد کنید و هنگام استفاده از قواعد هدف‌گیری جدید، آن گزینهٔ Legacy را خاموش کنید. Native تنظیم TargetChoice را حفظ می‌کند."
-nativeTargetPolicy_native: "TargetChoice فعلی"
-nativeTargetPolicy_nearest: "نزدیک‌ترین"
-nativeTargetPolicy_richest: "ثروتمندترین"
-nativeTargetPolicy_weakest: "ضعیف‌ترین"
 correctEngineerRoleCounting: "شمارش مهندسان در سهمیهٔ نیروها"
 correctEngineerRoleCounting_descr: "مهندسانِ گماشته‌شده را در سهمیهٔ گروهشان می‌شمارد. خدمهٔ محاصره، خندق‌کن‌ها و کارکنان روغن نقش جداگانه دارند."
 safeSiegePlacement: "حفاظت از نیروها هنگام ساخت ادوات محاصره"
@@ -72,3 +62,5 @@ allyGoldSharePercent: "Gold share with goods"
 allyGoldSharePercent_descr: "Percent of the gold above the kept gold that an AI adds to a goods gift unasked. 0 adds none, but asked gold is still sent; default 25."
 allyMonthlyGivePercent: "Monthly gift limit"
 allyMonthlyGivePercent_descr: "Percent of each good, gold included, an AI gives away per month. 0 gives nothing; default 30."
+diagnostics: "گزارش عیب‌یابی"
+diagnostics_descr: "تصمیم‌های هر هوش مصنوعی دربارهٔ شکار لرد، کمک به متحدان، هدیه‌ها و گشت‌های اضافی را در گزارش UCP می‌نویسد. به‌طور پیش‌فرض خاموش است."

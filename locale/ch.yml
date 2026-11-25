@@ -1,13 +1,3 @@
-legacyRecruitInterval: 保留 Legacy 招募间隔
-legacyRecruitInterval_descr: '替代 Legacy 的 ai_recruitinterval：Native 个性使用间隔 1，WeightedRoles 仍使用各自的 AIC 间隔。请关闭 Legacy 中的该选项；如果原本未启用，也请关闭此选项。'
-nativeInitialDefenseMonths: Native AI 的初期防御时长
-nativeInitialDefenseMonths_descr: '0–30 个月，默认 6。将 Legacy 初期计时器的原有数值填入此处，然后关闭该 Legacy 选项。WeightedRoles 使用 RecruitInitialDefenseMonths。'
-nativeTargetPolicy: "Native AI 的目标选择"
-nativeTargetPolicy_descr: "替代 Legacy ai_attacktarget。使用新目标规则时，将原选项复制到这里并关闭该 Legacy 选项。Native 保留 TargetChoice。"
-nativeTargetPolicy_native: "现有 TargetChoice"
-nativeTargetPolicy_nearest: "最近"
-nativeTargetPolicy_richest: "最富有"
-nativeTargetPolicy_weakest: "最弱"
 correctEngineerRoleCounting: "将工程兵计入部队配额"
 correctEngineerRoleCounting_descr: "按所属部队统计已分配的工程兵。攻城器械乘员、挖壕兵和油锅值守人员仍按各自职责计算。"
 safeSiegePlacement: "保护攻城建造地点的友军"
@@ -72,3 +62,5 @@ allyGoldSharePercent: "Gold share with goods"
 allyGoldSharePercent_descr: "Percent of the gold above the kept gold that an AI adds to a goods gift unasked. 0 adds none, but asked gold is still sent; default 25."
 allyMonthlyGivePercent: "Monthly gift limit"
 allyMonthlyGivePercent_descr: "Percent of each good, gold included, an AI gives away per month. 0 gives nothing; default 30."
+diagnostics: "诊断日志"
+diagnostics_descr: "将每个 AI 关于追击领主、援助盟友、赠送物资和额外巡逻的决定写入 UCP 日志。默认关闭。"

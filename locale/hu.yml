@@ -1,13 +1,3 @@
-legacyRecruitInterval: A Legacy toborzási ütemének megtartása
-legacyRecruitInterval_descr: 'A Legacy ai_recruitinterval beállítását helyettesíti: Native személyiségeknél 1-es időköz. A WeightedRoles az AIC időközeit használja. Kapcsold ki a Legacy beállítását; ha eddig sem használtad, ezt is hagyd kikapcsolva.'
-nativeInitialDefenseMonths: A Native MI-k kezdeti védelmi időszaka
-nativeInitialDefenseMonths_descr: '0–30 hónap, alapérték 6. Másold ide a Legacy kezdeti időzítőjének értékét, majd kapcsold ki azt a Legacy-beállítást. WeightedRoles esetén a RecruitInitialDefenseMonths érvényes.'
-nativeTargetPolicy: "Célválasztás Native MI-knél"
-nativeTargetPolicy_descr: "A Legacy ai_attacktarget helyettesítője. Másold ide a választását, és új célválasztási szabályoknál kapcsold ki azt a Legacy opciót. Native esetén a TargetChoice marad."
-nativeTargetPolicy_native: "Meglévő TargetChoice"
-nativeTargetPolicy_nearest: "Legközelebbi"
-nativeTargetPolicy_richest: "Leggazdagabb"
-nativeTargetPolicy_weakest: "Leggyengébb"
 correctEngineerRoleCounting: "Mérnökök számolása a csapatkeretben"
 correctEngineerRoleCounting_descr: "A beosztott mérnököket a csapatuk létszámába számítja. Az ostromkezelők, árokásók és olajkezelők külön szerepkörben maradnak."
 safeSiegePlacement: "Saját egységek védelme ostromépítéskor"
@@ -72,3 +62,5 @@ allyGoldSharePercent: "Gold share with goods"
 allyGoldSharePercent_descr: "Percent of the gold above the kept gold that an AI adds to a goods gift unasked. 0 adds none, but asked gold is still sent; default 25."
 allyMonthlyGivePercent: "Monthly gift limit"
 allyMonthlyGivePercent_descr: "Percent of each good, gold included, an AI gives away per month. 0 gives nothing; default 30."
+diagnostics: "Diagnosztikai napló"
+diagnostics_descr: "Minden MI döntését a nagyúr üldözéséről, a szövetségesek segítéséről, az ajándékokról és a további őrjáratokról az UCP naplóba írja. Alapértelmezés szerint kikapcsolva."

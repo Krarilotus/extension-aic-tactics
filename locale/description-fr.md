@@ -6,7 +6,7 @@ AIC Tactics règle le recrutement, les attaques, les raids et les engins de siè
 - `RecruitConditions` : autres parts selon la situation. Exemple : si le château est menacé, 70 % de défense, 20 % d’attaque et 10 % de sorties. La première règle applicable vaut pour ce recrutement.
 - `RecruitPolicy` : choix de compatibilité facultatif. `Native` conserve la sélection d’origine ; `WeightedRoles` active explicitement les quatre parts.
 - `DefRecruitComposition` : `PreserveSlots` respecte les proportions de `DefUnit1..8` ; `Native` garde la sélection habituelle.
-- `RecruitInitialDefenseMonths` : durée pendant laquelle raids et armée principale attendent que la défense atteigne son quota. 0 supprime l’attente ; valeur par défaut : 6 mois.
+- `RecruitInitialDefenseMonths` : durée pendant laquelle raids et armée principale attendent que la défense atteigne son quota. 0 supprime l’attente ; sans valeur, la minuterie initiale du jeu s’applique (6 mois, ou celle de Legacy `ai_recruitstate_initialtimer`).
 
 Une part de sortie active `WeightedRoles` automatiquement. Les règles de situation, la composition défensive et `RecruitInitialDefenseMonths` exigent de le définir explicitement. Intervalles et quotas de recrutement restent applicables.
 

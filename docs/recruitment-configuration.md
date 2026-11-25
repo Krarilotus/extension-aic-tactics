@@ -19,7 +19,7 @@ native acceptance on their own.
 | `RecruitProbSortieStrong` | Integer 0–100 | 0 |
 | `RecruitConditions` | Dense ordered list of 0–8 complete rows | Empty list |
 | `DefRecruitComposition` | `Native`, `PreserveSlots` | `Native` |
-| `RecruitInitialDefenseMonths` | Integer 0–30 | 6 |
+| `RecruitInitialDefenseMonths` | Integer 0–30 | The game's initial timer (6, or Legacy's value) |
 
 For each strength class, the base row combines the existing
 `RecruitProbDef<State>`, `RecruitProbRaid<State>` and

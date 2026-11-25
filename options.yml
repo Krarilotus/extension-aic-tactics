@@ -294,40 +294,12 @@ options:
     value: 30
     min: 0
     max: 100
-- category: [AIC Tactics]
-  name: nativeTargetPolicy
-  header: '{{nativeTargetPolicy}}'
-  text: '{{nativeTargetPolicy_descr}}'
-  display: Choice
-  url: aic-tactics.nativeTargetPolicy
-  contents:
-    choices:
-    - name: Native
-      text: '{{nativeTargetPolicy_native}}'
-    - name: Nearest
-      text: '{{nativeTargetPolicy_nearest}}'
-    - name: Richest
-      text: '{{nativeTargetPolicy_richest}}'
-    - name: Weakest
-      text: '{{nativeTargetPolicy_weakest}}'
-    value: Native
-- category: [AIC Tactics]
-  name: legacyRecruitInterval
-  header: '{{legacyRecruitInterval}}'
-  text: '{{legacyRecruitInterval_descr}}'
+- category: ['{{ai}}', '{{improvements}}']
+  name: diagnostics
+  header: '{{diagnostics}}'
+  text: '{{diagnostics_descr}}'
   display: UCP2Switch
-  url: aic-tactics.legacyRecruitInterval
+  url: aic-tactics.diagnostics
   contents:
-    value: false
     type: boolean
-- category: [AIC Tactics]
-  name: nativeInitialDefenseMonths
-  header: '{{nativeInitialDefenseMonths}}'
-  text: '{{nativeInitialDefenseMonths_descr}}'
-  display: Number
-  url: aic-tactics.nativeInitialDefenseMonths
-  contents:
-    type: integer
-    value: 6
-    min: 0
-    max: 30
+    value: false

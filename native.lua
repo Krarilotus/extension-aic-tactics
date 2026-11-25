@@ -452,42 +452,55 @@ coordinated:
       'AIC Tactics: correctEngineerRoleCounting must be boolean')
     core.writeInteger(native.engineerRoleFallback, native.enableOptional('EngineerRoles', fallback) and 1 or 0)
   end
+  -- Legacy ai_recruitinterval writes `mov eax, 1` over the interval load, so
+  -- every AI recruits at interval 1. WeightedRoles AIs keep their own AIC
+  -- intervals: the hook on the next instructions reloads theirs.
+  local legacyInterval = {0xB8,0x01,0x00,0x00,0x00,0x90,0x90}
+  local function intervalForced()
+    for index, value in ipairs(legacyInterval) do
+      if core.readByte(sites.interval+index-1) ~= value then return false end
+    end
+    return true
+  end
   local function verifyInterval()
-    if intervalHook then
-      assert(core.readByte(sites.interval) == 0xE9
-        and core.readInteger((sites.interval+1)) == intervalHook - (sites.interval+5),
-        'AIC Tactics: recruitment interval hook was replaced; restart with compatible modules')
-    else
-      for index,value in ipairs(intervalBytes) do
-        assert(core.readByte(sites.interval+index-1)==value,
-          require('messages').legacyOff('ai_recruitinterval', 'legacyRecruitInterval'))
+    local first = 1
+    if intervalForced() then
+      first = 8
+      if intervalHook then
+        assert(core.readByte(sites.interval+7) == 0xE9
+          and core.readInteger(sites.interval+8) == intervalHook - (sites.interval+12),
+          'AIC Tactics: recruitment interval hook was replaced; restart with compatible modules')
+        first = 14
       end
     end
+    for index = first, #intervalBytes do
+      assert(core.readByte(sites.interval+index-1) == intervalBytes[index],
+        'AIC Tactics: recruitment interval was replaced; restart with compatible modules')
+    end
   end
-  function native.enableLegacyInterval()
-    if intervalHook then return end
-    verifyInterval()
+  native.intervalForced = intervalForced
+  function native.activateInterval()
+    if intervalHook or not intervalForced() then return end
     intervalHook = core.allocateAssembly([[
-      pushfd
       push ecx
-      mov eax, dword [edx + ebp * 4 + 0x164]
       mov ecx, dword [esi + playerCharacter]
       dec ecx
       cmp ecx, 1
-      jb legacy
+      jb finished
       cmp ecx, 16
-      ja legacy
+      ja finished
       imul ecx, ecx, configurationSize
       cmp dword [ecx + configuration], 1
-      je finished
-legacy:
-      mov eax, 1
+      jne finished
+      mov eax, dword [edx + ebp * 4 + 0x164]
 finished:
       pop ecx
-      popfd
+      mov ebp, eax
+      neg ebp
+      sbb ebp, ebp
       jmp resume
-    ]], {playerCharacter=game.players+0x2300, configuration=native.configuration, configurationSize=native.configurationSize, resume=(sites.interval+7)})
-    core.writeCode(sites.interval, {0xE9, intervalHook - (sites.interval+5), 0x90, 0x90})
+    ]], {playerCharacter=game.players+0x2300, configuration=native.configuration, configurationSize=native.configurationSize, resume=(sites.interval+13)})
+    core.writeCode(sites.interval+7, {0xE9, intervalHook - (sites.interval+12), 0x90})
   end
   function native.preflight()
   require('config.grace').preflight()
@@ -549,6 +562,7 @@ finished:
   if installed then return end
   native.preflight()
   core.writeInteger(native.legacyWallCounts, wallCounter)
+  native.activateInterval()
 
   local hook = core.allocateAssembly([[
     pushfd
@@ -644,7 +658,6 @@ handled:
   end
   optional('Combat', 'attack control')
   optional('Raids', 'raid targeting', 'Combat')
-  optional('Targets', 'attack target policy')
   optional('SafePlacement', 'safe siege placement')
   optional('SiegePayment', 'siege resource payment', 'SafePlacement')
   optional('SiegeHarassment', 'coordinated siege harassment', 'SafePlacement', 'Combat')

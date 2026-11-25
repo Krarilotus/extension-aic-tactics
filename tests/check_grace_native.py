@@ -71,15 +71,18 @@ g.core.writeCode = lambda address, code: uc.mem_write(address, flatten(code))
 lua.execute("package.path=root..'/?.lua;'..package.path;configFinal={}")
 port = lua.execute(a.legacy.read_text())
 context = scan('03 CB 03 CD 74 4D')
+# AIC resolves at module load; Legacy writes its timer when it enables.
+# AIC then only checks the surrounding context and reads the timer.
 for months in range(31):
+    put(context+36, 4800)
+    lua.execute("package.loaded['config.grace']=nil;grace=require('config.grace')")
+    resolved = g.grace.resolveNative()
     port.init(port, lua.table_from({'sliderValue': months}))
     port.enable(port, lua.table())
     expected = bytes(uc.mem_read(context, 0xA3))
-    put(context+36, 4800)
-    lua.execute("package.loaded['config.grace']=nil;grace=require('config.grace')")
-    g.grace.configure(months)
+    g.grace.preflight()
     assert bytes(uc.mem_read(context, len(expected))) == expected
-    resolved = g.grace.resolveNative()
+    assert get(resolved['initialDefenseTicks']) == months * 800
     for key,value in bindings.items():
         if key != 'aicRecords':
             assert resolved[key] == value, (key,resolved[key],value)
@@ -102,7 +105,7 @@ for index,key in enumerate(('gameTick','rngState','rngValue','rngNext','initialD
         assert bound[key] == bindings[key]
 scans_before = scan_count
 for months in range(31):
-    g.grace.configure(months)
+    g.grace.preflight()
 assert scan_count == scans_before
 
 if a.variant == 'SHCE':

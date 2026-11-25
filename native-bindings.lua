@@ -34,7 +34,7 @@ function M.resolve()
   -- Bindings used only by the listed features; when they do not resolve, those features stay off.
   game.missingFeatures = {}
   for _, binding in ipairs({
-      {'native-combat-bindings', 'Combat', 'Raids', 'Targets'},
+      {'native-combat-bindings', 'Combat', 'Raids'},
       {'native-siege-bindings', 'SafePlacement', 'AttackPatrols', 'SiegeScreen', 'LordHunt', 'AllyRelief'},
       {'native-role-bindings', 'EngineerRoles'},
       {'native-patrol-bindings', 'AttackPatrols', 'SiegeScreen'},

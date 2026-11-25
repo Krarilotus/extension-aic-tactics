@@ -13,11 +13,9 @@ the extension capability so older loaders cannot silently drop the new parameter
 Its required Legacy values cover a pack using all new subsystems. Omit unrelated
 requirements for a pack using only one subsystem, following the compatibility matrix.
 
-Before changing a working profile, copy enabled Legacy recruitment timing, initial
-timer and target-choice values to AIC Tactics' `legacyRecruitInterval`,
-`nativeInitialDefenseMonths` and `nativeTargetPolicy`. This preserves those global
-behaviors for Native personalities. The template does not guess the user's former
-values. Keep existing assault-switch, wave-dispatch, growth and cap options.
+Legacy's recruitment interval, initial timer and target choice stay where they
+are: they are the defaults, and an AI's own AIC Tactics fields override them.
+Keep existing assault-switch, wave-dispatch, growth and cap options.
 
 Installing the module alone changes no global Legacy options: a personality
 without new recruitment, target or raid settings keeps those native policies.

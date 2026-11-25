@@ -116,7 +116,6 @@ function M.new(native)
     end
     if needsCombat then native.preflightCombat() end
     if envelope.raids[1] ~= 0 then native.preflightRaids() end
-    if targeting.policy ~= 0 or targeting.commitment ~= 0 then native.preflightTargets() end
     if envelope.siege[1] == 1 then native.preflightSafePlacement() end
     if envelope.siege[2] == 1 then native.preflightSiegePayment() end
     if envelope.siege[3] == 1 then native.preflightSiegeHarassment() end
@@ -128,7 +127,6 @@ function M.new(native)
     if allies[2] == 2 then native.preflightAllyGoods() end
     -- Per-AI values of a feature that is off are stored as unset.
     local off = native.unavailableFeatures
-    if off.Targets then targeting.policy, targeting.commitment, envelope.preparation = 0, 0, 0 end
     if off.Raids then envelope.raids[1] = 0 end
     for index, key in pairs({'SafePlacement', 'SiegePayment', 'SiegeHarassment', [5] = 'LargerSiegeForce'}) do
       if off[key] then envelope.siege[index] = 0 end
@@ -152,7 +150,7 @@ function M.new(native)
       end
     end
     words[#words + 1] = compiled.defenseComposition
-    words[#words + 1] = compiled.initialDefenseTicks
+    words[#words + 1] = compiled.initialDefenseTicks or core.readInteger(native.game.initialDefenseTicks)
     words[#words + 1] = targeting.policy
     words[#words + 1] = targeting.commitment
     words[#words + 1] = targeting.activation

@@ -60,5 +60,6 @@ Keep the full siege at the human's home and send a third of the army after the h
 - **UCP2-Legacy `ai_attacktarget` and `ai_assaultswitch`** change bytes inside the game's monthly target selection (the choice of opponent, and keeping the current target during an assault). AIC Tactics replaces only the scheduler's call to that selection, runs it unchanged, and applies the hiding castle afterwards, and only while the selection keeps the same opponent. Both options can stay on.
 - **AIC Tactics target policies** (`AttackTargetPolicy` and its commitment) choose the opponent; lord hunt only chooses which of that opponent's shelters is sieged. The committed opponent and its lord stay the policy's target, so commitment, cleanup and `LastAggressor` work unchanged.
 - **Monsterfish's Lord Hunt module** is part of AIC Tactics now; installing both is not supported.
+- **Diagnostics.** With the module setting `diagnostics` on (default off), each lord hunt decision is written to the UCP log as an `[aic-tactics]` line: the hiding castle and split, every hunt wave, hunters that cannot reach the lord, and the end of the attack.
 
 Lord Hunt by Monsterfish, under GPL-3.0; see [CREDITS.md](../CREDITS.md).
