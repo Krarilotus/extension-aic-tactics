@@ -31,6 +31,8 @@ return {
     native.configureSafePlacement(safePlacement)
     native.configureSiegePayment(siegePayment)
     native.configureSiegeHarassment(siegeHarassment, siegeHarassMinimum)
+    -- A module enabled after this one may still change the siege ranges.
+    hooks.registerHookCallback('afterInit', native.refreshSiegeRanges)
     native.configureLargerSiegeForce(largerSiege, siegeForceMaximum)
     local roleCounting = config and config.correctEngineerRoleCounting
     if roleCounting == nil then roleCounting = true end
@@ -46,7 +48,12 @@ return {
       'AIC Tactics requires full multiplayer content admission')
     local backend=require('config.backend').new(native)
     require('config.provider').register(modules.aicloader, backend)
-    require('siege-tower-crew').register(modules['improved-siegeengines'], native, nativeGame)
+    local siegeEngines = modules['improved-siegeengines']
+    require('siege-tower-crew').register(siegeEngines, native, nativeGame)
+    if siegeEngines and type(siegeEngines.registerCatapultWalkPolicy) == 'function' then
+      local moving = core.exposeCode(native.siegeHarassMoving, 1, 0)
+      siegeEngines:registerCatapultWalkPolicy(function(unit) return moving(unit) ~= 0 end)
+    end
     -- Legacy's target choice and recruitment interval feed AIC decisions, so
     -- the match identity includes them.
     core.writeInteger(native.legacyTargetPolicy, native.legacyTargetChoice())

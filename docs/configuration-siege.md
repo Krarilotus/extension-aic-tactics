@@ -32,6 +32,8 @@ ticks). Zero or one permits a single ready engine. The existing
 `HarassingSiegeEnginesMax` remains the total limit; it can already exceed eight
 without enlarging the eight-entry AIC composition array. These two fields are
 independent of payment.
+With Rebalancer's ranges applied, the catapult range is Rebalancer's. Improved
+Siegeengines does not stop a catapult on its way to a firing position to shoot.
 
 `LargerSiegeForces` is an optional boolean, OFF by default. When true, the AI
 repeats its authored main-assault `SiegeEngine1..8` mix while engineers, native

@@ -303,6 +303,16 @@ defer:
     assert(type(fallback) == 'boolean', 'AIC Tactics: actualSiegeResourcePayment must be boolean')
     core.writeInteger(native.siegePaymentFallback, native.enableOptional('SiegePayment', fallback) and 1 or 0)
   end
+  -- Rebalancer owns the siege ranges once it has applied a ranges block.
+  local function rebalancedCatapultRange()
+    local rebalancer = modules.rebalancer
+    local ranges = rebalancer and type(rebalancer.getSiegeRanges) == 'function'
+      and rebalancer:getSiegeRanges()
+    return ranges and ranges.catapult or 0
+  end
+  function native.refreshSiegeRanges()
+    core.writeInteger(native.siegeCatapultRangeOverride, rebalancedCatapultRange())
+  end
   function native.preflightSiegeHarassment()
     native.preflightCombat()
     local context = require('native-context')
@@ -310,8 +320,10 @@ defer:
       '83 EC 10 53 55 56 57')
     context.verify(game.siegeFireRange - 1, 'fire ballista target range',
       'B9 ? ? ? ?')
-    context.verify(game.siegeCatapultRange - 2, 'catapult target range',
-      '83 C1 ?')
+    native.refreshSiegeRanges()
+    if core.readInteger(native.siegeCatapultRangeOverride) == 0 then
+      context.verify(game.siegeCatapultRange - 2, 'catapult target range', '83 C1 ?')
+    end
     for index, site in ipairs({game.siegeCatapultPathGate, game.siegeFirePathGate}) do
       if siegeHarassHooks then
         assert(core.readByte(site) == 0xE9
