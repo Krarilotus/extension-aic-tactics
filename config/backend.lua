@@ -141,6 +141,7 @@ function M.new(native)
     if off.AllyRelief then allies[1] = 0 end
     if off.AllyGoods then allies[2] = 0 end
     if off.AllyGates then allies[8] = 0 end
+    if off.AllyReliefKeep then allies[9] = 0 end
     local words = {compiled.mode, #compiled.conditions}
     for index = 1, 8 do
       local row = compiled.conditions[index]

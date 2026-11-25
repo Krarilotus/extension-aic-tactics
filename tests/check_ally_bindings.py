@@ -89,6 +89,7 @@ def check(identity):
     lua = runtime(image, base)
     lua.execute('''
       sites=allies.resolve(game)
+      for key,value in pairs(allies.resolveKeep(game)) do sites[key]=value end
       for key,value in pairs(gates.resolve(game)) do sites[key]=value end
       for key,value in pairs(sites) do game[key]=value end
       for _,name in ipairs(allies.names) do assert(type(game[name])=='number' and game[name]>0, name) end
@@ -140,6 +141,9 @@ def check(identity):
     # The gate hook: refused when replaced, then only the installed hook passes.
     gate = sites['allyGateSite']
     image[gate - base] = 0xE9
+    assert lua.execute('return (pcall(gates.preflight, game, nil))') is False
+    image[:] = saved
+    image[gate + 3 - base] ^= 0xFF
     assert lua.execute('return (pcall(gates.preflight, game, nil))') is False
     image[:] = saved
     lua.execute('''

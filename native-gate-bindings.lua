@@ -19,7 +19,8 @@ function M.resolve(game)
   assert(read(site + 3) == records + 0x2C0 and read(site + 0x17F) == records + 0x2A2
       and read(site + 0x18A) == records + 0x2A3,
     'AIC Tactics: inconsistent native gate logic')
-  return {allyGateSite = site, allyGateExit = site + 0x7F + read(site + 0x7B),
+  return {allyGateSite = site, allyGateTimer = records + 0x2C0,
+    allyGateExit = site + 0x7F + read(site + 0x7B),
     allyGateChange = context.call(site + 0x196, 'gate change')}
 end
 
@@ -32,6 +33,7 @@ function M.preflight(game, hook)
     return
   end
   context.verify(site, 'gate open and close', '0F B7 87 ? ? ? ? 66 3B C2 7E 21')
+  assert(core.readInteger(site + 3) == game.allyGateTimer, 'AIC Tactics: modified native gate open and close')
 end
 
 -- allyGateHeld(building) == 1 opens the gate and leaves through the exit;
@@ -54,7 +56,7 @@ opened:
     popad
     popfd
     jmp exit
-  ]], {gateHeld = held, timer = core.readInteger(site + 3), resume = site + gateLength,
+  ]], {gateHeld = held, timer = game.allyGateTimer, resume = site + gateLength,
     exit = game.allyGateExit})
   core.writeCode(site, {0xE9, hook - site - 5, 0x90, 0x90})
   return hook

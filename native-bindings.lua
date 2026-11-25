@@ -40,8 +40,9 @@ function M.resolve()
       {'native-patrol-bindings', 'AttackPatrols', 'SiegeScreen'},
       {'native-lord-hunt-bindings', 'LordHunt', 'AllyGates'},
       {'native-ally-bindings', 'AllyRelief', 'AllyGoods', 'AllyGates'},
+      {'native-ally-bindings', 'AllyReliefKeep', resolver = 'resolveKeep'},
       {'native-gate-bindings', 'AllyGates'}}) do
-    local ok, result = pcall(require(binding[1]).resolve, game)
+    local ok, result = pcall(require(binding[1])[binding.resolver or 'resolve'], game)
     if ok then
       for key, value in pairs(result) do game[key] = value end
     else

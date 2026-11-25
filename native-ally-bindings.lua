@@ -97,6 +97,20 @@ function M.resolve(game)
   context.find('AI castle plan steps', aivStepSignature)
   assert(aivState > 0 and read(plan + 0x08) == aivState + 0x14,
     'AIC Tactics: inconsistent native AI castle plans')
+  return {allyAnswerHandler = handler, allyEnoughTest = enough,
+    allyResourceGain = context.call(gift + 0x1E, 'resource gain'),
+    allyResourceLoss = context.call(gift + 0x2D, 'resource loss'),
+    allySellPrice = sellPrice, allyBuyPrice = context.call(buy + 0x52, 'goods buy price'),
+    allyGoodsReceived = read(gift + 0x42), allyGoodsSent = read(gift + 0x51),
+    allyRequestGoods = request, allySentSpeech = context.call(gift + 0x0D, 'goods sent speech'),
+    allyLordAlive = context.call(request + 0xC4, 'lord alive'), allyAIState = aiState,
+    allyAIVState = aivState, allyDetermineHelp = help}
+end
+
+-- The relief's keep order; without it the relief stands at the entrance.
+function M.resolveKeep(game)
+  local read = core.readInteger
+  local players = game.players
   local helpSend = context.find('native help order', helpSendSignature)
   local sendToKeep = context.call(helpSend + helpSendKeep, 'send to keep')
   context.verify(sendToKeep, 'send to keep', sendToKeepSignature)
@@ -106,14 +120,7 @@ function M.resolve(game)
       and read(sendToKeep + 0x24) == game.buildings + 0x14 + 0xEE
       and read(sendToKeep + 0x38) == game.tribes,
     'AIC Tactics: inconsistent native help order')
-  return {allyAnswerHandler = handler, allyEnoughTest = enough,
-    allyResourceGain = context.call(gift + 0x1E, 'resource gain'),
-    allyResourceLoss = context.call(gift + 0x2D, 'resource loss'),
-    allySellPrice = sellPrice, allyBuyPrice = context.call(buy + 0x52, 'goods buy price'),
-    allyGoodsReceived = read(gift + 0x42), allyGoodsSent = read(gift + 0x51),
-    allyRequestGoods = request, allySentSpeech = context.call(gift + 0x0D, 'goods sent speech'),
-    allyLordAlive = context.call(request + 0xC4, 'lord alive'), allyAIState = aiState,
-    allyAIVState = aivState, allyDetermineHelp = help, allySendToKeep = sendToKeep}
+  return {allySendToKeep = sendToKeep}
 end
 
 -- Order of AllyBindings in include/aic_tactics/allies.hpp.

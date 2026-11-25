@@ -373,14 +373,17 @@ void orderGroup(void* aic, int player, int ai, int formation, const Group* group
     nativeDestination(groups[index].tribe);
 }
 
+const char* dutyName(int duty) { return duty == SiegeDefenceDuty ? "siege defence" : "patrol"; }
+
 // Returns the members handed back.
 int handBack(void* aic, int player, int index, int budget)
 {
     const int before = detachedGroupSize(player, index);
+    const char* const name = dutyName(detachedGroups[player][index].duty);
     const int left = returnDetachedGroup(aic, player, index, budget);
     if (detachedGroups[player][index].duty == NoDuty) {
         std::memset(&patrolRoutes[player][1 + index], 0, sizeof(PatrolRoute));
-        diagnostic("player %d: extra patrol group %d is back in the AI's troops", player, index + 1);
+        diagnostic("player %d: extra %s group %d is back in the AI's troops", player, name, index + 1);
     }
     return before > left ? before - left : 0;
 }
@@ -457,7 +460,7 @@ void organizeDetachedGroups(void* aic, int player, int ai, int duty, int firstSl
     } else if (live < desired) {
         const int index = openDetachedGroup(player, duty);
         if (index >= 0) {
-            diagnostic("player %d: extra patrol group %d opens (%d patrol troops)", player, index + 1, total);
+            diagnostic("player %d: extra %s group %d opens (%d troops)", player, dutyName(duty), index + 1, total);
             detachedGroups[player][index].target = at<int>(playerAddress(player) + 0x2BD8);
             const Pool entry = {detachedGroups[player][index].tribe, index, 0, words - 1, 15};
             pool[count++] = entry;
@@ -498,9 +501,9 @@ bool siegeDefenceRecord(int player, int index)
 }
 
 // One siege-defence group's station at `engine`: in front of it toward the
-// target keep for a melee leader, then the engine itself. Returns true when
-// ordered.
-bool stationSiegeDefence(void* tribes, int player, int ai, int tribe, TilePoint engine)
+// target keep for a melee leader, then, with `atEngine`, the engine itself.
+// Returns true when ordered.
+bool stationSiegeDefence(void* tribes, int player, int ai, int tribe, TilePoint engine, bool atEngine)
 {
     TilePoint candidates[2], keep, station;
     int count = 0;
@@ -508,7 +511,7 @@ bool stationSiegeDefence(void* tribes, int player, int ai, int tribe, TilePoint 
     if (!ranged(type) && keepPosition(at<int>(playerAddress(player) + 0x2BD8), keep)
         && siegeScreenStation(engine, keep, setting(siegeScreenForward, ai, siegeScreenForwardFallback), station))
         candidates[count++] = station;
-    candidates[count++] = engine;
+    if (atEngine) candidates[count++] = engine;
     Budget budget = {2, 2, 0};
     for (int candidate = 0; candidate < count; ++candidate)
         if (tryStation(tribes, tribe, candidates[candidate], budget) == Ordered) return true;
@@ -554,7 +557,7 @@ void moveDetachedSiegeDefence(void* tribes, int player, int ai, int tribe, int g
             continue;
         // The native rally sets this stance on the slot tribes it orders.
         at<short>(tribeAddress(group.tribe) + nativeBindings.tribeStance) = 2;
-        if (stationSiegeDefence(tribes, player, ai, group.tribe, engine)) {
+        if (stationSiegeDefence(tribes, player, ai, group.tribe, engine, true)) {
             group.x = engine.x;
             group.y = engine.y;
         }
@@ -674,16 +677,8 @@ int __fastcall screenSiegeDefenceMove(void* tribes, void*, int tribe, int x, int
     const int groups = siegeDefenceGroups(player);
     if (slot == FirstSiegeDefenceSlot) moveDetachedSiegeDefence(tribes, player, ai, tribe, groups, engine);
     else engine = rallyEngine(tribe, 1, groups, engine);
-    TilePoint candidates[2], keep, station;
-    int count = 0;
-    const int type = at<short>(unitAddress(at<short>(tribeAddress(tribe) + 0x5A)) + 0x8E);
-    if (!ranged(type) && keepPosition(at<int>(playerAddress(player) + 0x2BD8), keep)
-        && siegeScreenStation(engine, keep, setting(siegeScreenForward, ai, siegeScreenForwardFallback), station))
-        candidates[count++] = station;
-    if (engine.x != x || engine.y != y) candidates[count++] = engine;
-    Budget budget = {2, 2, 0};
-    for (int candidate = 0; candidate < count; ++candidate)
-        if (tryStation(tribes, tribe, candidates[candidate], budget) == Ordered) return 1;
+    // At the native destination itself the native move keeps its rally arguments.
+    if (stationSiegeDefence(tribes, player, ai, tribe, engine, engine.x != x || engine.y != y)) return 1;
     return move(tribes, tribe, x, y, rally, store, speed);
 }
 

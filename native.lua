@@ -613,6 +613,9 @@ handled:
     native.activateRaids()
     allyGoldHooks = allyBindings.install(game, native.allyGoldRequestAllowed, native.allyGoldRequestCommand)
   end
+  -- The keep order installs nothing; it runs in relief's hooks.
+  function native.preflightAllyReliefKeep() end
+  function native.activateAllyReliefKeep() end
   local gateHook
   -- The relief's gate opening runs inside the native gate logic, per gatehouse.
   function native.preflightAllyGates()
@@ -629,6 +632,7 @@ handled:
     if not native.enableOptional('AllyRelief', words[1] ~= 0) then words[1] = 0 end
     if not native.enableOptional('AllyGoods', words[2] ~= 0) then words[2] = 0 end
     if not native.enableOptional('AllyGates', words[8] ~= 0) then words[8] = 0 end
+    if not native.enableOptional('AllyReliefKeep', words[9] ~= 0) then words[9] = 0 end
     for index, value in ipairs(words) do core.writeInteger(native.allyFallback + (index - 1) * 4, value) end
   end
   require('combat-native').attach(native)
@@ -686,6 +690,7 @@ handled:
   optional('AllyRelief', 'ally relief', 'Combat')
   optional('AllyGoods', 'ally goods', 'Combat', 'Raids')
   optional('AllyGates', 'relief gate opening', 'AllyRelief')
+  optional('AllyReliefKeep', 'relief on the keep', 'AllyRelief')
   for key, failure in pairs(game.missingFeatures or {}) do
     leaveOff(key, 'its game code was not found: ' .. failure)
   end

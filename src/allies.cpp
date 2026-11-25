@@ -621,14 +621,15 @@ bool requestStands(int helper, int ally)
 }
 
 // Home, or for troops shut inside the ally's walls the inside door of its
-// nearest gate, which opens for them.
+// nearest gate, which opens for them. The group's tile is (0, 0) until a door
+// is chosen; near the chosen door the order is not repeated.
 void leaveAlly(void* aic, int helper, DetachedGroup& group)
 {
     TilePoint leader;
     if (move(aic, group.tribe, field(helper, CampX), field(helper, CampY))
         || !tribeLeaderTile(helper, group.tribe, leader)) return;
-    const TilePoint station = {group.x, group.y};
-    if (patrolDistance(station, leader) > 4) orderToGate(aic, group, leader, true);
+    const TilePoint door = {group.x, group.y};
+    if ((!door.x && !door.y) || patrolDistance(door, leader) > 4) orderToGate(aic, group, leader, true);
 }
 
 void endRelief(void* aic, int helper, int index, int reason)
@@ -645,6 +646,8 @@ void endRelief(void* aic, int helper, int index, int reason)
     if (setting(helper, AllyReliefGates) && allied(helper, group.target)
         && memberAt(helper, group, true, 0, 0, -1)) {
         group.leaving = now() ? now() : 1;
+        group.x = 0;
+        group.y = 0;
         leaveAlly(aic, helper, group);
         return;
     }
