@@ -387,9 +387,12 @@ coordinated:
     require('native-patrol-bindings').installScreen(game, native.screenSiegeDefenceMove)
     siegeScreenInstalled = true
   end
-  function native.configureAttackPatrols(orders, formation, spacing, extra, minimum, radius, screen, forward)
+  function native.configureAttackPatrols(orders, formation, spacing, extra, minimum, radius, screen, forward,
+      screenExtra)
     if not native.enableOptional('AttackPatrols', orders == 1) then orders = 0 end
     if not native.enableOptional('SiegeScreen', screen == 1) then screen = 0 end
+    -- Extra siege-defence groups are handed back from the per-AI attack update.
+    if not native.enableOptional('Combat', screenExtra > 0) then screenExtra = 0 end
     core.writeInteger(native.patrolOrdersFallback, orders)
     core.writeInteger(native.patrolFormationFallback, formation)
     core.writeInteger(native.patrolSpacingFallback, spacing)
@@ -398,6 +401,7 @@ coordinated:
     core.writeInteger(native.patrolRadiusFallback, radius)
     core.writeInteger(native.siegeScreenFallback, screen)
     core.writeInteger(native.siegeScreenForwardFallback, forward)
+    core.writeInteger(native.siegeScreenExtraGroupsFallback, screenExtra)
   end
   -- Lord hunt runs inside the combat owner's per-AI attack update, monthly
   -- target selection and unit census; it installs nothing of its own.
@@ -595,9 +599,22 @@ handled:
     native.activateRaids()
     allyGoldHooks = allyBindings.install(game, native.allyGoldRequestAllowed, native.allyGoldRequestCommand)
   end
+  local gateHook
+  -- The relief's gate opening runs inside the native gate logic, per gatehouse.
+  function native.preflightAllyGates()
+    native.preflightAllyRelief()
+    require('native-gate-bindings').preflight(game, gateHook)
+  end
+  function native.activateAllyGates()
+    if gateHook then return end
+    native.preflightAllyGates()
+    native.activateAllyRelief()
+    gateHook = require('native-gate-bindings').install(game, native.allyGateHeld)
+  end
   function native.configureAllies(words)
     if not native.enableOptional('AllyRelief', words[1] ~= 0) then words[1] = 0 end
     if not native.enableOptional('AllyGoods', words[2] ~= 0) then words[2] = 0 end
+    if not native.enableOptional('AllyGates', words[8] ~= 0) then words[8] = 0 end
     for index, value in ipairs(words) do core.writeInteger(native.allyFallback + (index - 1) * 4, value) end
   end
   require('combat-native').attach(native)
@@ -655,6 +672,7 @@ handled:
   optional('LordHunt', 'lord hunt', 'Combat')
   optional('AllyRelief', 'ally relief', 'Combat')
   optional('AllyGoods', 'ally goods', 'Combat', 'Raids')
+  optional('AllyGates', 'relief gate opening', 'AllyRelief')
   for key, failure in pairs(game.missingFeatures or {}) do
     leaveOff(key, 'its game code was not found: ' .. failure)
   end

@@ -82,6 +82,7 @@ struct AllyReliefStatus {
     int requested;         // 1 the ally's help request stands, 0 none, -1 it was withdrawn
     unsigned int age;      // ticks since the relief began
     unsigned int calm;     // ticks since a threat was last seen at the ally's home
+    unsigned int minimum;  // ticks the relief stays at least while the home is calm
 };
 
 int allyReliefEnd(const AllyReliefStatus& status);

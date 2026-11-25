@@ -29,8 +29,9 @@ def state():
         patrolExtraGroups=191800,patrolMinSize=191900,patrolRadius=192000,siegeScreen=192100,
         siegeScreenForward=192200,patrolExtraGroupsFallback=192300,patrolMinSizeFallback=192304,
         patrolRadiusFallback=192308,siegeScreenFallback=192312,siegeScreenForwardFallback=192316,
+        siegeScreenExtraGroups=192400,siegeScreenExtraGroupsFallback=192320,
         patrolRoutes=210000,patrolRouteSize=36,
-        allySettings=220000,allyFallback=220600,allyStates=221000,allyStateSize=260,
+        allySettings=220000,allyFallback=220800,allyStates=221000,allyStateSize=260,
         game={gameTick=0x1FE7DA8,initialDefenseTicks=0x4D34B1,aicRecords=0x23FC8E8+676,unitCapacity=2500,buildingCapacity=2000,tribeMemberWords=157,players=0x115BDF8,tribes=0x1667F78,tribeStride=0x334},
         defenseCensusTick=23000,defenseCensusValid=23004, legacyTargetPolicy=23008,
         incidentSize=2632,combatCensusTick=24000,combatCensusValid=24004,
@@ -320,7 +321,8 @@ def test_split_and_screen_settings_enter_match_identity_but_not_save_admission()
       local saveIdentity,matchIdentity=state.identity(),state.matchIdentity()
       local bytes=state.capture()
       for _,name in ipairs({'patrolExtraGroups','patrolMinSize','patrolRadius','siegeScreen',
-          'siegeScreenForward','patrolExtraGroupsFallback','siegeScreenFallback'}) do
+          'siegeScreenForward','siegeScreenExtraGroups','patrolExtraGroupsFallback','siegeScreenFallback',
+          'siegeScreenExtraGroupsFallback'}) do
         local address=native[name]+(name:find('Fallback') and 0 or 4*4)
         memory[address]=3
         assert(state.identity()==saveIdentity and state.matchIdentity()~=matchIdentity)

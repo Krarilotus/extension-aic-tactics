@@ -85,7 +85,8 @@ int allyReliefEnd(const AllyReliefStatus& status)
     if (status.attackDue) return ReliefAttack;
     if (status.age >= ReliefMaximumTicks) return ReliefExpired;
     if (status.requested < 0) return ReliefCancelled;
-    if (status.requested == 0 && status.calm >= ReliefCalmTicks) return ReliefThreatOver;
+    if (status.requested == 0 && status.calm >= ReliefCalmTicks && status.age >= status.minimum)
+        return ReliefThreatOver;
     return ReliefContinues;
 }
 

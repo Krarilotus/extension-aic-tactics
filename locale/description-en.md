@@ -28,8 +28,9 @@ Sortie shares enable `WeightedRoles` automatically. Situation rules, defense com
 - `AICTactics_PatrolRadius` (4–100): walking distance from the target castle of the ring that `Routes` follow.
 - `AICTactics_SiegeScreen`: `EngineApproach` stations the siege-defence groups in front of their engines, the two groups at different engines; `Native` keeps the game's rally.
 - `AICTactics_SiegeScreenForward` (0–10): tiles in front of the engines for melee siege-defence groups.
+- `AICTactics_SiegeScreenExtraGroups` (0–6): extra siege-defence groups split off while the engines work, each at its own engine; they rejoin before the wall assault.
 
-Omitted values use the module settings (every group, `Routes`, 12 tiles, no extra groups, groups of 4, ring 12, siege screen on, 4 tiles).
+Omitted values use the module settings (every group, `Routes`, 12 tiles, no extra groups, groups of 4, ring 12, siege screen on, 4 tiles, no extra siege-defence groups).
 
 ### Lord hunt
 
@@ -49,13 +50,16 @@ AI allies help each other and you, not only when you ask.
 
 - `AICTactics_AllyRelief`: `true` sends part of the idle army to an ally whose castle is under attack, and when you ask for help; `false` keeps the native help.
 - `AICTactics_AllyArmySharePercent` (0–100): share of the idle attack army sent; 0 sends none, also when asked.
+- `AICTactics_AllyReliefMinMonths` (0–12): months the relief stays at least once the ally is calm again.
+- `AICTactics_AllyReliefGates`: `true` opens the ally's shut gates for the relief, going in and leaving.
+- `AICTactics_AllyReliefKeep`: `true` puts the relief on the ally's keep instead of at its entrance.
 - `AICTactics_AllyGoods`: `true` lets the AI ask its AI allies for goods and gold, give to them, and send you gold when you ask.
 - `AICTactics_AllyGoldKeep` (0–100000): gold it keeps before giving any, also when you ask.
 - `AICTactics_AllyRecruitGoldBuffer` (0–5000): when weak or threatened it is helped up to its recruiting gold plus this much.
 - `AICTactics_AllyGoldSharePercent` (0–100): share of its gold above the kept gold added to a goods gift; 0 adds none, asked gold is still sent.
 - `AICTactics_AllyMonthlyGivePercent` (0–100): share of each good it gives away per month.
 
-Omitted values use the module settings (on, 75%, on, 1000, 300, 25%, 30%). Based on Ally Support by Monsterfish.
+Omitted values use the module settings (on, 75%, 0 months, off, off, on, 1000, 300, 25%, 30%). Based on Ally Support by Monsterfish.
 
 ### Raids
 

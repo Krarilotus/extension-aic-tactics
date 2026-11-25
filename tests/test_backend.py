@@ -25,7 +25,7 @@ def backend():
         lordHuntRetarget=23100,lordHuntSiege=23200,lordHuntSwitch=23300,lordHuntShare=23400,
         lordHuntSplit=23500,
         patrolExtraGroups=24100,patrolMinSize=24200,patrolRadius=24300,siegeScreen=24400,
-        siegeScreenForward=24500,
+        siegeScreenForward=24500,siegeScreenExtraGroups=24600,
         allySettings=26000,allyFallback=26800,
         game={gameTick=0x1FE7DA8},
         preflightLordHunt=function()huntPreflights=(huntPreflights or 0)+1 end,
@@ -45,6 +45,8 @@ def backend():
         activateAllyRelief=function()reliefActivations=(reliefActivations or 0)+1 end,
         preflightAllyGoods=function()goodsPreflights=(goodsPreflights or 0)+1 end,
         activateAllyGoods=function()goodsActivations=(goodsActivations or 0)+1 end,
+        preflightAllyGates=function()gatePreflights=(gatePreflights or 0)+1 end,
+        activateAllyGates=function()gateActivations=(gateActivations or 0)+1 end,
         preflightEngineerRoles=function()rolePreflights=rolePreflights+1 end,
         activateEngineerRoles=function()roleActivations=roleActivations+1 end}
       backend=require('config.backend').new(native)
@@ -386,11 +388,16 @@ def test_patrol_field_values_are_validated():
       orders,formation,spacing=fallback({patrolOrders='Native',patrolFormation='Mirror',patrolSpacing=20})
       assert(orders==0 and formation==2 and spacing==20)
       assert(not pcall(fallback,{patrolSpacing=3}))
-      orders,formation,spacing,extra,minimum,radius,screen,forward=fallback({patrolFormation='Routes',
-        patrolExtraGroups=6,patrolMinSize=1,patrolRadius=100,siegeScreen='Native',siegeScreenForward=0})
-      assert(formation==3 and extra==6 and minimum==1 and radius==100 and screen==0 and forward==0)
+      assert(select(9,fallback(nil))==0)
+      local screenExtra
+      orders,formation,spacing,extra,minimum,radius,screen,forward,screenExtra=fallback({patrolFormation='Routes',
+        patrolExtraGroups=6,patrolMinSize=1,patrolRadius=100,siegeScreen='Native',siegeScreenForward=0,
+        siegeScreenExtraGroups=6})
+      assert(formation==3 and extra==6 and minimum==1 and radius==100 and screen==0 and forward==0
+        and screenExtra==6)
       for _,bad in ipairs({{patrolExtraGroups=7},{patrolMinSize=0},{patrolRadius=3},{patrolRadius=101},
-          {siegeScreenForward=11},{siegeScreen='Front'},{patrolExtraGroups=1.5}}) do
+          {siegeScreenForward=11},{siegeScreen='Front'},{patrolExtraGroups=1.5},
+          {siegeScreenExtraGroups=7}}) do
         assert(not pcall(fallback,bad))
       end
     ''')
@@ -415,10 +422,14 @@ def test_split_route_and_screen_fields_store_inherit_or_explicit_values():
       assert(screenPreflights==1 and screenActivations==1)
       prepare(6,{AICTactics_PatrolFormation='Native',AICTactics_PatrolExtraGroups=6}).commit()
       assert(memory[native.patrolFormation+24]==1 and memory[native.patrolExtraGroups+24]==7)
+      -- Extra siege-defence groups are handed back from the combat owner's update.
+      prepare(8,{AICTactics_SiegeScreenExtraGroups=2}).commit()
+      assert(memory[native.siegeScreenExtraGroups+32]==3)
       for _,spec in ipairs({{AICTactics_PatrolExtraGroups=7},{AICTactics_PatrolExtraGroups=-1},
           {AICTactics_PatrolMinSize=0},{AICTactics_PatrolMinSize=51},{AICTactics_PatrolRadius=3},
           {AICTactics_PatrolRadius=101},{AICTactics_SiegeScreenForward=11},{AICTactics_SiegeScreen='Engines'},
-          {AICTactics_PatrolRadius='12'},{AICTactics_PatrolFormation='Clockwise'}}) do
+          {AICTactics_PatrolRadius='12'},{AICTactics_PatrolFormation='Clockwise'},
+          {AICTactics_SiegeScreenExtraGroups=7}}) do
         assert(not pcall(prepare,7,spec))
       end
     ''')

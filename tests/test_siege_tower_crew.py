@@ -55,7 +55,7 @@ FIXTURE = """
   local spec = {}
   if scenario == 'field off' then spec.AICTactics_SiegeTowerCrew = false end
   local _, settings = config.prepare(nil, spec)
-  memory[native.configuration + 352 + 348] = settings[9]
+  memory[native.configuration + 352 + 348] = settings[10]
   local crew = require('siege-tower-crew')
   if scenario == 'missing module' then
     crew.register(nil, native, game)

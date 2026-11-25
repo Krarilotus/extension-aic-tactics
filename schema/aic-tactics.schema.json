@@ -362,6 +362,12 @@
       "maximum": 10,
       "description": "Tiles in front of the engines, toward the target castle, where melee siege-defence groups stand; ranged groups stay at the engines. Absent uses the module setting (default 4)."
     },
+    "AICTactics_SiegeScreenExtraGroups": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 6,
+      "description": "Extra siege-defence groups split off the two native groups while the engines work (attack states 3-4), each at its own engine, as long as every group keeps AICTactics_PatrolMinSize; they rejoin before the wall assault. Needs AICTactics_SiegeScreen EngineApproach. Absent uses the module setting (default 0)."
+    },
     "AICTactics_LordHuntRetarget": {
       "type": "boolean",
       "description": "When the attacked human player's lord shelters inside an ally's walls that the attackers cannot enter, attack that castle with the full native siege. Absent uses the module setting (default true)."
@@ -428,6 +434,20 @@
       "minimum": 0,
       "maximum": 100,
       "description": "Percent of the idle attack army sent as relief, rounded up. 0 sends no troops, also when asked; 100 sends the whole idle attack army. Absent uses the module setting (default 75)."
+    },
+    "AICTactics_AllyReliefMinMonths": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 12,
+      "description": "Months this AI's relief stays at least before a calm ally home sends it back. Its own attack, its own danger, a lost ally or a withdrawn request still end it. Absent uses the module setting (default 0: home after one calm month)."
+    },
+    "AICTactics_AllyReliefGates": {
+      "type": "boolean",
+      "description": "When the helped ally's gates are shut, this AI's relief walks up to a gate and the gate is held open for it, and again for its troops leaving. Absent uses the module setting (default false)."
+    },
+    "AICTactics_AllyReliefKeep": {
+      "type": "boolean",
+      "description": "This AI's relief troops stand on the helped ally's keep, as the native help sends them, instead of at its entrance. Absent uses the module setting (default false)."
     }
   }
 }

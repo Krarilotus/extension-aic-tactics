@@ -27,6 +27,7 @@ unsigned char aicRecords[17 * 0x2A4];
 unsigned char aiv[0x38 + 9 * 0x6D98];
 unsigned char playable[400 * 400];
 int rows[400 * 3];
+unsigned short areas[80400];
 int teams[9];
 int received[9], sent[9];
 int lordAliveFlags[9];
@@ -34,7 +35,8 @@ unsigned int tick = 4000;
 unsigned int nextUID = 900;
 int nextTribe = 40;
 void* const AIC = aicRecords;
-int pathOK, moves, moveTribe, moveX, moveY, speeches, requests, requestPlayer, requestAmount;
+int pathOK, pathOnly, moves, moveTribe, moveX, moveY, speeches, requests, requestPlayer, requestAmount;
+int keepOrders, keepTribe, keepOwner, gateChanges, gateBuilding;
 
 template<class T> T& at(unsigned char* base, unsigned int offset) { return *reinterpret_cast<T*>(base + offset); }
 unsigned char* player(int id) { return players + id * Stride; }
@@ -92,7 +94,20 @@ int __fastcall lordAlive(void* state, void*, int id)
 int __fastcall path(void* state, void*, int, int tile)
 {
     assert(state == AIC && tile > 0);
-    return pathOK;
+    return pathOK || tile == pathOnly;
+}
+void __fastcall toKeep(void* state, void*, int id, int owner)
+{
+    assert(state == AIC);
+    ++keepOrders;
+    keepTribe = id;
+    keepOwner = owner;
+}
+void __fastcall gateChange(void* owner, void*, int id, int open, int flag)
+{
+    assert(owner == static_cast<void*>(buildings) && open == 1 && flag == 0);
+    ++gateChanges;
+    gateBuilding = id;
 }
 int __fastcall move(void* owner, void*, int id, int x, int y, int a, int b, int c)
 {
@@ -181,11 +196,13 @@ void setup(unsigned int stride)
     std::memset(received, 0, sizeof(received));
     std::memset(sent, 0, sizeof(sent));
     std::memset(playable, 1, sizeof(playable));
+    std::memset(areas, 0, sizeof(areas));
     for (int y = 0; y < 400; ++y) rows[y * 3] = y * 400;
     tick = 4000;
     nextTribe = 40;
     pathOK = 1;
-    moves = speeches = requests = 0;
+    pathOnly = 0;
+    moves = speeches = requests = keepOrders = gateChanges = 0;
     nativeBindings.players = reinterpret_cast<unsigned int>(players);
     nativeBindings.unitRecords = reinterpret_cast<unsigned int>(units);
     nativeBindings.units = 0x8000;
@@ -195,6 +212,8 @@ void setup(unsigned int stride)
     nativeBindings.tribeMemberWords = 4;
     nativeBindings.tribeStance = stride == 0x334 ? 0x2E0 : 0x634;
     nativeBindings.buildings = reinterpret_cast<unsigned int>(buildings);
+    nativeBindings.buildingCapacity = 8;
+    nativeBindings.areaMap = reinterpret_cast<unsigned int>(areas);
     nativeBindings.gameState = 0x7000;
     nativeBindings.gameTick = reinterpret_cast<unsigned int>(&tick);
     nativeBindings.teams = reinterpret_cast<unsigned int>(teams);
@@ -218,6 +237,8 @@ void setup(unsigned int stride)
     allyBindings.lordAlive = reinterpret_cast<unsigned int>(&lordAlive);
     allyBindings.aiState = reinterpret_cast<unsigned int>(aicRecords);
     allyBindings.aivState = 0;
+    allyBindings.sendToKeep = reinterpret_cast<unsigned int>(&toKeep);
+    allyBindings.gateChange = reinterpret_cast<unsigned int>(&gateChange);
     // 1 human, 2 and 3 AI allies (characters 2 and 3), 4 an enemy AI (character 4).
     const int teamOf[9] = {0, 1, 1, 1, 2, 0, 0, 0, 0};
     for (int id = 0; id < 9; ++id) { teams[id] = teamOf[id]; lordAliveFlags[id] = id >= 1 && id <= 4; }
@@ -552,6 +573,94 @@ void request(unsigned int stride)
     assert(relieved(2) == -1 && field(2, 0x384C) == 2);
 }
 
+unsigned char* building(int id) { return buildings + 0x14 + id * 0x32C; }
+void place(int id, int x, int y, int tile)
+{
+    at<short>(unit(id), 0xC4) = static_cast<short>(x);
+    at<short>(unit(id), 0xC6) = static_cast<short>(y);
+    at<int>(unit(id), 0xD4) = tile;
+}
+
+void keep(unsigned int stride)
+{
+    setup(stride);
+    army();
+    // Player 1's keep is building 1 at (48, 46).
+    at<short>(building(1), 0xEE) = 48;
+    at<short>(building(1), 0xF0) = 46;
+    allySettings[2][AllyReliefKeep] = 2;
+    combatCensus[1].homePower[4] = 150;
+    update(2);
+    assert(relieved(2) == 9 && keepOrders == 1 && moves == 0);
+    assert(keepTribe == detachedGroups[2][0].tribe && keepOwner == 1);
+    assert(detachedGroups[2][0].x == 51 && detachedGroups[2][0].y == 50);
+    // Shut out without gate opening: the camp, as before.
+    allySettings[2][AllyReliefKeep] = 0;
+    tick += ReliefMaximumTicks;
+    combatCensusTick = tick;
+    update(2);
+    tick += ReliefPauseTicks;
+    combatCensusTick = tick;
+    pathOK = 0;
+    pathOnly = 60 * 400 + 60;
+    update(2);
+    assert(relieved(2) == 9 && moveX == 60 && moveY == 60);
+}
+
+void gates(unsigned int stride)
+{
+    setup(stride);
+    army();
+    // Player 1's walls: its keep tile (50, 50) in area 7. Its gatehouse,
+    // building 2 at (40, 60) size 5, has one door outside: (42, 65), area 3.
+    field(1, 0x1E0) = 50 * 400 + 50;
+    areas[50 * 400 + 50] = 7;
+    areas[65 * 400 + 42] = 3;
+    areas[59 * 400 + 42] = 7;
+    at<short>(building(1), 0xEE) = 200;
+    at<short>(building(1), 0xF0) = 200;
+    at<short>(building(2), 0xD0) = 2;
+    at<short>(building(2), 0xD2) = 46;
+    at<short>(building(2), 0xD6) = 1;
+    at<short>(building(2), 0xEE) = 40;
+    at<short>(building(2), 0xF0) = 60;
+    at<int>(building(2), 0xF8) = 5;
+    at<unsigned char>(building(2), 0x2A2) = 2;
+    allySettings[2][AllyReliefGates] = 2;
+    // Shut out: the relief walks to the outside door.
+    pathOK = 0;
+    pathOnly = 65 * 400 + 42;
+    combatCensus[1].homePower[4] = 150;
+    update(2);
+    assert(relieved(2) == 9 && moves == 1 && moveX == 42 && moveY == 65);
+    // Not there yet: the gate keeps the native logic.
+    assert(allyGateHeld(2) == 0 && allyGateHeld(1) == 0);
+    // At the door: the gate opens and the native part is skipped.
+    for (int id = 2; id <= 12; ++id) place(id, 42, 66, 66 * 400 + 42);
+    assert(allyGateHeld(2) == 1 && gateChanges == 1 && gateBuilding == 2);
+    assert(at<unsigned char>(building(2), 0x2A3) == 0xB);
+    // Waiting at the door is not restarted; once open the way in is taken.
+    update(2);
+    assert(moves == 1);
+    pathOK = 1;
+    update(2);
+    assert(moves == 2 && moveX == 50 && moveY == 50);
+    // Inside, its own attack ends the relief: the troops leave through the gate.
+    for (int id = 2; id <= 12; ++id) place(id, 50, 50, 50 * 400 + 50);
+    field(2, 0x2BA4) = 1;
+    update(2);
+    assert(relieved(2) == 9 && detachedGroups[2][0].leaving == tick && moveX == 110);
+    assert(allyGateHeld(2) == 0);
+    place(2, 42, 59, 59 * 400 + 42);
+    assert(allyGateHeld(2) == 1);
+    update(2);
+    assert(relieved(2) == 9);
+    // Everyone out: the troops rejoin their groups.
+    for (int id = 2; id <= 12; ++id) place(id, 42, 70, 0);
+    update(2);
+    assert(relieved(2) == -1 && allyGateHeld(2) == 0);
+}
+
 void run(unsigned int stride)
 {
     goods(stride);
@@ -561,6 +670,8 @@ void run(unsigned int stride)
     reinforcement(stride);
     relief(stride);
     request(stride);
+    keep(stride);
+    gates(stride);
 }
 }
 

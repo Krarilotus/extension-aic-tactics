@@ -104,11 +104,13 @@ template<class Sink> void visitIntegrity(Sink& digest, int legacyInterval)
     digest.block(patrolRadius + 1, sizeof(int) * 16);
     digest.block(siegeScreen + 1, sizeof(int) * 16);
     digest.block(siegeScreenForward + 1, sizeof(int) * 16);
+    digest.block(siegeScreenExtraGroups + 1, sizeof(int) * 16);
     digest.word(static_cast<unsigned int>(patrolExtraGroupsFallback));
     digest.word(static_cast<unsigned int>(patrolMinSizeFallback));
     digest.word(static_cast<unsigned int>(patrolRadiusFallback));
     digest.word(static_cast<unsigned int>(siegeScreenFallback));
     digest.word(static_cast<unsigned int>(siegeScreenForwardFallback));
+    digest.word(static_cast<unsigned int>(siegeScreenExtraGroupsFallback));
     digest.block(patrolRoutes, sizeof(patrolRoutes));
     digest.block(allySettings + 1, sizeof(allySettings[0]) * 16);
     digest.block(allyFallback, sizeof(allyFallback));
@@ -121,7 +123,7 @@ typedef char BoundaryCapacity[(sizeof(CharacterConfiguration) * 16 + 676 * 16
     + sizeof(raidStaticDefenses) + sizeof(siegeHarassPlans) + sizeof(detachedGroups)
     + sizeof(lordHunts) + sizeof(lordHuntCensus) + sizeof(lordHuntUnits)
     + sizeof(int) * 98 + sizeof(patrolOrders) * 3 + sizeof(lordHuntRetarget) * 5 + 128
-    + sizeof(patrolOrders) * 5 + sizeof(int) * 11 + sizeof(patrolRoutes)
+    + sizeof(patrolOrders) * 6 + sizeof(int) * 12 + sizeof(patrolRoutes)
     + sizeof(allySettings) + sizeof(allyFallback) + sizeof(allyStates) + 12
     <= sizeof(boundaryWords)) ? 1 : -1];
 }

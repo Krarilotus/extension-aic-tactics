@@ -24,6 +24,8 @@ struct AllyBindings {
     unsigned int lordAlive;        // UnitsState: alive(player)
     unsigned int aiState;          // AICState instance
     unsigned int aivState;         // AIVState instance (castle build plans)
+    unsigned int sendToKeep;       // AICState: sendUnitsToKeep(tribe, player), onto the keep
+    unsigned int gateChange;       // BuildingsState: apply a gate's open/close change(building, 1, 0)
 };
 extern AllyBindings allyBindings;
 
@@ -35,7 +37,10 @@ enum AllySetting {
     AllyGoldShare = 4,         // percent of gold above the floor added unasked
     AllyMonthlyGive = 5,       // percent of each good given per month
     AllyArmyShare = 6,         // percent of the idle attack army sent as relief
-    AllySettingCount = 7
+    AllyReliefGates = 7,       // boolean: gates open for the relief
+    AllyReliefKeep = 8,        // boolean: the relief stands on the ally's keep
+    AllyReliefMinMonths = 9,   // 0..12 months the relief stays at least
+    AllySettingCount = 10
 };
 // Indexed by installed AIC character 1..16: 0 uses the module setting,
 // otherwise the character's value + 1 (booleans: 1 off, 2 on).
@@ -87,6 +92,12 @@ private:
 // command handler and returns 1 when it handled it.
 int __cdecl allyGoldRequestAllowed(int player, int amount);
 int __cdecl allyGoldRequestCommand(int giver, int resourceIndex, int amount, int receiver);
+
+// Called from the native gate logic per uncaptured gatehouse per tick, before
+// its open/close part. Returns 1 when a relief with gate opening on waits at
+// the gatehouse on the far side of its walls; the gate is then opened and the
+// native part is skipped. Reads synchronized state only.
+int __cdecl allyGateHeld(int building);
 
 } // namespace SHC141
 } // namespace AicTactics

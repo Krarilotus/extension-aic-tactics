@@ -231,6 +231,17 @@ options:
     min: 0
     max: 10
 - category: ['{{ai}}', '{{improvements}}']
+  name: siegeScreenExtraGroups
+  header: '{{siegeScreenExtraGroups}}'
+  text: '{{siegeScreenExtraGroups_descr}}'
+  display: Number
+  url: aic-tactics.siegeScreenExtraGroups
+  contents:
+    type: integer
+    value: 0
+    min: 0
+    max: 6
+- category: ['{{ai}}', '{{improvements}}']
   name: allyArmySharePercent
   header: '{{allyArmySharePercent}}'
   text: '{{allyArmySharePercent_descr}}'
@@ -241,6 +252,35 @@ options:
     value: 75
     min: 0
     max: 100
+- category: ['{{ai}}', '{{improvements}}']
+  name: allyReliefMinMonths
+  header: '{{allyReliefMinMonths}}'
+  text: '{{allyReliefMinMonths_descr}}'
+  display: Number
+  url: aic-tactics.allyReliefMinMonths
+  contents:
+    type: integer
+    value: 0
+    min: 0
+    max: 12
+- category: ['{{ai}}', '{{improvements}}']
+  name: allyReliefGates
+  header: '{{allyReliefGates}}'
+  text: '{{allyReliefGates_descr}}'
+  display: UCP2Switch
+  url: aic-tactics.allyReliefGates
+  contents:
+    type: boolean
+    value: false
+- category: ['{{ai}}', '{{improvements}}']
+  name: allyReliefKeep
+  header: '{{allyReliefKeep}}'
+  text: '{{allyReliefKeep_descr}}'
+  display: UCP2Switch
+  url: aic-tactics.allyReliefKeep
+  contents:
+    type: boolean
+    value: false
 - category: ['{{ai}}', '{{improvements}}']
   name: allyGoods
   header: '{{allyGoods}}'

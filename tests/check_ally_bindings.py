@@ -3,8 +3,9 @@
 Resolves the real layout and the ally owners against every local reference
 executable, then runs the production preflight and install of the player's
 gold request on that image: both sites are redirected, preflight then
-expects the hooks, and a replaced site is refused before install. It also
-prints the native help owners for the HELP-NATIVE notes.
+expects the hooks, and a replaced site is refused before install. The same
+for the relief's gate hook. It also prints the native help owners for the
+HELP-NATIVE notes.
 Usage: check_ally_bindings.py [projects-root]
 """
 import hashlib
@@ -73,6 +74,7 @@ def runtime(image, base):
       game.aicRecords=core.readInteger(context.find('AIC array',aic_array))+676
       game.gameState=core.readInteger(context.find('market caller',market_caller)+19)
       allies=require('native-ally-bindings')
+      gates=require('native-gate-bindings')
     ''')
     return lua
 
@@ -87,9 +89,11 @@ def check(identity):
     lua = runtime(image, base)
     lua.execute('''
       sites=allies.resolve(game)
+      for key,value in pairs(gates.resolve(game)) do sites[key]=value end
       for key,value in pairs(sites) do game[key]=value end
       for _,name in ipairs(allies.names) do assert(type(game[name])=='number' and game[name]>0, name) end
       allies.preflight(game, nil)
+      gates.preflight(game, nil)
     ''')
     sites = lua.globals().sites
     game = lua.globals().game
@@ -101,7 +105,8 @@ def check(identity):
     for key in ('allyAnswerHandler', 'allyEnoughTest', 'allyRequestGoods', 'allyDetermineHelp',
                 'allyResourceGain', 'allyResourceLoss', 'allySellPrice', 'allyBuyPrice',
                 'allySentSpeech', 'allyLordAlive', 'allyGoodsReceived', 'allyGoodsSent',
-                'allyAIState', 'allyAIVState'):
+                'allyAIState', 'allyAIVState', 'allySendToKeep', 'allyGateSite', 'allyGateExit',
+                'allyGateChange'):
         result[key] = hex(sites[key])
     result['players'] = hex(game['players'])
     result['nativeHelp'] = native_help
@@ -130,6 +135,23 @@ def check(identity):
       assert(core.readByte(game.allyAnswerHandler+5)==0x90)
       allies.preflight(game, hooks)
       assert(not pcall(allies.preflight, game, nil))
+    ''')
+    image[:] = saved
+    # The gate hook: refused when replaced, then only the installed hook passes.
+    gate = sites['allyGateSite']
+    image[gate - base] = 0xE9
+    assert lua.execute('return (pcall(gates.preflight, game, nil))') is False
+    image[:] = saved
+    lua.execute('''
+      stubs={}
+      local hook=gates.install(game, 0x31000200)
+      assert(#stubs==1 and hook==stubs[1].address and stubs[1].symbols.gateHeld==0x31000200)
+      assert(stubs[1].symbols.resume==game.allyGateSite+7 and stubs[1].symbols.exit==game.allyGateExit)
+      assert(stubs[1].symbols.timer==game.buildings+0x14+0x2C0)
+      assert(core.readByte(game.allyGateSite)==0xE9
+        and game.allyGateSite+5+core.readInteger(game.allyGateSite+1)==hook)
+      gates.preflight(game, hook)
+      assert(not pcall(gates.preflight, game, nil))
     ''')
     image[:] = saved
     return result

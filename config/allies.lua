@@ -3,7 +3,8 @@
 -- character only. Stored per AI as 0 (use the module setting) or the value + 1.
 local M = {fields = {'AICTactics_AllyRelief', 'AICTactics_AllyGoods', 'AICTactics_AllyGoldKeep',
   'AICTactics_AllyRecruitGoldBuffer', 'AICTactics_AllyGoldSharePercent',
-  'AICTactics_AllyMonthlyGivePercent', 'AICTactics_AllyArmySharePercent'}}
+  'AICTactics_AllyMonthlyGivePercent', 'AICTactics_AllyArmySharePercent',
+  'AICTactics_AllyReliefGates', 'AICTactics_AllyReliefKeep', 'AICTactics_AllyReliefMinMonths'}}
 
 -- Field, module option, kind, minimum, maximum, default; in storage order.
 local settings = {
@@ -14,6 +15,9 @@ local settings = {
   {'AICTactics_AllyGoldSharePercent', 'allyGoldSharePercent', 'integer', 0, 100, 25},
   {'AICTactics_AllyMonthlyGivePercent', 'allyMonthlyGivePercent', 'integer', 0, 100, 30},
   {'AICTactics_AllyArmySharePercent', 'allyArmySharePercent', 'integer', 0, 100, 75},
+  {'AICTactics_AllyReliefGates', 'allyReliefGates', 'boolean', nil, nil, false},
+  {'AICTactics_AllyReliefKeep', 'allyReliefKeep', 'boolean', nil, nil, false},
+  {'AICTactics_AllyReliefMinMonths', 'allyReliefMinMonths', 'integer', 0, 12, 0},
 }
 M.settings = settings
 

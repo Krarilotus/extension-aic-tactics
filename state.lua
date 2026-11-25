@@ -5,6 +5,8 @@ local huntArrays = {'lordHuntRetarget', 'lordHuntSiege', 'lordHuntSwitch', 'lord
 local huntFallbacks = {'lordHuntRetargetFallback', 'lordHuntSiegeFallback', 'lordHuntSwitchFallback',
   'lordHuntShareFallback', 'lordHuntSplitFallback'}
 local configurationBytes, aicBytes, censusWords, harassWords = 16 * 352, 16 * 676, 9 * 80, 9 * 9
+-- Per-AI ally settings: one word per setting and character.
+local allyBytes = #require('config.allies').settings * 4
 
 local function word(value)
   if value < 0 then value = value + 4294967296 end
@@ -54,14 +56,15 @@ function M.new(native, legacyInterval, fingerprint)
     -- Lord hunt keeps detachments and their census in this section.
     if core.readInteger(native.lordHuntRetargetFallback) ~= 0
         or core.readInteger(native.lordHuntShareFallback) ~= 0 then return true end
-    -- Extra patrol groups and patrol routes keep their records in this section.
+    -- Extra patrol and siege-defence groups and patrol routes keep their records in this section.
     if core.readInteger(native.patrolExtraGroupsFallback) ~= 0
+        or core.readInteger(native.siegeScreenExtraGroupsFallback) ~= 0
         or core.readInteger(native.patrolFormationFallback) == routesFormation then return true end
     -- Ally help keeps gifts and relief timers in this section.
     if core.readInteger(native.allyFallback) ~= 0 or core.readInteger(native.allyFallback + 4) ~= 0 then
       return true
     end
-    if core.readString(native.allySettings + 28, 16 * 28) ~= string.rep('\0', 16 * 28) then
+    if core.readString(native.allySettings + allyBytes, 16 * allyBytes) ~= string.rep('\0', 16 * allyBytes) then
       return true
     end
     for ai = 1, 16 do
@@ -69,6 +72,7 @@ function M.new(native, legacyInterval, fingerprint)
         if core.readInteger(native[name] + ai * 4) ~= 0 then return true end
       end
       if core.readInteger(native.patrolExtraGroups + ai * 4) > 1
+          or core.readInteger(native.siegeScreenExtraGroups + ai * 4) > 1
           or core.readInteger(native.patrolFormation + ai * 4) == routesFormation + 1 then return true end
       if core.readInteger(native.siegePaymentPolicy + ai * 4) ~= 0 then return true end
       if core.readInteger(native.siegeHarassPolicy + ai * 4) ~= 0
@@ -110,8 +114,8 @@ function M.new(native, legacyInterval, fingerprint)
     for _, name in ipairs(patrolArrays) do result[#result + 1] = word(core.readInteger(native[name .. 'Fallback'])) end
     for _, name in ipairs(huntArrays) do result[#result + 1] = core.readString(native[name] + 4, 16 * 4) end
     for _, name in ipairs(huntFallbacks) do result[#result + 1] = word(core.readInteger(native[name])) end
-    result[#result + 1] = core.readString(native.allySettings + 28, 16 * 28)
-    result[#result + 1] = core.readString(native.allyFallback, 7 * 4)
+    result[#result + 1] = core.readString(native.allySettings + allyBytes, 16 * allyBytes)
+    result[#result + 1] = core.readString(native.allyFallback, allyBytes)
     -- Features another module left off install no hooks even for an AI that opts in.
     local off = {}
     for key in pairs(native.unavailableFeatures) do off[#off + 1] = key end
