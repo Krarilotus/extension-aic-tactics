@@ -63,7 +63,6 @@ function M.new(game)
     core.writeInteger(native.siegeForceMaximumFallback, maximum)
     if fallback then native.activateLargerSiegeForce() end
   end
-  local function spotTestReplaced() return core.readByte(game.siegeAngleCandidateTest) == 0xE9 end
   function native.preflightSafePlacement()
     native.preflightAssaultCrewRecovery()
     local target = require('native-context').call(game.siegePlacementCall, 'siege footprint tile check')
@@ -77,17 +76,12 @@ function M.new(game)
       assert(destination == (safePlacementBackoffHook or game.siegeFailureExit),
         'AIC Tactics: siege retry branch was replaced')
     end
-    -- Improved Siegeengines' tent spot options replace the finder's whole
-    -- spot test with a jump and continue to this branch's target when a spot
-    -- is found. Its test then decides; installed after this hook, it chains.
-    if not spotTestReplaced() then
-      local candidate = game.siegeAngleCandidateBranch
-      assert(core.readByte(candidate)==0x0F and core.readByte(candidate+1)==0x84,
-        'AIC Tactics: siege candidate branch was replaced')
-      assert(candidate+6+core.readInteger(candidate+2)
-          == (safePlacementCandidateHook or game.siegeAngleCandidateAccept),
-        'AIC Tactics: siege candidate branch was replaced')
-    end
+    local candidate = game.siegeAngleCandidateBranch
+    assert(core.readByte(candidate)==0x0F and core.readByte(candidate+1)==0x84,
+      'AIC Tactics: siege candidate branch was replaced')
+    assert(candidate+6+core.readInteger(candidate+2)
+        == (safePlacementCandidateHook or game.siegeAngleCandidateAccept),
+      'AIC Tactics: siege candidate branch was replaced')
     local post = game.siegeAnglePostPlace
     if safePlacementFailureHook then
       assert(core.readByte(post)==0xE9 and post+5+core.readInteger(post+1)==safePlacementFailureHook,
@@ -166,14 +160,12 @@ failed:
       {0x0F,0x84,backoff-game.siegeNoSpotBranch-6})
     core.writeCode(game.siegeFailedBranch,
       {0x0F,0x85,backoff-game.siegeFailedBranch-6})
-    if not spotTestReplaced() then
-      core.writeCode(game.siegeAngleCandidateBranch,
-        {0x0F,0x84,candidate-game.siegeAngleCandidateBranch-6})
-      safePlacementCandidateHook = candidate
-    end
+    core.writeCode(game.siegeAngleCandidateBranch,
+      {0x0F,0x84,candidate-game.siegeAngleCandidateBranch-6})
     core.writeCode(game.siegeAnglePostPlace,
       {0xE9,failure-game.siegeAnglePostPlace-5,0x90})
     safePlacementBackoffHook = backoff
+    safePlacementCandidateHook = candidate
     safePlacementFailureHook = failure
     safePlacementHook = true
     native.activateAssaultCrewRecovery()

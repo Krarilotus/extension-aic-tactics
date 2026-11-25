@@ -198,7 +198,6 @@ function M.resolve(game)
   return {siegePlacementCall = callSite + 15, originalSiegeTileCheck = original,
     siegeTileOccupancyOffset = offset, siegeNoSpotBranch = noSpotBranch,
     siegeFailedBranch = failedBranch, siegeFailureExit = exit,
-    siegeAngleCandidateTest = candidate,
     siegeAngleCandidateBranch = candidateBranch, siegeAngleCandidateContinue = candidateBranch + 6,
     siegeAngleCandidateAccept = candidateAccept, siegeTileMap = tileMap,
     siegeTentPointX = pointX, siegeTribeIndexOffset = indexOffset,

@@ -11,10 +11,8 @@ AI inherits the module's **Protect units at siege sites** switch
 (`safeSiegePlacement`, default ON).
 Advanced siege features enable safe placement automatically. An AIC cannot
 set it to `false` while enabling one of them.
-Improved Siegeengines' tent spot options replace the game's spot test. Enabled
-after AIC Tactics, they continue into its occupied-site check; enabled before
-it, their own test chooses the tent spot and the rest of safe placement still
-applies.
+Improved Siegeengines' tent spot options choose which attack-angle spots the
+search offers; the occupied-site check still decides on each offered spot.
 
 `ActualSiegeResourcePayment` is also an optional boolean. `true` checks the
 configured material and gold costs after the game's site check and before
