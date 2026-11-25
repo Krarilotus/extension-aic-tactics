@@ -104,7 +104,7 @@ void relief()
     assert(allyReliefSize(40, 75) == 30 && allyReliefSize(41, 75) == 31);
     assert(allyReliefSize(1, 1) == 1 && allyReliefSize(40, 0) == 0);
     assert(allyReliefSize(40, 100) == 40 && allyReliefSize(0, 75) == 0);
-    AllyReliefStatus status = {1, 0, 0, 0, 100, 100};
+    AllyReliefStatus status = {1, 0, 0, 0, 100, 100, 0};
     assert(allyReliefEnd(status) == ReliefContinues);
     status.calm = ReliefCalmTicks;
     assert(allyReliefEnd(status) == ReliefThreatOver);
