@@ -1,4 +1,5 @@
 #include "aic_tactics/lord_hunt.hpp"
+#include "aic_tactics/diagnostics.hpp"
 #include "aic_tactics/groups.hpp"
 #include "aic_tactics/runtime.hpp"
 #include <cstring>
@@ -273,6 +274,7 @@ void returnGroups(void* aic, int player, LordHuntState& state)
 
 SiegeRetarget finish(void* aic, int player, LordHuntState& state)
 {
+    diagnostic("player %d: the attack on player %d is over; lord hunt troops return", player, state.origin);
     SiegeRetarget change = {0, 0};
     if (state.host && field(player, 0x2BD8) == state.host) change.castle = state.origin;
     const int groups = state.huntGroup | state.splitGroup | state.shooterGroup;
@@ -352,6 +354,8 @@ void checkHiding(int player, int ch, int phase, LordHuntState& state, const Lord
     }
     state.phase |= LordHuntHidingDecided;
     if (share > 0) openSplit(player, state, census, splitTo, share);
+    diagnostic("player %d: the lord of player %d hides in the castle of player %d; siege on player %d, "
+        "%d%% of the main army to player %d", player, origin, host, state.host ? host : origin, share, splitTo);
 }
 
 // The lord left the castle the attack turned to: the split troops rejoin
@@ -364,6 +368,8 @@ void checkShelter(void* aic, int player, int ch, int phase, LordHuntState& state
     const int lordArea = area(lord.tile);
     if (!lordArea || lordArea == keepArea(hiding)) return;
     state.phase |= LordHuntSwitchedBack;
+    diagnostic("player %d: the lord of player %d left the castle of player %d; the split troops rejoin%s",
+        player, state.origin, hiding, state.host ? " and the siege returns to his castle" : "");
     endSplit(aic, player, state);
     if (state.host) turnBack(ch, phase, state, census, change);
 }
@@ -562,6 +568,8 @@ void startHunt(void* aic, int player, int share, int wave, int source, LordHuntS
     }
     order(group.tribe, OrderAttackUnit, lord.unit, lord.uid);
     aggressive(group.tribe);
+    diagnostic("player %d: wave %d, %d of %d troops hunt the lord of player %d", player, wave, moved, candidates,
+        state.origin);
     state.huntWave = wave;
     state.huntSource = source;
     state.huntOrderTick = at<unsigned int>(nativeBindings.gameTick);
@@ -579,6 +587,8 @@ void huntLord(void* aic, int player, int share, LordHuntState& state, const Lord
         if (!leader || !reaches(memo, unitArea(leader), lordArea)) {
             if (!state.huntClosedTick) state.huntClosedTick = tick ? tick : 1;
             if (tick - state.huntClosedTick >= ClosedTicks) {
+                diagnostic("player %d: the hunters cannot reach the lord of player %d; they return", player,
+                    state.origin);
                 handBack(aic, player, state, state.huntGroup);
                 state.huntWave = 0;
                 state.huntClosedTick = 0;
@@ -601,6 +611,7 @@ void huntLord(void* aic, int player, int share, LordHuntState& state, const Lord
         source = state.huntSource;
         handBack(aic, player, state, state.huntGroup);
         if (wave >= 2) {
+            diagnostic("player %d: the second wave of hunters is gone; the hunt ends", player);
             state.phase |= LordHuntOver;
             return;
         }

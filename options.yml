@@ -294,3 +294,12 @@ options:
     value: 30
     min: 0
     max: 100
+- category: ['{{ai}}', '{{improvements}}']
+  name: diagnostics
+  header: '{{diagnostics}}'
+  text: '{{diagnostics_descr}}'
+  display: UCP2Switch
+  url: aic-tactics.diagnostics
+  contents:
+    type: boolean
+    value: false

@@ -5,6 +5,7 @@
 #include "aic_tactics/groups.hpp"
 #include "aic_tactics/lord_hunt.hpp"
 #include "aic_tactics/allies.hpp"
+#include "aic_tactics/diagnostics.hpp"
 
 typedef char ConfigurationABI[sizeof(AicTactics::SHC141::CharacterConfiguration) == 352 ? 1 : -1];
 typedef char ReserveABI[sizeof(AicTactics::SHC141::ReserveState) == 196 ? 1 : -1];
@@ -69,7 +70,7 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         "siegeScreenFallback", "siegeScreenForwardFallback", "patrolRoutes", "patrolRouteSize",
         "screenSiegeDefenceMove",
         "allyBindings", "allyBindingsSize", "allySettings", "allyFallback", "allyStates", "allyStateSize",
-        "allyGoldRequestAllowed", "allyGoldRequestCommand"};
+        "allyGoldRequestAllowed", "allyGoldRequestCommand", "diagnostics"};
     const unsigned int values[] = {
         reinterpret_cast<unsigned int>(configurations), sizeof(CharacterConfiguration),
         reinterpret_cast<unsigned int>(observations), sizeof(RecruitmentObservation),
@@ -162,7 +163,7 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         reinterpret_cast<unsigned int>(allySettings), reinterpret_cast<unsigned int>(allyFallback),
         reinterpret_cast<unsigned int>(allyStates), sizeof(AllyState),
         reinterpret_cast<unsigned int>(&allyGoldRequestAllowed),
-        reinterpret_cast<unsigned int>(&allyGoldRequestCommand)};
+        reinterpret_cast<unsigned int>(&allyGoldRequestCommand), reinterpret_cast<unsigned int>(&diagnosticsEnabled)};
     typedef char ExportCount[sizeof(names) / sizeof(names[0]) == sizeof(values) / sizeof(values[0]) ? 1 : -1];
     createTable(state, 0, sizeof(names) / sizeof(names[0]));
     for (unsigned int i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {

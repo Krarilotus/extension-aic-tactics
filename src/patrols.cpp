@@ -1,4 +1,5 @@
 #include "aic_tactics/patrols.hpp"
+#include "aic_tactics/diagnostics.hpp"
 #include "aic_tactics/patrol_geometry.hpp"
 #include "aic_tactics/runtime.hpp"
 #include <cstring>
@@ -374,8 +375,10 @@ int handBack(void* aic, int player, int index, int budget)
 {
     const int before = detachedGroupSize(player, index);
     const int left = returnDetachedGroup(aic, player, index, budget);
-    if (detachedGroups[player][index].duty == NoDuty)
+    if (detachedGroups[player][index].duty == NoDuty) {
         std::memset(&patrolRoutes[player][1 + index], 0, sizeof(PatrolRoute));
+        diagnostic("player %d: extra patrol group %d is back in the AI's troops", player, index + 1);
+    }
     return before > left ? before - left : 0;
 }
 
@@ -450,6 +453,7 @@ void organizeDetachedPatrols(void* aic, int player, int ai, Budget& budget)
     } else if (live < desired) {
         const int index = openDetachedGroup(player, PatrolDuty);
         if (index >= 0) {
+            diagnostic("player %d: extra patrol group %d opens (%d patrol troops)", player, index + 1, total);
             detachedGroups[player][index].target = at<int>(playerAddress(player) + 0x2BD8);
             const Pool entry = {detachedGroups[player][index].tribe, index, 0, words - 1, 15};
             pool[count++] = entry;

@@ -38,6 +38,9 @@ return {
     native.configureAttackPatrols(require('config.attacks').fallbacks(config))
     native.configureLordHunt(require('config.lord-hunt').fallbacks(config))
     native.configureAllies(require('config.allies').fallbacks(config))
+    local diagnostics = config and config.diagnostics
+    assert(diagnostics == nil or type(diagnostics) == 'boolean', 'AIC Tactics: diagnostics must be boolean')
+    core.writeInteger(native.diagnostics, diagnostics and 1 or 0)
     local protocol=assert(modules.protocol,'AIC Tactics requires Protocol 1.1.0')
     assert(type(protocol.multiplayerAdmissionVersion)=='function' and protocol:multiplayerAdmissionVersion()==1,
       'AIC Tactics requires full multiplayer content admission')

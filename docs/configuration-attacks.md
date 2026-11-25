@@ -102,6 +102,7 @@ More fragments are in `examples/attack-behaviour/`. They are examples and test f
 - **Native sites.** AIC Tactics redirects the three native calls to the attack patrol dispatcher and the move order inside the native siege-defence rally. Each is verified unchanged before it is redirected; if another module already changed one, AIC Tactics refuses with a message instead of patching over it.
 - **Recruitment and AI update untouched.** AIC Tactics does not change how many patrol groups the game recruits into, and adds no hook to the per-AI update.
 - **UCP2-Legacy.** Its attack options touch different code and remain compatible.
+- **Diagnostics.** With the module setting `diagnostics` on (default off), every extra patrol group that opens or returns to the AI's troops is written to the UCP log as an `[aic-tactics]` line.
 
 Smarter Patrols by Monsterfish, under GPL-3.0; see [CREDITS.md](../CREDITS.md).
 
