@@ -27,10 +27,10 @@ Ein Ausfallanteil aktiviert `WeightedRoles` automatisch. Für Situationsregeln, 
 - `AICTactics_PatrolMinSize` (1–50): Einheiten, die jede Gruppe beim Teilen behält.
 - `AICTactics_PatrolRadius` (4–100): Laufweg von der Zielburg zum Ring, dem `Routes` folgt.
 - `AICTactics_SiegeScreen`: `EngineApproach` stellt die Belagerungsschutz-Gruppen vor ihre Geräte, beide Gruppen an verschiedene Geräte; `Native` behält den Sammelpunkt des Spiels.
-- `AICTactics_SiegeScreenForward` (0–10): Felder vor den Geräten für Nahkampf-Schutzgruppen.
-- `AICTactics_SiegeScreenExtraGroups` (0–6): zusätzliche Schutzgruppen, solange die Geräte arbeiten, jede an ihrem Gerät; vor dem Mauersturm vereinen sie sich.
+- `AICTactics_SiegeScreenForward` (0–10): Felder vor den Geräten für die Nahkämpfer der Belagerungsschutz-Gruppen.
+- `AICTactics_SiegeScreenExtraGroups` (0–6): zusätzliche Belagerungsschutz-Gruppen, solange die Geräte arbeiten, jede an ihrem Gerät; vor dem Mauersturm vereinen sie sich.
 
-Fehlende Werte nutzen die Moduleinstellungen (alle Gruppen, `Routes`, 12 Felder, keine Zusatzgruppen, Gruppen zu 4, Ring 12, Geleitschutz an, 4 Felder, keine zusätzlichen Schutzgruppen).
+Fehlende Werte nutzen die Moduleinstellungen (alle Gruppen, `Routes`, 12 Felder, keine Zusatzgruppen, Gruppen zu 4, Ring 12, Geleitschutz an, 4 Felder, keine zusätzlichen Belagerungsschutz-Gruppen).
 
 ### Jagd auf den Burgherrn
 
