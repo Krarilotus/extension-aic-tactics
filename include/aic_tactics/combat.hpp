@@ -23,6 +23,7 @@ struct PlayerCensus {
 extern PlayerCensus combatCensus[9];
 extern unsigned int combatCensusTick;
 extern int combatCensusValid;
+inline bool combatCensusFresh(unsigned int tick) { return combatCensusValid && tick - combatCensusTick <= 1; }
 extern IncidentState incidents[9];
 extern TargetState targetStates[9];
 extern int targetLifecycle[9];

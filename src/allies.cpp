@@ -358,14 +358,9 @@ void recruitGold(void* aic, int receiver)
 
 // ---- relief ----
 
-bool censusFresh()
-{
-    return combatCensusValid && now() - combatCensusTick <= 1;
-}
-
 int homeThreat(int player)
 {
-    if (!censusFresh()) return 0;
+    if (!combatCensusFresh(now())) return 0;
     int total = 0;
     for (int other = 1; other <= 8; ++other) {
         const int power = combatCensus[player].homePower[other];
@@ -579,7 +574,7 @@ void updateRelief(void* aic, int helper)
     // The helped ally asked while the relief was already on its way.
     if (requestStands(helper, group.target)) state.reliefRequested = 1;
     AllyReliefStatus status;
-    status.allyValid = helpable(helper, group.target) && (!censusFresh()
+    status.allyValid = helpable(helper, group.target) && (!combatCensusFresh(now())
         || static_cast<unsigned int>(combatCensus[group.target].lordUID) == group.targetUID);
     status.ownDanger = ownDanger(helper);
     status.attackDue = attackDue(aic, helper);

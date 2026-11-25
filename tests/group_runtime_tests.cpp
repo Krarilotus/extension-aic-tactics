@@ -104,7 +104,6 @@ void run(unsigned int stride)
     const int index = openDetachedGroup(1, HuntDuty);
     assert(index == 0 && detachedGroupValid(1, 0) && detachedGroups[1][0].tribe == createdTribe);
     assert(detachedGroups[1][0].duty == HuntDuty && detachedGroups[1][0].startTick == tick);
-    assert(isDetachedTribe(1, createdTribe) && !isDetachedTribe(1, 2) && !isDetachedTribe(2, createdTribe));
     for (int id = 1; id <= 3; ++id) assert(moveUnitToDetachedGroup(1, 0, id));
     assert(detachedGroupSize(1, 0) == 3 && detachedGroups[1][0].launchSize == 3);
     // A dying unit, a foreign unit and a unit already in the group are not moved.
@@ -119,7 +118,6 @@ void run(unsigned int stride)
     assert(!moveUnitToDetachedGroup(1, 0, 4));
     assert(get<short>(unit(1), 0x2D8) == returnTribe && get<short>(unit(2), 0x2D8) == returnTribe);
     assert(returnDetachedGroup(AIC, 1, 0, 2) == 0 && detachedGroups[1][0].duty == NoDuty);
-    assert(!isDetachedTribe(1, createdTribe));
     // A member without a native destination stays until one exists.
     assert(openDetachedGroup(1, ReliefDuty) == 0 && moveUnitToDetachedGroup(1, 0, 1));
     put<short>(unit(1), 0x42A, 16);

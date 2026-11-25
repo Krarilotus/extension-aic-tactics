@@ -63,19 +63,24 @@ function M.resolve(game)
   assert(playable > 0 and read(move + 0xC1) == game.mapRows,
     'AIC Tactics: inconsistent native group move map layout')
   -- Every native caller lies inside the AI state update. Require all three.
-  local calls = {}
   local owner = game.updateAIPlayerState
-  for offset = 3, scanLength - 5 do
-    local address = owner + offset
-    if core.readByte(address) == 0xE8 and address + 5 + read(address + 1) == site then
-      for index, byte in ipairs(callerPrefix) do
-        assert(core.readByte(address - 4 + index) == byte,
-          'AIC Tactics: unexpected native attack patrol caller')
+  local function callsTo(target)
+    local found = {}
+    for offset = 3, scanLength - 5 do
+      local address = owner + offset
+      if core.readByte(address) == 0xE8 and address + 5 + read(address + 1) == target then
+        found[#found + 1] = address
       end
-      calls[#calls + 1] = address
+    end
+    return found
+  end
+  local calls = callsTo(site)
+  assert(#calls == 3, 'AIC Tactics: native attack patrol callers changed')
+  for _, address in ipairs(calls) do
+    for index, byte in ipairs(callerPrefix) do
+      assert(core.readByte(address - 4 + index) == byte, 'AIC Tactics: unexpected native attack patrol caller')
     end
   end
-  assert(#calls == 3, 'AIC Tactics: native attack patrol callers changed')
   local search = context.call(destination + searchCalls[1], 'patrol tile search')
   for _, offset in ipairs(searchCalls) do
     assert(context.call(destination + offset, 'patrol tile search') == search,
@@ -104,16 +109,12 @@ function M.resolve(game)
     'AIC Tactics: inconsistent native siege defence rally')
   -- Its only callers are the two in attack states 3 and 4, each directly before
   -- the attack patrol call.
-  local rallyCalls = 0
-  for offset = 3, scanLength - 5 do
-    local address = owner + offset
-    if core.readByte(address) == 0xE8 and address + 5 + read(address + 1) == rally then
-      assert(address + 8 == calls[1] or address + 8 == calls[2],
-        'AIC Tactics: unexpected native siege defence rally caller')
-      rallyCalls = rallyCalls + 1
-    end
+  local rallyCalls = callsTo(rally)
+  assert(#rallyCalls == 2, 'AIC Tactics: native siege defence rally callers changed')
+  for _, address in ipairs(rallyCalls) do
+    assert(address + 8 == calls[1] or address + 8 == calls[2],
+      'AIC Tactics: unexpected native siege defence rally caller')
   end
-  assert(rallyCalls == 2, 'AIC Tactics: native siege defence rally callers changed')
   return {attackPatrolDispatch = site, attackPatrolDestination = destination,
     troopValueState = troopValueState, playableTiles = playable, attackPatrolCalls = calls,
     distanceLayers = layers, distanceLayerIndex = layerIndex,

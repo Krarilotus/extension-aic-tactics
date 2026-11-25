@@ -130,15 +130,6 @@ int returnDetachedGroup(void* aic, int player, int index, int budget)
     return left;
 }
 
-bool isDetachedTribe(int player, int tribe)
-{
-    if (player < 1 || player > 8) return false;
-    for (int index = 0; index < DetachedGroupsPerPlayer; ++index)
-        if (detachedGroups[player][index].duty != NoDuty && detachedGroups[player][index].tribe == tribe)
-            return true;
-    return false;
-}
-
 void validateDetachedGroups()
 {
     for (int player = 1; player <= 8; ++player)

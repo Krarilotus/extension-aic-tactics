@@ -48,8 +48,6 @@ bool moveUnitToDetachedGroup(int player, int index, int unit);
 // game's own attack-group selection; clears the record once the group is
 // empty. Returns the members still left.
 int returnDetachedGroup(void* aic, int player, int index, int budget);
-// True when the tribe is a recorded detached group of that player.
-bool isDetachedTribe(int player, int tribe);
 // Drops records whose tribe no longer matches its saved identity.
 void validateDetachedGroups();
 

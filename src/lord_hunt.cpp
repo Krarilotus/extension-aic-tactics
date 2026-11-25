@@ -121,11 +121,6 @@ bool liveLord(int player, Lord& lord)
 
 int unitArea(int unit) { return area(at<int>(unitAddress(unit) + 0xD4)); }
 
-bool censusFresh()
-{
-    return combatCensusValid && at<unsigned int>(nativeBindings.gameTick) - combatCensusTick <= 1;
-}
-
 struct Reach {
     int player;
     int count;
@@ -685,7 +680,7 @@ SiegeRetarget updateLordHunt(void* aic, int player)
     if (!ch || phase < 1 || phase > 6 || (target != state.origin && target != state.host)
         || !liveLord(state.origin, lord) || static_cast<int>(lord.uid) != state.originLordUID)
         return finish(aic, player, state);
-    if (!censusFresh()) return change;
+    if (!combatCensusFresh(at<unsigned int>(nativeBindings.gameTick))) return change;
     const LordHuntCensus& census = lordHuntCensus[player];
     const int force = at<int>(nativeBindings.aicRecords + (ch - 1) * 676 + 0x1F4);
     if (census.attackTroops > state.peak) state.peak = census.attackTroops;
