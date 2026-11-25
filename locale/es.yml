@@ -1,13 +1,3 @@
-legacyRecruitInterval: Mantener el ritmo de reclutamiento de Legacy
-legacyRecruitInterval_descr: 'Sustituye ai_recruitinterval de Legacy para personalidades Native: intervalo 1. WeightedRoles conserva los intervalos AIC. Desactiva la opción de Legacy; deja esta desactivada si no la usabas.'
-nativeInitialDefenseMonths: Defensa inicial de las IA Native
-nativeInitialDefenseMonths_descr: '0–30 meses; 6 por defecto. Copia aquí la duración inicial de Legacy y desactiva esa opción de Legacy. WeightedRoles usa RecruitInitialDefenseMonths.'
-nativeTargetPolicy: "Objetivo de las IA Native"
-nativeTargetPolicy_descr: "Sustituye Legacy ai_attacktarget. Copia aquí su selección y desactiva esa opción Legacy al usar nuevas reglas de objetivos. Native conserva TargetChoice."
-nativeTargetPolicy_native: "TargetChoice existente"
-nativeTargetPolicy_nearest: "Más cercano"
-nativeTargetPolicy_richest: "Más rico"
-nativeTargetPolicy_weakest: "Más débil"
 correctEngineerRoleCounting: "Contar ingenieros en los cupos de tropas"
 correctEngineerRoleCounting_descr: "Cuenta los ingenieros asignados a su grupo. Las dotaciones de asedio, los excavadores y los trabajadores del aceite conservan funciones separadas."
 safeSiegePlacement: "Proteger unidades en obras de asedio"

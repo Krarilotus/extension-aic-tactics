@@ -32,7 +32,7 @@ def backend():
         activateLordHunt=function()huntActivations=(huntActivations or 0)+1 end,
         preflight=function()end,activate=function()end,preflightComposition=function()end,activateComposition=function()end,
         preflightCombat=function()end,activateCombat=function()end,
-        preflightTargets=function()end,preflightRaids=function()end,activateRaids=function()end,
+        preflightRaids=function()end,activateRaids=function()end,
         preflightSafePlacement=function()end,activateSafePlacement=function()end,
         preflightSiegePayment=function()end,activateSiegePayment=function()end,
         preflightSiegeHarassment=function()end,activateSiegeHarassment=function()end,
@@ -200,9 +200,11 @@ def test_admission_rechecked_between_prepare_and_commit():
 
 def test_grace_default_bounds_and_atomic_storage():
     backend().execute('''
+      -- Unset follows the native timer as Legacy set it.
+      native.game.initialDefenseTicks=30000;memory[30000]=1600
       local op=prepare(4,{RecruitPolicy='WeightedRoles'})
       op.commit()
-      assert(memory[10000+4*352+284]==4800)
+      assert(memory[10000+4*352+284]==1600)
       op.rollback()
       assert(memory[10000+4*352+284]==0)
       for _,months in ipairs({0,30}) do

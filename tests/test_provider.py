@@ -258,7 +258,7 @@ def test_native_downgrade_and_per_character_reset(lua):
 
 def test_grace_get_set_retention_and_reset(lua):
     lua.execute('''
-      assert(loader:getAICValue(1,'RecruitInitialDefenseMonths')==6)
+      assert(loader:getAICValue(1,'RecruitInitialDefenseMonths')==nil)
       activate()
       loader:setAICValue(1,'RecruitInitialDefenseMonths',0)
       assert(loader:getAICValue(1,'RecruitInitialDefenseMonths')==0)
@@ -268,7 +268,7 @@ def test_grace_get_set_retention_and_reset(lua):
       assert(loader:overwriteAIC(1,{RecruitPolicy='WeightedRoles'}))
       assert(backendStates[1].initialDefenseTicks==0)
       loader:resetAIC(1)
-      assert(loader:getAICValue(1,'RecruitInitialDefenseMonths')==6)
+      assert(loader:getAICValue(1,'RecruitInitialDefenseMonths')==nil)
       assert(loader:getAICValue(1,'RecruitPolicy')=='Native')
     ''')
 
@@ -308,7 +308,7 @@ def test_native_identity_is_independent_of_character_update_order(lua, native_fi
         patrolExtraGroups=502000,patrolMinSize=502100,patrolRadius=502200,siegeScreen=502300,
         siegeScreenForward=502400,
         allySettings=503000,allyFallback=503500,
-        game={gameTick=300000},preflightTargets=function()end,
+        game={gameTick=300000},
         preflightCombat=function()end,activateCombat=function()end}
       backend.prepare=require('config.backend').new(native).prepare
       local function nativeCaliph() loader:overwriteAIC(6,{TargetChoice='Balanced'}) end

@@ -6,7 +6,7 @@ AIC Tactics 可分别调整每个已安装 AI 的招兵、进攻、袭扰和攻�
 - `RecruitConditions`：按情况调整比例。例如城堡受威胁时，70% 防御、20% 进攻、10% 出击。每次招兵采用第一条符合条件的规则。
 - `RecruitPolicy`：可选的兼容设置。`Native` 沿用原有选择方式；`WeightedRoles` 明确启用四项比例。
 - `DefRecruitComposition`：`PreserveSlots` 保留 `DefUnit1..8` 中各兵种的比例；`Native` 沿用原有选择。
-- `RecruitInitialDefenseMonths`：防守人数未达配额时，袭扰和主力军等待的时间。设为 0 则不等待；默认 6 个月。
+- `RecruitInitialDefenseMonths`：防守人数未达配额时，袭扰和主力军等待的时间。设为 0 则不等待；未设置时沿用游戏的初始计时器（6 个月，或 Legacy `ai_recruitstate_initialtimer` 的设定值）。
 
 设置出击比例会自动启用 `WeightedRoles`。情境规则、防守兵种比例和 `RecruitInitialDefenseMonths` 仍需明确设置此模式。原有招兵间隔和配额继续生效。
 

@@ -64,7 +64,7 @@ end
 function M.defaults()
   return {RecruitPolicy = 'Native', RecruitProbSortieDefault = 0,
     RecruitProbSortieWeak = 0, RecruitProbSortieStrong = 0, RecruitConditions = {},
-    DefRecruitComposition = 'Native', RecruitInitialDefenseMonths = 6}
+    DefRecruitComposition = 'Native'}
 end
 
 function M.prepare(previous, spec, readNative, resetting)
@@ -96,7 +96,8 @@ function M.prepare(previous, spec, readNative, resetting)
     local field = 'RecruitProbSortie' .. strength
     integer(candidate[field], 0, 100, field)
   end
-  integer(candidate.RecruitInitialDefenseMonths, 0, 30, 'RecruitInitialDefenseMonths')
+  local months = candidate.RecruitInitialDefenseMonths
+  if months ~= nil then integer(months, 0, 30, 'RecruitInitialDefenseMonths') end
   local rows
   assert(candidate.DefRecruitComposition == 'Native' or candidate.DefRecruitComposition == 'PreserveSlots',
     'DefRecruitComposition must be Native or PreserveSlots')
@@ -104,7 +105,8 @@ function M.prepare(previous, spec, readNative, resetting)
   local compiled = {schemaVersion = M.version, mode = mode == 'Native' and 0 or 1,
     conditions = rows, baseRows = {},
     defenseComposition = candidate.DefRecruitComposition == 'PreserveSlots' and 1 or 0,
-    initialDefenseTicks = candidate.RecruitInitialDefenseMonths * 800}
+    -- Unset follows the native timer (Legacy ai_recruitstate_initialtimer).
+    initialDefenseTicks = months and months * 800}
   if mode == 'WeightedRoles' then
     for index, strength in ipairs(strengths) do
       local weights = {

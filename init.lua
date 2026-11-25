@@ -38,22 +38,16 @@ return {
     native.configureAttackPatrols(require('config.attacks').fallbacks(config))
     native.configureLordHunt(require('config.lord-hunt').fallbacks(config))
     native.configureAllies(require('config.allies').fallbacks(config))
-    native.enableNativeTargetPolicy(config and config.nativeTargetPolicy or 'Native')
-    local legacyInterval = config and config.legacyRecruitInterval
-    assert(legacyInterval == nil or type(legacyInterval) == 'boolean',
-      'AIC Tactics: legacyRecruitInterval must be boolean')
-    local nativeMonths = config and config.nativeInitialDefenseMonths
-    if nativeMonths == nil then nativeMonths = 6 end
-    require('config.grace').validateMonths(nativeMonths)
-    if nativeMonths ~= 6 then require('config.grace').configure(nativeMonths) end
     local protocol=assert(modules.protocol,'AIC Tactics requires Protocol 1.1.0')
     assert(type(protocol.multiplayerAdmissionVersion)=='function' and protocol:multiplayerAdmissionVersion()==1,
       'AIC Tactics requires full multiplayer content admission')
     local backend=require('config.backend').new(native)
     require('config.provider').register(modules.aicloader, backend)
     require('siege-tower-crew').register(modules['improved-siegeengines'], native, nativeGame)
-    if legacyInterval then native.enableLegacyInterval() end
-    self.recruitmentState = require('state').new(native, legacyInterval, identity.sha256)
+    -- Legacy's target choice and recruitment interval feed AIC decisions, so
+    -- the match identity includes them.
+    core.writeInteger(native.legacyTargetPolicy, native.legacyTargetChoice())
+    self.recruitmentState = require('state').new(native, native.intervalForced(), identity.sha256)
     local packageVerified = false
     protocol:registerMultiplayerAdmission('aic-tactics',function()
       if not packageVerified then

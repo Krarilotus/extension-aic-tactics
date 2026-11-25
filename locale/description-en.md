@@ -6,7 +6,7 @@ AIC Tactics lets each installed AI choose how it recruits, attacks, raids and us
 - `RecruitConditions`: optional situation-specific shares. For example, when home is threatened, recruit 70% defense, 20% attack and 10% sorties. The first matching rule applies to that recruitment choice.
 - `RecruitPolicy`: optional compatibility switch. `Native` keeps the original selection; `WeightedRoles` explicitly enables four-way selection.
 - `DefRecruitComposition`: `PreserveSlots` respects the proportions in `DefUnit1..8`; `Native` keeps existing selection.
-- `RecruitInitialDefenseMonths`: how long raid and main-army recruitment waits for the defense quota. 0 disables the wait; default 6 months.
+- `RecruitInitialDefenseMonths`: how long raid and main-army recruitment waits for the defense quota. 0 disables the wait; unset, it follows the game's initial timer (6 months, or Legacy `ai_recruitstate_initialtimer`).
 
 Sortie shares enable `WeightedRoles` automatically. Situation rules, defense composition and `RecruitInitialDefenseMonths` require it explicitly. Existing recruitment intervals and quotas still apply.
 

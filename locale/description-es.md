@@ -6,7 +6,7 @@ AIC Tactics permite ajustar el reclutamiento, los ataques, las incursiones y las
 - `RecruitConditions`: proporciones distintas según la situación. Ejemplo: si el castillo está amenazado, 70 % defensa, 20 % ataque y 10 % salidas. Se aplica la primera regla que coincida.
 - `RecruitPolicy`: opción de compatibilidad. `Native` conserva la selección original; `WeightedRoles` activa expresamente las cuatro proporciones.
 - `DefRecruitComposition`: `PreserveSlots` respeta las proporciones de `DefUnit1..8`; `Native` conserva la elección habitual.
-- `RecruitInitialDefenseMonths`: tiempo durante el que incursiones y ejército principal esperan a completar la defensa. 0 elimina la espera; valor predeterminado: 6 meses.
+- `RecruitInitialDefenseMonths`: tiempo durante el que incursiones y ejército principal esperan a completar la defensa. 0 elimina la espera; sin valor, se usa el temporizador inicial del juego (6 meses, o el de Legacy `ai_recruitstate_initialtimer`).
 
 Una proporción de salidas activa `WeightedRoles` automáticamente. Las reglas de situación, la composición defensiva y `RecruitInitialDefenseMonths` requieren activarlo expresamente. Los intervalos y cupos siguen vigentes.
 

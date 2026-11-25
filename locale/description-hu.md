@@ -6,7 +6,7 @@ Az AIC Tactics minden telepített MI-nél külön szabályozza a toborzást, a t
 - `RecruitConditions`: eltérő arányok adott helyzetben. Például veszélyben lévő várnál 70% védelem, 20% támadás, 10% kitörés. Az első illeszkedő szabály érvényes az adott toborzásra.
 - `RecruitPolicy`: opcionális kompatibilitási kapcsoló. A `Native` megtartja az eredeti választást; a `WeightedRoles` kifejezetten bekapcsolja a négy arányt.
 - `DefRecruitComposition`: a `PreserveSlots` megtartja a `DefUnit1..8` arányait; a `Native` a megszokott választást használja.
-- `RecruitInitialDefenseMonths`: ennyi ideig vár a portya és a fő sereg, amíg a védelem eléri a létszámát. A 0 kikapcsolja a várakozást; alapérték 6 hónap.
+- `RecruitInitialDefenseMonths`: ennyi ideig vár a portya és a fő sereg, amíg a védelem eléri a létszámát. A 0 kikapcsolja a várakozást; ha nincs megadva, a játék kezdeti időzítője érvényes (6 hónap, vagy a Legacy `ai_recruitstate_initialtimer` értéke).
 
 A kitörési arány automatikusan bekapcsolja a `WeightedRoles` módot. A helyzeti szabályokhoz, a védők összetételéhez és a `RecruitInitialDefenseMonths` értékhez külön meg kell adni. A toborzási időközök és korlátok továbbra is érvényesek.
 

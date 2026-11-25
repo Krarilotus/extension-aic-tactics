@@ -141,7 +141,7 @@
       "type": "integer",
       "minimum": 0,
       "maximum": 30,
-      "description": "Months to prefer filling defense before raids and the main army; 0 removes the wait. Requires WeightedRoles. Default 6."
+      "description": "Months to prefer filling defense before raids and the main army; 0 removes the wait. Requires WeightedRoles. Unset follows the game's initial timer (6 months, or Legacy ai_recruitstate_initialtimer)."
     },
     "AttackTargetPolicy": {
       "oneOf": [
