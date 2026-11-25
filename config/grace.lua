@@ -59,7 +59,7 @@ function M.configure(months)
   local ticks = M.validateMonths(months)
   M.preflight()
   -- Retain the native comparison and all its branch/RNG behaviour.
-  if ticks ~= expectedTicks then core.writeInteger(binding.initialDefenseTicks, ticks) end
+  if ticks ~= expectedTicks then core.writeCodeInteger(binding.initialDefenseTicks, ticks) end
   expectedTicks = ticks
 end
 

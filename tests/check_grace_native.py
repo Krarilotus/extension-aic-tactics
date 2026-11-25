@@ -59,7 +59,7 @@ def scan(pattern, start=None):
 lua = LuaRuntime()
 g = lua.globals()
 g.root = Path(__file__).resolve().parents[1].as_posix()
-g.core = lua.table_from({'readInteger': get, 'writeInteger': put,
+g.core = lua.table_from({'readInteger': get, 'writeInteger': put, 'writeCodeInteger': put,
     'readByte': lambda address: uc.mem_read(address, 1)[0], 'AOBScan': scan, 'scanForAOB': scan})
 g.utils = lua.table_from({'itob': lambda v: lua.table_from(struct.pack('<i', v))})
 def flatten(code):
