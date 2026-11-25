@@ -20,11 +20,46 @@ Una proporción de salidas activa `WeightedRoles` automáticamente. Las reglas d
 
 ### Patrullas de ataque
 
-- `AICTactics_PatrolOrders`: `Native` solo da órdenes al primer grupo de patrulla de ataque; el segundo espera en su punto de reunión. `AllGroups` envía también al segundo grupo durante un asalto. Necesita `AttUnitPatrolGroupsCount` en 2 para tener tropas.
-- `AICTactics_PatrolFormation`: adónde va el segundo grupo. `Native` le deja elegir sus propios pasos; `Wing` lo mantiene junto al primer grupo; `Mirror` lo envía al otro lado de la fortaleza objetivo. Requiere `AllGroups`.
-- `AICTactics_PatrolSpacing` (4–40, predeterminado 12): casillas entre ambos grupos en `Wing`.
+- `AICTactics_PatrolOrders`: `AllGroups` envía también el segundo grupo de patrulla de ataque a un asalto; `Native` solo da órdenes al primero. Necesita `AttUnitPatrolGroupsCount` en 2 para tener tropas.
+- `AICTactics_PatrolFormation`: `Wing` mantiene los demás grupos en línea junto al primero; `Mirror` los envía al otro lado de la fortaleza objetivo; `Routes` rodea el castillo objetivo en ambos sentidos y recorre su frente de un lado a otro, como Smarter Patrols; `Native` les deja elegir sus propios pasos.
+- `AICTactics_PatrolSpacing` (4–40): casillas entre grupos vecinos en `Wing` y `Mirror`.
+- `AICTactics_PatrolExtraGroups` (0–6): grupos de patrulla extra durante un ataque; se reúnen al terminar.
+- `AICTactics_PatrolMinSize` (1–50): unidades que conserva cada grupo al dividir la patrulla.
+- `AICTactics_PatrolRadius` (4–100): distancia a pie desde el castillo objetivo hasta el anillo que sigue `Routes`.
+- `AICTactics_SiegeScreen`: `EngineApproach` coloca los grupos de defensa del asedio delante de sus máquinas, los dos en máquinas distintas; `Native` mantiene el punto de reunión del juego.
+- `AICTactics_SiegeScreenForward` (0–10): casillas delante de las máquinas para los grupos cuerpo a cuerpo.
+- `AICTactics_SiegeScreenExtraGroups` (0–6): grupos de defensa del asedio extra mientras trabajan las máquinas, cada uno en su máquina; se reúnen antes del asalto a la muralla.
 
-Los ajustes de patrulla no guardan estado: al cargar una partida guardada, ambos grupos siguen en sus ranuras originales. `AttUnitPatrol` y `AttUnitPatrolMax` siguen vigentes.
+Los valores omitidos usan los ajustes del módulo (todos los grupos, `Routes`, 12 casillas, sin grupos extra, grupos de 4, anillo 12, escolta activada, 4 casillas, sin grupos de escolta extra).
+
+### Caza del señor
+
+Cuando una IA ataca a un jugador humano cuyo señor se refugia tras los muros de un aliado, asedia ese castillo en lugar del hogar vacío. En cuanto tiene el camino abierto hasta el señor, parte del ejército va directo a por él.
+
+- `AICTactics_LordHuntRetarget`: `true` ataca el castillo donde se oculta el señor; `false` mantiene el ataque sobre su propio castillo.
+- `AICTactics_LordHuntSiege`: `HidingCastle` o `HomeCastle`, el castillo que recibe el asedio completo mientras el del señor aún tenga gente y edificios. El otro recibe parte de las tropas.
+- `AICTactics_LordHuntSplitShare` (0–100): esa parte en porcentaje.
+- `AICTactics_LordHuntSwitchPercent` (0–100): durante un ataque, la IA solo cambia de castillo mientras le quede esta parte del ejército.
+- `AICTactics_LordHuntShare` (0–100): parte del ejército en el castillo del señor que lo caza; 0 desactiva la caza.
+
+Los valores omitidos usan los ajustes del módulo (activado, `HidingCastle`, 50, 80, 50). Los ataques de IA contra jugadores IA no cambian.
+
+### Ayuda a aliados
+
+Los aliados IA se ayudan entre sí y a ti, no solo cuando lo pides.
+
+- `AICTactics_AllyRelief`: `true` envía parte del ejército inactivo a un aliado cuyo castillo sufre un ataque, y cuando pides ayuda; `false` mantiene la ayuda del juego.
+- `AICTactics_AllyArmySharePercent` (0–100): parte del ejército de ataque inactivo enviada; 0 no envía nada, ni siquiera si lo pides.
+- `AICTactics_AllyReliefMinMonths` (0–12): meses que el socorro se queda como mínimo cuando el aliado ya está tranquilo.
+- `AICTactics_AllyReliefGates`: `true` abre al socorro las puertas cerradas del aliado, al entrar y al salir.
+- `AICTactics_AllyReliefKeep`: `true` coloca el socorro en la fortaleza del aliado en lugar de en su entrada.
+- `AICTactics_AllyGoods`: `true` permite a la IA pedir bienes y oro a sus aliados IA, darles y enviarte oro cuando lo pides.
+- `AICTactics_AllyGoldKeep` (0–100000): oro que guarda antes de dar nada, también cuando lo pides.
+- `AICTactics_AllyRecruitGoldBuffer` (0–5000): si está débil o amenazada, recibe ayuda hasta su oro de reclutamiento más esta cantidad.
+- `AICTactics_AllyGoldSharePercent` (0–100): parte de su oro por encima de la reserva que añade a un regalo de bienes; 0 no añade nada, el oro pedido se envía igual.
+- `AICTactics_AllyMonthlyGivePercent` (0–100): parte de cada bien que regala al mes.
+
+Los valores omitidos usan los ajustes del módulo (activado, 75 %, 0 meses, desactivado, desactivado, activado, 1000, 300, 25 %, 30 %). Basado en Ally Support de Monsterfish.
 
 ### Incursiones
 

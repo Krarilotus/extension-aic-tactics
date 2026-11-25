@@ -20,11 +20,46 @@ Une part de sortie active `WeightedRoles` automatiquement. Les règles de situat
 
 ### Patrouilles d’attaque
 
-- `AICTactics_PatrolOrders` : `Native` ne donne d’ordres qu’au premier groupe de patrouille d’attaque ; le second attend à son point de rassemblement. `AllGroups` envoie aussi le second groupe lors d’un assaut. Il lui faut `AttUnitPatrolGroupsCount` 2 pour disposer de troupes.
-- `AICTactics_PatrolFormation` : destination du second groupe. `Native` le laisse choisir ses propres déplacements ; `Wing` le garde à côté du premier groupe ; `Mirror` l’envoie de l’autre côté du donjon ciblé. Exige `AllGroups`.
-- `AICTactics_PatrolSpacing` (4–40, défaut 12) : cases entre les deux groupes en `Wing`.
+- `AICTactics_PatrolOrders` : `AllGroups` envoie aussi le second groupe de patrouille d’attaque lors d’un assaut ; `Native` ne commande que le premier. Il lui faut `AttUnitPatrolGroupsCount` 2 pour disposer de troupes.
+- `AICTactics_PatrolFormation` : `Wing` garde les autres groupes en ligne à côté du premier ; `Mirror` les envoie de l’autre côté du donjon ciblé ; `Routes` tourne autour du château ciblé dans les deux sens et parcourt son front en va-et-vient, comme Smarter Patrols ; `Native` les laisse choisir leurs propres déplacements.
+- `AICTactics_PatrolSpacing` (4–40) : cases entre groupes voisins en `Wing` et `Mirror`.
+- `AICTactics_PatrolExtraGroups` (0–6) : groupes de patrouille en plus pendant une attaque ; ils se regroupent à la fin.
+- `AICTactics_PatrolMinSize` (1–50) : unités que garde chaque groupe quand la patrouille est divisée.
+- `AICTactics_PatrolRadius` (4–100) : distance de marche entre le château ciblé et l’anneau que suit `Routes`.
+- `AICTactics_SiegeScreen` : `EngineApproach` place les groupes de défense de siège devant leurs engins, les deux groupes à des engins différents ; `Native` garde le ralliement du jeu.
+- `AICTactics_SiegeScreenForward` (0–10) : cases devant les engins pour les groupes de mêlée.
+- `AICTactics_SiegeScreenExtraGroups` (0–6) : groupes de défense de siège en plus pendant que les engins travaillent, chacun à son engin ; ils se regroupent avant l’assaut des murs.
 
-Les réglages de patrouille ne conservent aucun état sauvegardé : une sauvegarde se recharge avec les deux groupes toujours dans leurs emplacements d’origine. `AttUnitPatrol` et `AttUnitPatrolMax` restent valables.
+Les valeurs omises suivent les réglages du module (tous les groupes, `Routes`, 12 cases, aucun groupe en plus, groupes de 4, anneau 12, escorte activée, 4 cases, aucun groupe d’escorte en plus).
+
+### Chasse au seigneur
+
+Quand une IA attaque un joueur humain dont le seigneur s’abrite derrière les murs d’un allié, elle assiège ce château au lieu du foyer vide. Dès que la voie vers le seigneur est libre, une partie de l’armée fonce sur lui.
+
+- `AICTactics_LordHuntRetarget` : `true` attaque le château où se cache le seigneur ; `false` garde l’attaque sur son propre château.
+- `AICTactics_LordHuntSiege` : `HidingCastle` ou `HomeCastle`, le château qui reçoit le siège complet tant que celui du seigneur a encore habitants et bâtiments. L’autre château reçoit une part des troupes.
+- `AICTactics_LordHuntSplitShare` (0–100) : cette part en pourcentage.
+- `AICTactics_LordHuntSwitchPercent` (0–100) : pendant une attaque, l’IA ne change de château que s’il lui reste cette part de son armée.
+- `AICTactics_LordHuntShare` (0–100) : part de l’armée au château du seigneur qui le traque ; 0 désactive la chasse.
+
+Les valeurs omises suivent les réglages du module (activé, `HidingCastle`, 50, 80, 50). Les attaques d’IA contre des joueurs IA ne changent pas.
+
+### Aide aux alliés
+
+Les alliés IA s’entraident et vous aident, pas seulement sur demande.
+
+- `AICTactics_AllyRelief` : `true` envoie une partie de l’armée inactive à un allié dont le château est attaqué, et quand vous demandez de l’aide ; `false` garde l’aide du jeu.
+- `AICTactics_AllyArmySharePercent` (0–100) : part de l’armée d’attaque inactive envoyée ; 0 n’envoie personne, même sur demande.
+- `AICTactics_AllyReliefMinMonths` (0–12) : nombre minimal de mois que reste le secours une fois l’allié en paix.
+- `AICTactics_AllyReliefGates` : `true` ouvre au secours les portes fermées de l’allié, à l’arrivée comme au départ.
+- `AICTactics_AllyReliefKeep` : `true` place le secours sur le donjon de l’allié plutôt qu’à son entrée.
+- `AICTactics_AllyGoods` : `true` permet à l’IA de demander biens et or à ses alliés IA, de leur en donner et de vous envoyer de l’or sur demande.
+- `AICTactics_AllyGoldKeep` (0–100000) : or gardé avant tout don, même sur votre demande.
+- `AICTactics_AllyRecruitGoldBuffer` (0–5000) : faible ou menacée, elle est aidée jusqu’à son or de recrutement plus ce montant.
+- `AICTactics_AllyGoldSharePercent` (0–100) : part de son or au-delà de la réserve jointe à un don de biens ; 0 n’ajoute rien, l’or demandé reste envoyé.
+- `AICTactics_AllyMonthlyGivePercent` (0–100) : part de chaque bien donnée par mois.
+
+Les valeurs omises suivent les réglages du module (activé, 75 %, 0 mois, désactivé, désactivé, activé, 1000, 300, 25 %, 30 %). D’après Ally Support de Monsterfish.
 
 ### Raids
 

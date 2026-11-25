@@ -20,11 +20,46 @@ A kitörési arány automatikusan bekapcsolja a `WeightedRoles` módot. A helyze
 
 ### Támadó járőrök
 
-- `AICTactics_PatrolOrders`: a `Native` csak az első támadó járőrcsoportnak ad parancsot; a második a gyülekezési pontján várakozik. Az `AllGroups` roham közben a második csoportot is elindítja. Ehhez az `AttUnitPatrolGroupsCount` értéke 2 legyen, hogy legyenek egységei.
-- `AICTactics_PatrolFormation`: hová megy a második csoport. A `Native` hagyja, hogy maga válassza meg a lépéseit; a `Wing` az első csoport mellett tartja; a `Mirror` a célpont vártornyának túloldalára küldi. Az `AllGroups` szükséges hozzá.
-- `AICTactics_PatrolSpacing` (4–40, alapérték 12): a két csoport közötti távolság mezőkben `Wing` módban.
+- `AICTactics_PatrolOrders`: az `AllGroups` roham közben a második támadó járőrcsoportot is elindítja; a `Native` csak az elsőnek ad parancsot. Ehhez az `AttUnitPatrolGroupsCount` értéke 2 legyen, hogy legyenek egységei.
+- `AICTactics_PatrolFormation`: a `Wing` a további csoportokat egy vonalban az első mellett tartja; a `Mirror` a célpont vártornyának túloldalára küldi őket; a `Routes` mindkét irányban körbejárja a célvárat, és oda-vissza járja az előterét, mint a Smarter Patrols; a `Native` hagyja, hogy maguk válasszák meg a lépéseiket.
+- `AICTactics_PatrolSpacing` (4–40): mezők a szomszédos csoportok között `Wing` és `Mirror` módban.
+- `AICTactics_PatrolExtraGroups` (0–6): támadás közben leváló további járőrcsoportok; a végén újra egyesülnek.
+- `AICTactics_PatrolMinSize` (1–50): ennyi egységet tart meg minden csoport a felosztáskor.
+- `AICTactics_PatrolRadius` (4–100): a `Routes` által követett kör gyalogos távolsága a célvártól.
+- `AICTactics_SiegeScreen`: az `EngineApproach` az ostromvédő csoportokat a gépeik elé állítja, a két csoportot különböző gépekhez; a `Native` a játék gyülekezési pontját tartja.
+- `AICTactics_SiegeScreenForward` (0–10): mezők a gépek előtt a közelharcos ostromvédő csoportoknak.
+- `AICTactics_SiegeScreenExtraGroups` (0–6): további ostromvédő csoportok, amíg a gépek dolgoznak, mindegyik a saját gépénél; a falroham előtt újra egyesülnek.
 
-A járőrbeállítások nem tárolnak mentett állapotot: betöltéskor mindkét csoport az eredeti csoporthelyén marad. Az `AttUnitPatrol` és `AttUnitPatrolMax` továbbra is érvényes.
+A hiányzó értékek a modulbeállításokat követik (minden csoport, `Routes`, 12 mező, nincs további csoport, 4 fős csoportok, 12-es kör, fedezet be, 4 mező, nincs további fedezőcsoport).
+
+### A várúr üldözése
+
+Ha egy MI olyan emberi játékost támad, akinek várura egy szövetséges falai mögé húzódik, az MI azt a várat ostromolja az üres otthon helyett. Amint szabad az út a várúrhoz, a sereg egy része egyenesen rá rohan.
+
+- `AICTactics_LordHuntRetarget`: a `true` azt a várat támadja, ahol a várúr rejtőzik; a `false` a saját váránál marad.
+- `AICTactics_LordHuntSiege`: `HidingCastle` vagy `HomeCastle`, a teljes ostromot kapó vár, amíg a várúr saját várában még vannak lakók és épületek. A másik vár a csapatok egy részét kapja.
+- `AICTactics_LordHuntSplitShare` (0–100): ez a rész százalékban.
+- `AICTactics_LordHuntSwitchPercent` (0–100): támadás közben az MI csak akkor vált várat, ha seregének még ennyi része megvan.
+- `AICTactics_LordHuntShare` (0–100): a várúr váránál álló sereg rá vadászó része; 0 kikapcsolja.
+
+A hiányzó értékek a modulbeállításokat követik (be, `HidingCastle`, 50, 80, 50). Az MI-játékosok elleni MI-támadások nem változnak.
+
+### Segítség a szövetségeseknek
+
+Az MI-szövetségesek segítik egymást és téged, nem csak kérésre.
+
+- `AICTactics_AllyRelief`: a `true` a tétlen sereg egy részét elküldi egy szövetségeshez, akinek a várát megtámadták, és akkor is, ha segítséget kérsz; a `false` a játék saját segítségét tartja.
+- `AICTactics_AllyArmySharePercent` (0–100): a tétlen támadó sereg elküldött része; 0 senkit sem küld, kérésre sem.
+- `AICTactics_AllyReliefMinMonths` (0–12): legalább ennyi hónapig marad a felmentés, ha a szövetségesnél már nyugalom van.
+- `AICTactics_AllyReliefGates`: a `true` kinyitja a szövetséges zárt kapuit a felmentésnek, érkezéskor és távozáskor.
+- `AICTactics_AllyReliefKeep`: a `true` a felmentést a szövetséges vártornyára állítja a bejárat helyett.
+- `AICTactics_AllyGoods`: a `true` engedi, hogy az MI árut és aranyat kérjen MI-szövetségeseitől, adjon nekik, és kérésre aranyat küldjön neked.
+- `AICTactics_AllyGoldKeep` (0–100000): ennyi aranyat tart meg minden adomány előtt, kérésedre is.
+- `AICTactics_AllyRecruitGoldBuffer` (0–5000): gyengén vagy fenyegetve a toborzási aranyáig plusz ennyiig kap segítséget.
+- `AICTactics_AllyGoldSharePercent` (0–100): a tartalék feletti aranyából ennyi rész kerül egy áruajándékhoz; 0 semmit sem tesz hozzá, a kért aranyat így is elküldi.
+- `AICTactics_AllyMonthlyGivePercent` (0–100): minden áruból havonta ennyi részt ad oda.
+
+A hiányzó értékek a modulbeállításokat követik (be, 75%, 0 hónap, ki, ki, be, 1000, 300, 25%, 30%). Monsterfish Ally Support modulja alapján.
 
 ### Portyák
 

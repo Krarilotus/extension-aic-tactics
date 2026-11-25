@@ -20,11 +20,46 @@ AIC Tactics, kurulu her yapay zekânın asker alımını, saldırılarını, bas
 
 ### Saldırı devriyeleri
 
-- `AICTactics_PatrolOrders`: `Native` yalnızca ilk saldırı devriye grubuna emir verir; ikinci grup toplanma noktasında bekler. `AllGroups` saldırı sırasında ikinci grubu da gönderir. Birlik alabilmesi için `AttUnitPatrolGroupsCount` değerinin 2 olması gerekir.
-- `AICTactics_PatrolFormation`: ikinci grubun nereye gideceği. `Native` kendi adımlarını seçmesine izin verir; `Wing` onu ilk grubun yanında tutar; `Mirror` hedef iç kalenin diğer tarafına gönderir. `AllGroups` gerekir.
-- `AICTactics_PatrolSpacing` (4–40, varsayılan 12): `Wing` düzeninde iki grup arasındaki kare sayısı.
+- `AICTactics_PatrolOrders`: `AllGroups` hücumda ikinci saldırı devriye grubunu da gönderir; `Native` yalnızca ilkine emir verir. Birlik alabilmesi için `AttUnitPatrolGroupsCount` değerinin 2 olması gerekir.
+- `AICTactics_PatrolFormation`: `Wing` diğer grupları ilk grubun yanında bir hatta tutar; `Mirror` onları hedef iç kalenin öbür tarafına gönderir; `Routes`, Smarter Patrols gibi hedef kalenin çevresinde iki yönde döner ve önü boyunca gidip gelir; `Native` kendi adımlarını seçmelerine izin verir.
+- `AICTactics_PatrolSpacing` (4–40): `Wing` ve `Mirror` düzeninde komşu gruplar arasındaki kare sayısı.
+- `AICTactics_PatrolExtraGroups` (0–6): saldırı sırasında ayrılan ek devriye grupları; saldırı bitince birleşirler.
+- `AICTactics_PatrolMinSize` (1–50): devriye bölündüğünde her grubun tuttuğu birim sayısı.
+- `AICTactics_PatrolRadius` (4–100): `Routes` tarafından izlenen halkanın hedef kaleye yürüme mesafesi.
+- `AICTactics_SiegeScreen`: `EngineApproach` kuşatma savunma gruplarını araçlarının önüne, iki grubu farklı araçlara yerleştirir; `Native` oyunun toplanma noktasını korur.
+- `AICTactics_SiegeScreenForward` (0–10): yakın dövüş kuşatma savunma grupları için araçların önündeki kare sayısı.
+- `AICTactics_SiegeScreenExtraGroups` (0–6): araçlar çalışırken ayrılan, her biri kendi aracında duran ek kuşatma savunma grupları; sur hücumundan önce birleşirler.
 
-Devriye ayarları kayıtlı durum tutmaz: bir kayıt yüklendiğinde iki grup da özgün yuvalarında kalır. `AttUnitPatrol` ve `AttUnitPatrolMax` geçerlidir.
+Belirtilmeyen değerler modül ayarlarını kullanır (tüm gruplar, `Routes`, 12 kare, ek grup yok, 4'lük gruplar, halka 12, muhafız açık, 4 kare, ek muhafız grubu yok).
+
+### Lord avı
+
+Bir yapay zekâ, lordu bir müttefikin surları ardına sığınmış bir insan oyuncuya saldırdığında, boş yurdu yerine o kaleyi kuşatır. Lorda giden yol açılınca ordunun bir kısmı doğrudan ona yönelir.
+
+- `AICTactics_LordHuntRetarget`: `true` lordun saklandığı kaleye saldırır; `false` saldırıyı lordun kendi kalesinde tutar.
+- `AICTactics_LordHuntSiege`: `HidingCastle` ya da `HomeCastle`; lordun kendi kalesinde hâlâ halk ve bina varken tam kuşatmayı alan kale. Diğer kale birliklerin bir kısmını alır.
+- `AICTactics_LordHuntSplitShare` (0–100): bu pay, yüzde olarak.
+- `AICTactics_LordHuntSwitchPercent` (0–100): saldırı sırasında yapay zekâ, yalnızca ordusunun bu payı kaldıkça kale değiştirir.
+- `AICTactics_LordHuntShare` (0–100): lordun kalesindeki ordudan onu avlayan pay; 0 avı kapatır.
+
+Belirtilmeyen değerler modül ayarlarını kullanır (açık, `HidingCastle`, 50, 80, 50). Yapay zekâ oyunculara yapılan yapay zekâ saldırıları değişmez.
+
+### Müttefik yardımı
+
+Yapay zekâ müttefikleri yalnızca istendiğinde değil, kendiliğinden de birbirine ve sana yardım eder.
+
+- `AICTactics_AllyRelief`: `true` boştaki ordunun bir kısmını kalesi saldırı altındaki bir müttefike ve sen yardım istediğinde gönderir; `false` oyunun kendi yardımını korur.
+- `AICTactics_AllyArmySharePercent` (0–100): gönderilen boştaki saldırı ordusu payı; 0 istendiğinde bile göndermez.
+- `AICTactics_AllyReliefMinMonths` (0–12): müttefik sakinleştikten sonra takviyenin en az kaldığı ay sayısı.
+- `AICTactics_AllyReliefGates`: `true` müttefikin kapalı kapılarını takviyeye girişte ve çıkışta açar.
+- `AICTactics_AllyReliefKeep`: `true` takviyeyi müttefikin girişi yerine iç kalesine koyar.
+- `AICTactics_AllyGoods`: `true` yapay zekânın yapay zekâ müttefiklerinden mal ve altın istemesine, onlara vermesine ve sen istediğinde sana altın göndermesine izin verir.
+- `AICTactics_AllyGoldKeep` (0–100000): bir şey vermeden önce ayırdığı altın, sen istediğinde de.
+- `AICTactics_AllyRecruitGoldBuffer` (0–5000): zayıf ya da tehdit altındayken asker alımı altını artı bu miktara kadar yardım alır.
+- `AICTactics_AllyGoldSharePercent` (0–100): ayrılan altının üstündeki altından bir mal hediyesine eklenen pay; 0 hiç eklemez, istenen altın yine gönderilir.
+- `AICTactics_AllyMonthlyGivePercent` (0–100): her maldan ayda verdiği pay.
+
+Belirtilmeyen değerler modül ayarlarını kullanır (açık, %75, 0 ay, kapalı, kapalı, açık, 1000, 300, %25, %30). Monsterfish'in Ally Support'una dayanır.
 
 ### Baskınlar
 

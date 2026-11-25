@@ -20,11 +20,46 @@ Ein Ausfallanteil aktiviert `WeightedRoles` automatisch. Für Situationsregeln, 
 
 ### Angriffspatrouillen
 
-- `AICTactics_PatrolOrders`: `Native` befehligt nur die erste Angriffspatrouillengruppe; die zweite wartet an ihrem Sammelpunkt. `AllGroups` schickt bei einem Angriff auch die zweite Gruppe los. Damit sie Truppen hat, braucht sie `AttUnitPatrolGroupsCount` 2.
-- `AICTactics_PatrolFormation`: wohin die zweite Gruppe zieht. `Native` lässt sie ihre Schritte selbst wählen; `Wing` hält sie neben der ersten Gruppe; `Mirror` schickt sie auf die andere Seite des Ziel-Bergfrieds. Benötigt `AllGroups`.
-- `AICTactics_PatrolSpacing` (4–40, Standard 12): Abstand in Feldern zwischen beiden Gruppen bei `Wing`.
+- `AICTactics_PatrolOrders`: `AllGroups` schickt bei einem Angriff auch die zweite Angriffspatrouillengruppe los; `Native` befehligt nur die erste. Damit sie Truppen hat, braucht sie `AttUnitPatrolGroupsCount` 2.
+- `AICTactics_PatrolFormation`: `Wing` hält die weiteren Gruppen in einer Linie neben der ersten; `Mirror` schickt sie auf die andere Seite des Ziel-Bergfrieds; `Routes` umkreist die Zielburg in beide Richtungen und läuft ihre Front ab, wie Smarter Patrols; `Native` lässt sie ihre Schritte selbst wählen.
+- `AICTactics_PatrolSpacing` (4–40): Felder zwischen benachbarten Gruppen bei `Wing` und `Mirror`.
+- `AICTactics_PatrolExtraGroups` (0–6): zusätzliche Patrouillengruppen während eines Angriffs; danach vereinen sie sich wieder.
+- `AICTactics_PatrolMinSize` (1–50): Einheiten, die jede Gruppe beim Teilen behält.
+- `AICTactics_PatrolRadius` (4–100): Laufweg von der Zielburg zum Ring, dem `Routes` folgt.
+- `AICTactics_SiegeScreen`: `EngineApproach` stellt die Belagerungsschutz-Gruppen vor ihre Geräte, beide Gruppen an verschiedene Geräte; `Native` behält den Sammelpunkt des Spiels.
+- `AICTactics_SiegeScreenForward` (0–10): Felder vor den Geräten für Nahkampf-Schutzgruppen.
+- `AICTactics_SiegeScreenExtraGroups` (0–6): zusätzliche Schutzgruppen, solange die Geräte arbeiten, jede an ihrem Gerät; vor dem Mauersturm vereinen sie sich.
 
-Patrouilleneinstellungen speichern keinen eigenen Zustand: Beim Laden eines Spielstands bleiben beide Gruppen in ihren ursprünglichen Gruppenplätzen. `AttUnitPatrol` und `AttUnitPatrolMax` gelten weiter.
+Fehlende Werte nutzen die Moduleinstellungen (alle Gruppen, `Routes`, 12 Felder, keine Zusatzgruppen, Gruppen zu 4, Ring 12, Geleitschutz an, 4 Felder, keine zusätzlichen Schutzgruppen).
+
+### Jagd auf den Burgherrn
+
+Greift eine KI einen menschlichen Spieler an, dessen Burgherr sich hinter den Mauern eines Verbündeten versteckt, belagert sie diese Burg statt der leeren Heimat. Sobald der Weg zum Burgherrn offen ist, geht ein Teil der Armee direkt auf ihn los.
+
+- `AICTactics_LordHuntRetarget`: `true` greift die Burg mit dem Versteck an; `false` bleibt bei seiner eigenen Burg.
+- `AICTactics_LordHuntSiege`: `HidingCastle` oder `HomeCastle`, die Burg mit voller Belagerung, solange die eigene Burg des Burgherrn noch Bewohner und Gebäude hat. Die andere Burg erhält einen Teil der Truppen.
+- `AICTactics_LordHuntSplitShare` (0–100): dieser Anteil in Prozent.
+- `AICTactics_LordHuntSwitchPercent` (0–100): Während eines Angriffs wechselt die KI die Burg nur, solange dieser Anteil ihrer Armee übrig ist.
+- `AICTactics_LordHuntShare` (0–100): Anteil der Armee an der Burg des Burgherrn, der ihn jagt; 0 schaltet die Jagd aus.
+
+Fehlende Werte nutzen die Moduleinstellungen (an, `HidingCastle`, 50, 80, 50). KI-Angriffe auf KI-Spieler bleiben unverändert.
+
+### Hilfe für Verbündete
+
+KI-Verbündete helfen einander und dir, nicht nur auf Bitte.
+
+- `AICTactics_AllyRelief`: `true` schickt einen Teil der freien Armee zu einem Verbündeten, dessen Burg angegriffen wird, und wenn du um Hilfe bittest; `false` behält die Hilfe des Spiels.
+- `AICTactics_AllyArmySharePercent` (0–100): Anteil der freien Angriffsarmee, der hilft; 0 schickt niemanden, auch nicht auf Bitte.
+- `AICTactics_AllyReliefMinMonths` (0–12): Monate, die der Entsatz mindestens bleibt, wenn beim Verbündeten wieder Ruhe ist.
+- `AICTactics_AllyReliefGates`: `true` öffnet die geschlossenen Tore des Verbündeten für den Entsatz, beim Kommen und Gehen.
+- `AICTactics_AllyReliefKeep`: `true` stellt den Entsatz auf den Bergfried des Verbündeten statt an seinen Eingang.
+- `AICTactics_AllyGoods`: `true` lässt die KI ihre KI-Verbündeten um Waren und Gold bitten, ihnen geben und dir auf Bitte Gold schicken.
+- `AICTactics_AllyGoldKeep` (0–100000): Gold, das sie vor jeder Gabe behält, auch auf deine Bitte.
+- `AICTactics_AllyRecruitGoldBuffer` (0–5000): Ist sie schwach oder bedroht, erhält sie Hilfe bis zu ihrem Rekrutierungsgold plus diesem Betrag.
+- `AICTactics_AllyGoldSharePercent` (0–100): Anteil ihres Goldes über der Reserve, der einem Warengeschenk beiliegt; 0 legt nichts bei, erbetenes Gold wird trotzdem geschickt.
+- `AICTactics_AllyMonthlyGivePercent` (0–100): Anteil jeder Ware, den sie pro Monat abgibt.
+
+Fehlende Werte nutzen die Moduleinstellungen (an, 75 %, 0 Monate, aus, aus, an, 1000, 300, 25 %, 30 %). Basiert auf Ally Support von Monsterfish.
 
 ### Überfälle
 
