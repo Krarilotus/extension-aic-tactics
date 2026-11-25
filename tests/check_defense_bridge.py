@@ -143,7 +143,7 @@ wall_hook=port.ai_defense_check_edit+5+get(port.ai_defense_check_edit+1);wall_co
 before_enable_scans=scan_count
 lua.execute('''
 package.loaded['aicTactics.dll']={configurationSize=352,configuration=0x3050000,
-  nativeBindings=0x3051000,nativeBindingsSize=368,allyBindings=0x3052000,allyBindingsSize=48,
+  nativeBindings=0x3051000,nativeBindingsSize=368,allyBindings=0x3052000,allyBindingsSize=56,
   resetDefenseCensus=0x3070000,countDefenseUnit=0x3070020}
 native=require('native').new(preparedGame)
 native.preflightCombat();native.preflightRaids()
@@ -327,27 +327,30 @@ result={'variant':a.variant,'cases':cases,'contexts':11,'negativeResolutionCases
 print(json.dumps(result))
 
 if a.combat:
-    # Every occupied patch byte and redirected scheduler call must be rejected
-    # before allocating/writing a combat hook.
+    # Every occupied patch byte and redirected scheduler call leaves its
+    # feature off with one warning, before allocating/writing a combat hook.
+    lua.execute('WARNING=1;warnings={};function log(level,text) warnings[#warnings+1]=text end')
     hooks=g.native.game.combatSites
+    off=g.native.unavailableFeatures
+    def left_off(preflight,key,case):
+        before=assembly_count
+        preflight()
+        assert assembly_count==before,case
+        assert off[key] and len(g.warnings)==1 and 'another module changed its game code' in g.warnings[1],case
+        for name in list(off.keys()):off[name]=None
+        lua.execute('warnings={}')
     occupied_cases=0
     for name,pattern in g.native.game.combatOriginals.items():
-        preflight=g.native.preflightRaids if name.startswith('building') else g.native.preflightCombat
+        key='Raids' if name.startswith('building') else 'Combat'
         for offset in range(len(pattern.split())):
             address=hooks[name]+offset;old=bytes(uc.mem_read(address,1))
             uc.mem_write(address,bytes([old[0]^1]))
-            before=assembly_count
-            try:preflight()
-            except Exception as error:assert 'AIC Tactics:' in str(error)
-            else:raise AssertionError(('occupied',name,offset))
+            try:left_off(g.native['preflight'+key],key,('occupied',name,offset))
             finally:uc.mem_write(address,old)
-            assert assembly_count==before
             occupied_cases+=1
     for name,target in g.native.game.combatCalls.items():
         address=hooks[name]+1;old=get(address);put(address,old+1)
-        try:g.native.preflightCombat()
-        except Exception as error:assert 'AIC Tactics:' in str(error)
-        else:raise AssertionError(('redirected',name))
+        try:left_off(g.native.preflightCombat,'Combat',('redirected',name))
         finally:put(address,old)
         occupied_cases+=1
     # Reuse the same reference image, actual Lua assembler and register oracle.

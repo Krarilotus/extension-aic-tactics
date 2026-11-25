@@ -132,7 +132,8 @@ identifies the price function and its body is verified in place; the decoded
 price field is checked against the player layout on each game family.
 
 `combat-native.lua` consumes named hook sites and captured original instructions.
-It rejects occupied bytes and redirected calls before patching. Existing
+An occupied byte or redirected call leaves its feature off with a warning
+before patching. Existing
 framework allocation/write facilities preserve the displaced instructions and
 original native calls; the three damage gateways adapt native C++ callbacks.
 Framework `core.hookCode`/`detourCode` expose Lua callbacks, so using them here
@@ -198,8 +199,9 @@ Validation performed:
   price calls, 80 native combat-value calls (identical output vectors), and 40
   native lifecycle early-return/nervousness cases. These do not test active armies.
 - Actual FASM combat/raid/damage gateways pass 297 cases on each image, preserving
-  displaced effects, callback arguments, registers, flags and stack. Ninety-one
-  occupied hook-byte/call checks reject before allocation. Legacy's three target
+  displaced effects, callback arguments, registers, flags and stack. Eighty-six
+  occupied hook-byte/call cases leave their feature off with one warning before
+  allocation. Legacy's three target
   choices are read back from the same site on both images.
 - Seventy-six AIC Python/Lua tests and forty Loader tests passed. The initial
   full AIC run lacked `AICLOADER_TEST_ROOT`; rerunning with the actual prerequisite
