@@ -18,19 +18,20 @@ return {
     if safePlacement == nil then safePlacement = true end
     local siegePayment = config and config.actualSiegeResourcePayment
     if siegePayment == nil then siegePayment = true end
-    native.configureSiegePayment(siegePayment)
     local siegeHarassment = config and config.coordinatedSiegeHarassment
     if siegeHarassment == nil then siegeHarassment = true end
     local siegeHarassMinimum = config and config.siegeHarassMinEngines
     if siegeHarassMinimum == nil then siegeHarassMinimum = 3 end
-    native.configureSiegeHarassment(siegeHarassment, siegeHarassMinimum)
     local largerSiege = config and config.largerSiegeForces
     if largerSiege == nil then largerSiege = true end
     local siegeForceMaximum = config and config.siegeForceMax
     if siegeForceMaximum == nil then siegeForceMaximum = 0 end
-    native.configureLargerSiegeForce(largerSiege, siegeForceMaximum)
+    -- The other siege features need safe placement, so it is configured first.
     if siegePayment or siegeHarassment or largerSiege then safePlacement = true end
     native.configureSafePlacement(safePlacement)
+    native.configureSiegePayment(siegePayment)
+    native.configureSiegeHarassment(siegeHarassment, siegeHarassMinimum)
+    native.configureLargerSiegeForce(largerSiege, siegeForceMaximum)
     local roleCounting = config and config.correctEngineerRoleCounting
     if roleCounting == nil then roleCounting = true end
     native.configureEngineerRoles(roleCounting)

@@ -10,7 +10,7 @@ def state():
     lua.execute('''
       package.path=root..'/?.lua;'..package.path
       memory,writes={},0
-      native={configurationSize=352,configuration=10000,defenseTypeCounts=20000,
+      native={configurationSize=352,configuration=10000,defenseTypeCounts=20000,unavailableFeatures={},
         siegePaymentPolicy=190200,siegePaymentFallback=190300,
         siegeHarassFallback=190400,siegeHarassMinimumFallback=190404,
         siegeHarassPolicy=190500,siegeHarassMinimum=190600,

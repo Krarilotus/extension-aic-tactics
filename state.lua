@@ -112,6 +112,11 @@ function M.new(native, legacyInterval, fingerprint)
     for _, name in ipairs(huntFallbacks) do result[#result + 1] = word(core.readInteger(native[name])) end
     result[#result + 1] = core.readString(native.allySettings + 28, 16 * 28)
     result[#result + 1] = core.readString(native.allyFallback, 7 * 4)
+    -- Features another module left off install no hooks even for an AI that opts in.
+    local off = {}
+    for key in pairs(native.unavailableFeatures) do off[#off + 1] = key end
+    table.sort(off)
+    result[#result + 1] = table.concat(off, ',')
     return table.concat(result)
   end
   local function capture()

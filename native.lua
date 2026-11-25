@@ -59,9 +59,8 @@ function M.new(game)
     assert(type(maximum) == 'number' and maximum == math.floor(maximum)
         and maximum >= 0 and maximum <= 64,
       'AIC Tactics: siegeForceMax must be 0 to 64')
-    core.writeInteger(native.largeSiegeFallback, fallback and 1 or 0)
+    core.writeInteger(native.largeSiegeFallback, native.enableOptional('LargerSiegeForce', fallback) and 1 or 0)
     core.writeInteger(native.siegeForceMaximumFallback, maximum)
-    if fallback then native.activateLargerSiegeForce() end
   end
   function native.preflightSafePlacement()
     native.preflightAssaultCrewRecovery()
@@ -172,8 +171,7 @@ failed:
   end
   function native.configureSafePlacement(fallback)
     assert(type(fallback) == 'boolean', 'AIC Tactics: safeSiegePlacement must be boolean')
-    core.writeInteger(native.safePlacementFallback, fallback and 1 or 0)
-    if fallback then native.activateSafePlacement() end
+    core.writeInteger(native.safePlacementFallback, native.enableOptional('SafePlacement', fallback) and 1 or 0)
   end
   function native.preflightSiegePayment()
     native.preflightAssaultCrewRecovery()
@@ -303,10 +301,10 @@ defer:
   end
   function native.configureSiegePayment(fallback)
     assert(type(fallback) == 'boolean', 'AIC Tactics: actualSiegeResourcePayment must be boolean')
-    core.writeInteger(native.siegePaymentFallback, fallback and 1 or 0)
-    if fallback then native.activateSiegePayment() end
+    core.writeInteger(native.siegePaymentFallback, native.enableOptional('SiegePayment', fallback) and 1 or 0)
   end
   function native.preflightSiegeHarassment()
+    native.preflightCombat()
     local context = require('native-context')
     context.verify(game.siegeHarassTargeting, 'native siege target acquisition',
       '83 EC 10 53 55 56 57')
@@ -361,9 +359,8 @@ coordinated:
     assert(type(minimum) == 'number' and minimum == math.floor(minimum)
         and minimum >= 0 and minimum <= 20,
       'AIC Tactics: siegeHarassMinEngines must be 0 to 20')
-    core.writeInteger(native.siegeHarassFallback, fallback and 1 or 0)
+    core.writeInteger(native.siegeHarassFallback, native.enableOptional('SiegeHarassment', fallback) and 1 or 0)
     core.writeInteger(native.siegeHarassMinimumFallback, minimum)
-    if fallback then native.activateSiegeHarassment() end
   end
   local patrolCallsInstalled = false
   -- Detached patrol groups are handed back from the combat scheduler calls.
@@ -391,6 +388,8 @@ coordinated:
     siegeScreenInstalled = true
   end
   function native.configureAttackPatrols(orders, formation, spacing, extra, minimum, radius, screen, forward)
+    if not native.enableOptional('AttackPatrols', orders == 1) then orders = 0 end
+    if not native.enableOptional('SiegeScreen', screen == 1) then screen = 0 end
     core.writeInteger(native.patrolOrdersFallback, orders)
     core.writeInteger(native.patrolFormationFallback, formation)
     core.writeInteger(native.patrolSpacingFallback, spacing)
@@ -399,20 +398,18 @@ coordinated:
     core.writeInteger(native.patrolRadiusFallback, radius)
     core.writeInteger(native.siegeScreenFallback, screen)
     core.writeInteger(native.siegeScreenForwardFallback, forward)
-    if orders == 1 then native.activateAttackPatrols() end
-    if screen == 1 then native.activateSiegeScreen() end
   end
   -- Lord hunt runs inside the combat owner's per-AI attack update, monthly
   -- target selection and unit census; it installs nothing of its own.
   function native.preflightLordHunt() native.preflightCombat() end
   function native.activateLordHunt() native.activateCombat() end
   function native.configureLordHunt(retarget, siege, switch, share, split)
+    if not native.enableOptional('LordHunt', retarget == 1 or share > 0) then retarget, share = 0, 0 end
     core.writeInteger(native.lordHuntRetargetFallback, retarget)
     core.writeInteger(native.lordHuntSiegeFallback, siege)
     core.writeInteger(native.lordHuntSwitchFallback, switch)
     core.writeInteger(native.lordHuntShareFallback, share)
     core.writeInteger(native.lordHuntSplitFallback, split)
-    if retarget == 1 or share > 0 then native.activateLordHunt() end
   end
   function native.preflightEngineerRoles()
     if engineerRoleHook then return end
@@ -453,8 +450,7 @@ coordinated:
   function native.configureEngineerRoles(fallback)
     assert(type(fallback) == 'boolean',
       'AIC Tactics: correctEngineerRoleCounting must be boolean')
-    core.writeInteger(native.engineerRoleFallback, fallback and 1 or 0)
-    if fallback then native.activateEngineerRoles() end
+    core.writeInteger(native.engineerRoleFallback, native.enableOptional('EngineerRoles', fallback) and 1 or 0)
   end
   local function verifyInterval()
     if intervalHook then
@@ -600,11 +596,54 @@ handled:
     allyGoldHooks = allyBindings.install(game, native.allyGoldRequestAllowed, native.allyGoldRequestCommand)
   end
   function native.configureAllies(words)
+    if not native.enableOptional('AllyRelief', words[1] ~= 0) then words[1] = 0 end
+    if not native.enableOptional('AllyGoods', words[2] ~= 0) then words[2] = 0 end
     for index, value in ipairs(words) do core.writeInteger(native.allyFallback + (index - 1) * 4, value) end
-    if words[1] ~= 0 then native.activateAllyRelief() end
-    if words[2] ~= 0 then native.activateAllyGoods() end
   end
   require('combat-native').attach(native)
+  -- Another module can own a site that an optional feature patches. That
+  -- feature then stays off for this process: its preflight passes, its
+  -- activation installs nothing and the match identity lists it. A feature
+  -- whose installed hooks were replaced afterwards still fails.
+  local off, names = {}, {}
+  native.unavailableFeatures = off
+  local function optional(key, name, need)
+    names[key] = name
+    local preflight, activate, installed = native['preflight' .. key], native['activate' .. key], false
+    native['preflight' .. key] = function()
+      if off[key] then return end
+      local reason = need and off[need] and names[need] .. ' is off'
+      if not reason then
+        local ok, failure = pcall(preflight)
+        if ok then return end
+        if installed then error(failure, 0) end
+        reason = 'another module changed its game code: ' .. tostring(failure)
+      end
+      off[key] = true
+      log(WARNING, string.format('[aic-tactics] %s is off; %s', name, reason))
+    end
+    native['activate' .. key] = function()
+      native['preflight' .. key]()
+      if off[key] then return end
+      activate()
+      installed = true
+    end
+  end
+  optional('SafePlacement', 'safe siege placement')
+  optional('SiegePayment', 'siege resource payment', 'SafePlacement')
+  optional('SiegeHarassment', 'coordinated siege harassment', 'SafePlacement')
+  optional('LargerSiegeForce', 'larger siege forces', 'SafePlacement')
+  optional('EngineerRoles', 'engineer role counting')
+  optional('AttackPatrols', 'attack patrol orders')
+  optional('SiegeScreen', 'siege screen')
+  optional('LordHunt', 'lord hunt')
+  optional('AllyRelief', 'ally relief')
+  optional('AllyGoods', 'ally goods')
+  -- Activates a module switch and returns whether the feature is on.
+  function native.enableOptional(key, wanted)
+    if wanted then native['activate' .. key]() end
+    return wanted and not off[key]
+  end
   return native
 end
 return M
