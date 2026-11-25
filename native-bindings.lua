@@ -31,12 +31,22 @@ function M.resolve()
   for key, value in pairs(require('native-group-actions').resolve(game)) do game[key] = value end
   for key, value in pairs(require('native-recruitment').resolve(game)) do game[key] = value end
   for key, value in pairs(require('native-aic-queries').resolve(game)) do game[key] = value end
-  for key, value in pairs(require('native-combat-bindings').resolve(game)) do game[key] = value end
-  for key, value in pairs(require('native-siege-bindings').resolve(game)) do game[key] = value end
-  for key, value in pairs(require('native-role-bindings').resolve(game)) do game[key] = value end
-  for key, value in pairs(require('native-patrol-bindings').resolve(game)) do game[key] = value end
-  for key, value in pairs(require('native-lord-hunt-bindings').resolve(game)) do game[key] = value end
-  for key, value in pairs(require('native-ally-bindings').resolve(game)) do game[key] = value end
+  -- Bindings used only by the listed features; when they do not resolve, those features stay off.
+  game.missingFeatures = {}
+  for _, binding in ipairs({
+      {'native-combat-bindings', 'Combat', 'Raids', 'Targets'},
+      {'native-siege-bindings', 'SafePlacement', 'AttackPatrols', 'SiegeScreen', 'LordHunt', 'AllyRelief'},
+      {'native-role-bindings', 'EngineerRoles'},
+      {'native-patrol-bindings', 'AttackPatrols', 'SiegeScreen'},
+      {'native-lord-hunt-bindings', 'LordHunt'},
+      {'native-ally-bindings', 'AllyRelief', 'AllyGoods'}}) do
+    local ok, result = pcall(require(binding[1]).resolve, game)
+    if ok then
+      for key, value in pairs(result) do game[key] = value end
+    else
+      for index = 2, #binding do game.missingFeatures[binding[index]] = tostring(result) end
+    end
+  end
   return game
 end
 
@@ -46,10 +56,10 @@ function M.initialize(native, game)
   local allies = require('native-ally-bindings').names
   assert(native.allyBindingsSize == #allies * 4, 'AIC Tactics: incompatible ally binding ABI')
   for index, name in ipairs(names) do
-    core.writeInteger(native.nativeBindings + (index - 1) * 4, game[name])
+    core.writeInteger(native.nativeBindings + (index - 1) * 4, game[name] or 0)
   end
   for index, name in ipairs(allies) do
-    core.writeInteger(native.allyBindings + (index - 1) * 4, game[name])
+    core.writeInteger(native.allyBindings + (index - 1) * 4, game[name] or 0)
   end
   native.game = game
 end

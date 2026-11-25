@@ -99,9 +99,14 @@ function M.attach(native)
     local choices = {Native = 0, Nearest = 1, Richest = 2, Weakest = 3}
     assert(choices[value] ~= nil, 'AIC Tactics: nativeTargetPolicy must be Native, Nearest, Richest or Weakest')
     if value == 'Native' then return end
-    native.preflightTargets()
     assert(not targetingInstalled, 'AIC Tactics: native target policy is already configured')
-    core.writeInteger(native.legacyTargetPolicy, choices[value])
+    core.writeInteger(native.legacyTargetPolicy, native.enableOptional('Targets', true) and choices[value] or 0)
+  end
+
+  -- The module-wide policy hook; per-AI policies run in the combat hooks.
+  function native.activateTargets()
+    if targetingInstalled then return end
+    native.preflightTargets()
     local hook = core.allocateAssembly([[
       cmp dword [policy], 1
       je nearest

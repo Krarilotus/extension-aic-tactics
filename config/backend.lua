@@ -126,6 +126,18 @@ function M.new(native)
     if attacks[7] == 2 then native.preflightSiegeScreen() end
     if allies[1] == 2 then native.preflightAllyRelief() end
     if allies[2] == 2 then native.preflightAllyGoods() end
+    -- Per-AI values of a feature that is off are stored as unset.
+    local off = native.unavailableFeatures
+    if off.Targets then targeting.policy, targeting.commitment, envelope.preparation = 0, 0, 0 end
+    if off.Raids then envelope.raids[1] = 0 end
+    for index, key in pairs({'SafePlacement', 'SiegePayment', 'SiegeHarassment', [5] = 'LargerSiegeForce'}) do
+      if off[key] then envelope.siege[index] = 0 end
+    end
+    if off.AttackPatrols then attacks[1] = 0 end
+    if off.SiegeScreen then attacks[7] = 0 end
+    if off.LordHunt then hunt[1], hunt[4] = 0, 0 end
+    if off.AllyRelief then allies[1] = 0 end
+    if off.AllyGoods then allies[2] = 0 end
     local words = {compiled.mode, #compiled.conditions}
     for index = 1, 8 do
       local row = compiled.conditions[index]

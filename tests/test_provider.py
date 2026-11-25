@@ -296,7 +296,7 @@ def test_native_identity_is_independent_of_character_update_order(lua, native_fi
     """Regression for a real cold-load mismatch: Caliph defaults versus zero storage."""
     lua.globals().native_first = native_first
     lua.execute('''
-      local native={configuration=100000,configurationSize=352,configurationLocked=200000,
+      local native={unavailableFeatures={},configuration=100000,configurationSize=352,configurationLocked=200000,
         siegePaymentPolicy=500000,siegePaymentFallback=500080,
         siegeHarassPolicy=500100,siegeHarassMinimum=500200,
         siegeHarassFallback=500300,

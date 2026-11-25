@@ -601,27 +601,39 @@ handled:
     for index, value in ipairs(words) do core.writeInteger(native.allyFallback + (index - 1) * 4, value) end
   end
   require('combat-native').attach(native)
-  -- Another module can own a site that an optional feature patches. That
-  -- feature then stays off for this process: its preflight passes, its
+  -- Another module can own a site that an optional feature patches, or the
+  -- startup scan did not find it. That feature and the features that need it
+  -- then stay off for this process: its preflight passes, its
   -- activation installs nothing and the match identity lists it. A feature
   -- whose installed hooks were replaced afterwards still fails.
   local off, names = {}, {}
   native.unavailableFeatures = off
-  local function optional(key, name, need)
+  local function leaveOff(key, reason)
+    off[key] = true
+    log(WARNING, string.format('[aic-tactics] %s is off; %s', names[key], reason))
+  end
+  local function optional(key, name, ...)
     names[key] = name
+    local needs = {...}
     local preflight, activate, installed = native['preflight' .. key], native['activate' .. key], false
+    local function needOff()
+      for _, need in ipairs(needs) do
+        if off[need] then return names[need] .. ' is off' end
+      end
+    end
     native['preflight' .. key] = function()
       if off[key] then return end
-      local reason = need and off[need] and names[need] .. ' is off'
+      local reason = needOff()
       if not reason then
         local ok, failure = pcall(preflight)
-        if ok then return end
-        if installed then error(failure, 0) end
-        reason = 'another module changed its game code: '
+        -- The preflight can run a need's preflight, which leaves that need off.
+        reason = needOff()
+        if ok and not reason then return end
+        if not reason and installed then error(failure, 0) end
+        reason = reason or 'another module changed its game code: '
           .. (tostring(failure):gsub('; restart with compatible modules$', ''))
       end
-      off[key] = true
-      log(WARNING, string.format('[aic-tactics] %s is off; %s', name, reason))
+      leaveOff(key, reason)
     end
     native['activate' .. key] = function()
       native['preflight' .. key]()
@@ -630,16 +642,22 @@ handled:
       installed = true
     end
   end
+  optional('Combat', 'attack control')
+  optional('Raids', 'raid targeting', 'Combat')
+  optional('Targets', 'attack target policy')
   optional('SafePlacement', 'safe siege placement')
   optional('SiegePayment', 'siege resource payment', 'SafePlacement')
-  optional('SiegeHarassment', 'coordinated siege harassment', 'SafePlacement')
+  optional('SiegeHarassment', 'coordinated siege harassment', 'SafePlacement', 'Combat')
   optional('LargerSiegeForce', 'larger siege forces', 'SafePlacement')
   optional('EngineerRoles', 'engineer role counting')
-  optional('AttackPatrols', 'attack patrol orders')
+  optional('AttackPatrols', 'attack patrol orders', 'Combat')
   optional('SiegeScreen', 'siege screen')
-  optional('LordHunt', 'lord hunt')
-  optional('AllyRelief', 'ally relief')
-  optional('AllyGoods', 'ally goods')
+  optional('LordHunt', 'lord hunt', 'Combat')
+  optional('AllyRelief', 'ally relief', 'Combat')
+  optional('AllyGoods', 'ally goods', 'Combat', 'Raids')
+  for key, failure in pairs(game.missingFeatures or {}) do
+    leaveOff(key, 'its game code was not found: ' .. failure)
+  end
   -- Activates a module switch and returns whether the feature is on.
   function native.enableOptional(key, wanted)
     if wanted then native['activate' .. key]() end

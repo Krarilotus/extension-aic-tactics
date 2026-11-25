@@ -14,7 +14,7 @@ def backend():
       core={readInteger=function(a)return memory[a] or 0 end,
         writeInteger=function(a,v)memory[a]=v end}
       rolePreflights,roleActivations=0,0
-      native={configuration=10000,configurationSize=352,configurationLocked=20000,
+      native={unavailableFeatures={},configuration=10000,configurationSize=352,configurationLocked=20000,
         siegePaymentPolicy=22000,siegePaymentFallback=22080,
         siegeHarassPolicy=22100,siegeHarassMinimum=22200,
         siegeHarassFallback=22300,

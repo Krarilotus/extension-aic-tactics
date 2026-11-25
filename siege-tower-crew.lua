@@ -26,7 +26,7 @@ local function board(riders, towers, units)
 end
 
 function M.register(riders, native, game)
-  if not riders or type(riders.registerTowerCrewPolicy) ~= 'function' then return end
+  if not riders or type(riders.registerTowerCrewPolicy) ~= 'function' or not game.tribeAttackWave then return end
   local short, integer = core.readSmallInteger, core.readInteger
   local function inWave(record, player, wave)
     if short(record + 0x8C) ~= 2 or short(record + 0x96) ~= player then return false end
