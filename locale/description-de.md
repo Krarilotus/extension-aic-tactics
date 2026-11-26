@@ -30,7 +30,7 @@ Ein Ausfallanteil aktiviert `WeightedRoles` automatisch. Für Situationsregeln, 
 - `AICTactics_SiegeScreenForward` (0–10): Felder vor den Geräten für die Nahkämpfer der Belagerungsschutz-Gruppen.
 - `AICTactics_SiegeScreenExtraGroups` (0–6): zusätzliche Belagerungsschutz-Gruppen, solange die Geräte arbeiten, jede an ihrem Gerät; vor dem Mauersturm vereinen sie sich.
 
-Fehlende Werte nutzen die Moduleinstellungen (alle Gruppen, `Routes`, 12 Felder, keine Zusatzgruppen, Gruppen zu 4, Ring 12, Geleitschutz an, 4 Felder, keine zusätzlichen Belagerungsschutz-Gruppen).
+Fehlende Werte nutzen die Moduleinstellungen (nur die erste Gruppe, `Native`, 12 Felder, keine Zusatzgruppen, Gruppen zu 4, Ring 12, Geleitschutz aus, 4 Felder, keine zusätzlichen Belagerungsschutz-Gruppen).
 
 ### Jagd auf den Burgherrn
 
@@ -42,7 +42,7 @@ Greift eine KI einen menschlichen Spieler an, dessen Burgherr sich hinter den Ma
 - `AICTactics_LordHuntSwitchPercent` (0–100): Während eines Angriffs wechselt die KI die Burg nur, solange dieser Anteil ihrer Armee übrig ist.
 - `AICTactics_LordHuntShare` (0–100): Anteil der Armee an der Burg des Burgherrn, der ihn jagt; 0 schaltet die Jagd aus.
 
-Fehlende Werte nutzen die Moduleinstellungen (an, `HidingCastle`, 50, 80, 50). KI-Angriffe auf KI-Spieler bleiben unverändert.
+Fehlende Werte nutzen die Moduleinstellungen (aus, `HidingCastle`, 50, 80, 0). KI-Angriffe auf KI-Spieler bleiben unverändert.
 
 ### Hilfe für Verbündete
 
@@ -59,7 +59,7 @@ KI-Verbündete helfen einander und dir, nicht nur auf Bitte.
 - `AICTactics_AllyGoldSharePercent` (0–100): Anteil ihres Goldes über der Reserve, der einem Warengeschenk beiliegt; 0 legt nichts bei, erbetenes Gold wird trotzdem geschickt.
 - `AICTactics_AllyMonthlyGivePercent` (0–100): Anteil jeder Ware, den sie pro Monat abgibt.
 
-Fehlende Werte nutzen die Moduleinstellungen (an, 75 %, 0 Monate, aus, aus, an, 1000, 300, 25 %, 30 %). Basiert auf Ally Support von Monsterfish.
+Fehlende Werte nutzen die Moduleinstellungen (aus, 75 %, 0 Monate, aus, aus, aus, 1000, 300, 25 %, 30 %). Basiert auf Ally Support von Monsterfish.
 
 ### Überfälle
 
@@ -71,11 +71,11 @@ Die fünf Überfallfelder nach `RaidTargetPolicy` benötigen eine neue Überfall
 
 ### Belagerung und Ingenieure
 
-- `SafeSiegePlacement` meidet belegte Bauplätze (Modulstandard AN).
+- `SafeSiegePlacement` meidet belegte Bauplätze (Modulstandard AUS).
 - `ActualSiegeResourcePayment` verlangt Rohstoffe und Gold; Fehlmengen kauft die KI über den normalen Handel (AUS).
 - `CoordinatedSiegeHarassment` schickt gesammelte Geräte zu erreichbaren Schusspositionen (AUS). `SiegeHarassMinEngines` ist die angestrebte Mindestzahl (0–20, Standard 3); `HarassingSiegeEnginesMax` bleibt die Gesamtgrenze.
 - `LargerSiegeForces` wiederholt den Gerätemix, solange lebende, freie Angriffsingenieure und Bauplätze vorhanden sind (AUS). `SiegeForceMax` ist eine optionale Obergrenze (0–64); 0 überlässt die Zahl den Ingenieuren. `AttMaxEngineers` begrenzt weiterhin Besatzungen.
 
-Sichere Bauplätze gelten bei erweiterten Belagerungsregeln automatisch. Die KI zählt zugewiesene Ingenieure standardmäßig richtig; Fixed Engineers betreut Besatzung und Gerätelebenszyklus.
+Sichere Bauplätze gelten bei erweiterten Belagerungsregeln automatisch. Das richtige Zählen zugewiesener Ingenieure ist standardmäßig aus; Fixed Engineers betreut Besatzung und Gerätelebenszyklus.
 
 Ausdrückliche AIC-Belagerungswerte haben Vorrang vor Modulwerten.

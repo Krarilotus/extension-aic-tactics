@@ -34,7 +34,7 @@ struct CharacterConfiguration {
     int preparation;
     RaidConfiguration raids;
     int safeSiegePlacement; // 0=module fallback, 1=on, 2=off
-    int siegeTowerCrewOff; // 0 enables the default, 1 opts out.
+    int siegeTowerCrew; // 0=module fallback, 1=off, 2=on
 };
 
 // Diagnostic counters are observation only; policy never reads them.

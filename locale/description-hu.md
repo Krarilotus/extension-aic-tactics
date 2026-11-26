@@ -30,7 +30,7 @@ A kitörési arány automatikusan bekapcsolja a `WeightedRoles` módot. A helyze
 - `AICTactics_SiegeScreenForward` (0–10): mezők a gépek előtt a közelharcos ostromvédő csoportoknak.
 - `AICTactics_SiegeScreenExtraGroups` (0–6): további ostromvédő csoportok, amíg a gépek dolgoznak, mindegyik a saját gépénél; a falroham előtt újra egyesülnek.
 
-A hiányzó értékek a modulbeállításokat követik (minden csoport, `Routes`, 12 mező, nincs további csoport, 4 fős csoportok, 12-es kör, fedezet be, 4 mező, nincs további fedezőcsoport).
+A hiányzó értékek a modulbeállításokat követik (csak az első csoport, `Native`, 12 mező, nincs további csoport, 4 fős csoportok, 12-es kör, fedezet ki, 4 mező, nincs további fedezőcsoport).
 
 ### A várúr üldözése
 
@@ -42,7 +42,7 @@ Ha egy MI olyan emberi játékost támad, akinek várura egy szövetséges falai
 - `AICTactics_LordHuntSwitchPercent` (0–100): támadás közben az MI csak akkor vált várat, ha seregének még ennyi része megvan.
 - `AICTactics_LordHuntShare` (0–100): a várúr váránál álló sereg rá vadászó része; 0 kikapcsolja.
 
-A hiányzó értékek a modulbeállításokat követik (be, `HidingCastle`, 50, 80, 50). Az MI-játékosok elleni MI-támadások nem változnak.
+A hiányzó értékek a modulbeállításokat követik (ki, `HidingCastle`, 50, 80, 0). Az MI-játékosok elleni MI-támadások nem változnak.
 
 ### Segítség a szövetségeseknek
 
@@ -59,7 +59,7 @@ Az MI-szövetségesek segítik egymást és téged, nem csak kérésre.
 - `AICTactics_AllyGoldSharePercent` (0–100): a tartalék feletti aranyából ennyi rész kerül egy áruajándékhoz; 0 semmit sem tesz hozzá, a kért aranyat így is elküldi.
 - `AICTactics_AllyMonthlyGivePercent` (0–100): minden áruból havonta ennyi részt ad oda.
 
-A hiányzó értékek a modulbeállításokat követik (be, 75%, 0 hónap, ki, ki, be, 1000, 300, 25%, 30%). Monsterfish Ally Support modulja alapján.
+A hiányzó értékek a modulbeállításokat követik (ki, 75%, 0 hónap, ki, ki, ki, 1000, 300, 25%, 30%). Monsterfish Ally Support modulja alapján.
 
 ### Portyák
 
@@ -71,11 +71,11 @@ A `RaidTargetPolicy` utáni öt mezőhöz új portyaszabály kell. A `RaidUnitsB
 
 ### Ostrom és mérnökök
 
-- `SafeSiegePlacement`: kerüli a foglalt építési helyeket (modul: BE).
+- `SafeSiegePlacement`: kerüli a foglalt építési helyeket (modul: KI).
 - `ActualSiegeResourcePayment`: nyersanyagot és aranyat kér; a hiányt az MI a szokásos kereskedelemmel szerzi be (KI).
 - `CoordinatedSiegeHarassment`: összegyűjtött ostromgépeket küld elérhető lőállásokba (KI). A `SiegeHarassMinEngines` a kívánt minimum (0–20, alapérték 3); a `HarassingSiegeEnginesMax` marad az összes gép korlátja.
 - `LargerSiegeForces`: addig ismétli a gépösszetételt, amíg élő, szabad támadó mérnök és megfelelő hely van (KI). A `SiegeForceMax` választható korlát (0–64); 0-nál a mérnökök száma dönt. Az `AttMaxEngineers` továbbra is korlátozza a kezelőket.
 
-A fejlett ostrombeállítások automatikusan bekapcsolják a biztonságos elhelyezést. A mérnökök szerepkörszámlálása alapból aktív; a Fixed Engineers a kezelők és gépek életciklusát kezeli.
+A fejlett ostrombeállítások automatikusan bekapcsolják a biztonságos elhelyezést. A mérnökök szerepkörszámlálása alapból kikapcsolt; a Fixed Engineers a kezelők és gépek életciklusát kezeli.
 
 Az AIC-ben megadott ostromértékek megelőzik a modul alapértékeit.

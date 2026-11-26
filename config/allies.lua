@@ -8,8 +8,8 @@ local M = {fields = {'AICTactics_AllyRelief', 'AICTactics_AllyGoods', 'AICTactic
 
 -- Field, module option, kind, minimum, maximum, default; in storage order.
 local settings = {
-  {'AICTactics_AllyRelief', 'allyRelief', 'boolean', nil, nil, true},
-  {'AICTactics_AllyGoods', 'allyGoods', 'boolean', nil, nil, true},
+  {'AICTactics_AllyRelief', 'allyRelief', 'boolean', nil, nil, false},
+  {'AICTactics_AllyGoods', 'allyGoods', 'boolean', nil, nil, false},
   {'AICTactics_AllyGoldKeep', 'allyGoldKeep', 'integer', 0, 100000, 1000},
   {'AICTactics_AllyRecruitGoldBuffer', 'allyRecruitGoldBuffer', 'integer', 0, 5000, 300},
   {'AICTactics_AllyGoldSharePercent', 'allyGoldSharePercent', 'integer', 0, 100, 25},

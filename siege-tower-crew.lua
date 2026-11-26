@@ -25,7 +25,7 @@ local function board(riders, towers, units)
   end
 end
 
-function M.register(riders, native, game)
+function M.register(riders, native, game, fallback)
   if not riders or type(riders.registerTowerCrewPolicy) ~= 'function' or not game.tribeAttackWave then return end
   local short, integer = core.readSmallInteger, core.readInteger
   local function inWave(record, player, wave)
@@ -47,10 +47,9 @@ function M.register(riders, native, game)
     if player < 1 or player > 8 then return false end
     local owner = game.players + player * 0x39F4
     local character = integer(owner + 0x2300) - 1
-    if character < 1 or character > 16
-        or integer(native.configuration + character * native.configurationSize + 348) == 1 then
-      return false
-    end
+    if character < 1 or character > 16 then return false end
+    local crew = integer(native.configuration + character * native.configurationSize + 348)
+    if crew == 1 or crew == 0 and not fallback then return false end
     local wave = integer(owner + 0x3924)
     if wave <= 0 or not inWave(record, player, wave) then return false end
     -- Keep seats available before departure. The owning module checks both

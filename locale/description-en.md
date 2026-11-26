@@ -30,7 +30,7 @@ Sortie shares enable `WeightedRoles` automatically. Situation rules, defense com
 - `AICTactics_SiegeScreenForward` (0–10): tiles in front of the engines for melee siege-defence groups.
 - `AICTactics_SiegeScreenExtraGroups` (0–6): extra siege-defence groups split off while the engines work, each at its own engine; they rejoin before the wall assault.
 
-Omitted values use the module settings (every group, `Routes`, 12 tiles, no extra groups, groups of 4, ring 12, siege screen on, 4 tiles, no extra siege-defence groups).
+Omitted values use the module settings (first group only, `Native`, 12 tiles, no extra groups, groups of 4, ring 12, siege screen off, 4 tiles, no extra siege-defence groups).
 
 ### Lord hunt
 
@@ -42,7 +42,7 @@ When an AI attacks a human player whose lord shelters inside an ally's walls, th
 - `AICTactics_LordHuntSwitchPercent` (0–100): during an attack the AI only changes castles while this share of its army remains.
 - `AICTactics_LordHuntShare` (0–100): share of the army at the lord's castle that hunts him; 0 turns the hunt off.
 
-Omitted values use the module settings (on, `HidingCastle`, 50, 80, 50). AI attacks on AI players are not changed.
+Omitted values use the module settings (off, `HidingCastle`, 50, 80, 0). AI attacks on AI players are not changed.
 
 ### Ally help
 
@@ -59,7 +59,7 @@ AI allies help each other and you, not only when you ask.
 - `AICTactics_AllyGoldSharePercent` (0–100): share of its gold above the kept gold added to a goods gift; 0 adds none, asked gold is still sent.
 - `AICTactics_AllyMonthlyGivePercent` (0–100): share of each good it gives away per month.
 
-Omitted values use the module settings (on, 75%, 0 months, off, off, on, 1000, 300, 25%, 30%). Based on Ally Support by Monsterfish.
+Omitted values use the module settings (off, 75%, 0 months, off, off, off, 1000, 300, 25%, 30%). Based on Ally Support by Monsterfish.
 
 ### Raids
 
@@ -71,11 +71,11 @@ The five raid controls after `RaidTargetPolicy` require a new raid policy. Exist
 
 ### Siege and engineers
 
-- `SafeSiegePlacement` avoids occupied building sites (module default ON).
+- `SafeSiegePlacement` avoids occupied building sites (OFF).
 - `ActualSiegeResourcePayment` requires construction materials and gold, buying shortages through normal AI trade (OFF).
 - `CoordinatedSiegeHarassment` sends a gathered group of engines to reachable firing positions (OFF). `SiegeHarassMinEngines` sets its preferred minimum (0–20, default 3); `HarassingSiegeEnginesMax` remains the total limit.
 - `LargerSiegeForces` cycles the configured assault equipment mix while living, unassigned attack engineers and valid sites remain (OFF). `SiegeForceMax` is an optional cap (0–64); 0 lets available engineers decide. `AttMaxEngineers` still limits crews.
 
-Safe placement is enabled automatically with advanced siege behavior. Engineer role-quota counting is ON by default; Fixed Engineers owns general crew and equipment lifecycle.
+Safe placement is enabled automatically with advanced siege behavior. Engineer role-quota counting is OFF by default; Fixed Engineers owns general crew and equipment lifecycle.
 
 Explicit AIC siege settings override module fallbacks.

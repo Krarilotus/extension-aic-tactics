@@ -11,13 +11,14 @@ stays unchanged.
 The policy sees the wall order from either the native order path or Improved
 Siegeengines' `sendToWall`; moving towers have wall targeting `0x17` and order
 state `0x65`. For characters with crew assignment enabled, it reserves seats of
-siege-wave towers and boards the AI's current wave troops round-robin across the
-wall-bound towers. A false return keeps the proximity boarder. Registration
+siege-wave towers and, every 32 ticks, boards the AI's current wave troops
+round-robin across the wall-bound towers. A false return keeps the proximity boarder. Registration
 supports either module enable order.
 
 OpenSHC's `Tribe.hpp` identifies the wave field and `Unit.hpp` the unit-to-tribe
 ID and UID. The existing siege construction resolver decodes the wave offset,
 including the Extreme tribe layout. The policy compares the unit's live tribe
-and wave with the AI's current attack wave. Explicit OFF is stored in the
+and wave with the AI's current attack wave. The per-AI value is stored in the
 existing configuration record's last word and takes part in the existing save
-and multiplayer identity. The callback adds no game patch site.
+and multiplayer identity; an absent value uses the module setting
+`siegeTowerCrew` (default off). The callback adds no game patch site.

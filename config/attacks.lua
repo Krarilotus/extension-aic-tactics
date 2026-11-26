@@ -60,7 +60,7 @@ function M.prepare(previous, spec, resetting)
   return result, {order == nil and 0 or orders[order] + 1, formation == nil and 0 or formations[formation] + 1,
     spacing or 0, stored.AICTactics_PatrolExtraGroups, stored.AICTactics_PatrolMinSize,
     stored.AICTactics_PatrolRadius, screen == nil and 0 or screens[screen] + 1,
-    stored.AICTactics_SiegeScreenForward, stored.AICTactics_SiegeScreenExtraGroups, crew == false and 1 or 0}
+    stored.AICTactics_SiegeScreenForward, stored.AICTactics_SiegeScreenExtraGroups, crew == nil and 0 or crew and 2 or 1}
 end
 
 function M.active(candidate)
@@ -77,10 +77,10 @@ end
 -- Module settings: the defaults for every AI, in the order of
 -- native.configureAttackPatrols.
 function M.fallbacks(config)
-  local order = config and config.patrolOrders or 'AllGroups'
-  local formation = config and config.patrolFormation or 'Routes'
+  local order = config and config.patrolOrders or 'Native'
+  local formation = config and config.patrolFormation or 'Native'
   local spacing = config and config.patrolSpacing or 12
-  local screen = config and config.siegeScreen or 'EngineApproach'
+  local screen = config and config.siegeScreen or 'Native'
   assert(orders[order] ~= nil, 'AIC Tactics: patrolOrders must be Native or AllGroups')
   assert(formations[formation] ~= nil,
     'AIC Tactics: patrolFormation must be Native, Wing, Mirror or Routes')

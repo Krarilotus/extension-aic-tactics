@@ -1,15 +1,15 @@
 # Ally help configuration
 
-In the native game an AI helps only a human ally: it sends its whole attack army when you ask for help, gives goods you ask for, never gold, and asks only you when it is short. With AIC Tactics active, AI allies help each other and you. Per-character AIC fields change this for one AI; module settings in Customizations are the default for every AI.
+In the native game an AI helps only a human ally: it sends its whole attack army when you ask for help, gives goods you ask for, never gold, and asks only you when it is short. With ally relief and goods on, AI allies help each other and you. Per-character AIC fields change this for one AI; module settings in Customizations are the default for every AI.
 
 | AIC field | Module setting | Values | Default | Effect |
 | --- | --- | --- | --- | --- |
-| `AICTactics_AllyRelief` | `allyRelief` | `true`, `false` | `true` | `true`: relief troops for an ally whose castle is under attack, and when you ask. `false`: the native help (every attack troop when you ask, nothing for AI allies). |
+| `AICTactics_AllyRelief` | `allyRelief` | `true`, `false` | `false` | `true`: relief troops for an ally whose castle is under attack, and when you ask. `false`: the native help (every attack troop when you ask, nothing for AI allies). |
 | `AICTactics_AllyArmySharePercent` | `allyArmySharePercent` | 0–100 | 75 | Share of the idle attack army sent, rounded up. `0` sends no troops, also when you ask: an accepted request is dropped. `100` sends the whole idle attack army. |
 | `AICTactics_AllyReliefMinMonths` | `allyReliefMinMonths` | 0–12 | 0 | Months the relief stays at least while the ally's home is calm again. `0`: home after one calm month. |
 | `AICTactics_AllyReliefGates` | `allyReliefGates` | `true`, `false` | `false` | `true`: when the ally's gates are shut, the relief walks to a gate and the gate opens for it, and again when it leaves. |
 | `AICTactics_AllyReliefKeep` | `allyReliefKeep` | `true`, `false` | `false` | `true`: the relief stands on the ally's keep, as the native help sends it. `false`: at the keep's entrance. |
-| `AICTactics_AllyGoods` | `allyGoods` | `true`, `false` | `true` | `true`: the AI asks its AI allies for goods and gold it cannot buy, gives to them, and sends you gold when you ask. `false`: native trade only. |
+| `AICTactics_AllyGoods` | `allyGoods` | `true`, `false` | `false` | `true`: the AI asks its AI allies for goods and gold it cannot buy, gives to them, and sends you gold when you ask. `false`: native trade only. |
 | `AICTactics_AllyGoldKeep` | `allyGoldKeep` | 0–100000 | 1000 | Gold this AI keeps for its own recruiting before it gives any away. The same floor applies to your gold requests. |
 | `AICTactics_AllyRecruitGoldBuffer` | `allyRecruitGoldBuffer` | 0–5000 | 300 | When this AI is weak or threatened, allies help it up to its `RecruitGoldThreshold` plus this much gold. |
 | `AICTactics_AllyGoldSharePercent` | `allyGoldSharePercent` | 0–100 | 25 | Share of the gold above `AllyGoldKeep` this AI adds unasked to a goods gift, to a poorer ally. `0` adds none; gold asked for is still sent. |

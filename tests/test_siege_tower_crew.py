@@ -53,7 +53,7 @@ FIXTURE = """
   }
   local config = require('config.attacks')
   local spec = {}
-  if scenario == 'field off' then spec.AICTactics_SiegeTowerCrew = false end
+  spec.AICTactics_SiegeTowerCrew = scenario ~= 'field off'
   local _, settings = config.prepare(nil, spec)
   memory[native.configuration + 352 + 348] = settings[10]
   local crew = require('siege-tower-crew')

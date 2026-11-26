@@ -1,6 +1,6 @@
 # Lord hunt configuration
 
-The native AI plans every attack against one player's keep. A human lord standing in an ally's castle is not at that keep, so the AI wrecks his empty home and never gets near him. With AIC Tactics active, an AI attacking a human player does two things:
+The native AI plans every attack against one player's keep. A human lord standing in an ally's castle is not at that keep, so the AI wrecks his empty home and never gets near him. With lord hunt on, an AI attacking a human player does two things:
 
 1. **Siege the castle where the lord hides.** The lord is outside his own walls and inside an allied player's walls (the game's walled-in area of that player's keep), and no troop of the attacking main army can walk there. The AI then turns its attack to that castle and runs its full native siege there: it plans again, with siege camp, engineers, ladders and moat filling.
    - **His own castle still has people and buildings:** the army splits. By default the full siege goes to the castle he hides in, and half of the army attacks his own castle on its own. The castle choice and the share are settings.
@@ -18,21 +18,21 @@ Only attacks on human players change (`PlayerData` AI type 0, a fact every peer 
 
 | AIC field | Module setting | Values | Default | Effect |
 | --- | --- | --- | --- | --- |
-| `AICTactics_LordHuntRetarget` | `lordHuntRetarget` | `true`, `false` | `true` | Siege the castle where the lord hides, as above. `false` keeps the attack on his own castle (the hunt still works there). |
+| `AICTactics_LordHuntRetarget` | `lordHuntRetarget` | `true`, `false` | `false` | Siege the castle where the lord hides, as above. `false` keeps the attack on his own castle (the hunt still works there). |
 | `AICTactics_LordHuntSiege` | `lordHuntSiege` | `HidingCastle`, `HomeCastle` | `HidingCastle` | Which castle gets the full siege when the army splits. The other castle gets the split troops. |
 | `AICTactics_LordHuntSplitShare` | `lordHuntSplitShare` | 0–100 | 50 | Percent of the main army sent to the castle without the full siege. 0 sends no split troops; with `HidingCastle` the whole army then goes there. |
 | `AICTactics_LordHuntSwitchPercent` | `lordHuntSwitchPercent` | 0–100 | 80 | During an attack (attack states 3–6), change castles only while this percent of the army remains. Before the march the change is always allowed. |
-| `AICTactics_LordHuntShare` | `lordHuntShare` | 0–100 | 50 | Percent of the army at the lord's castle that goes for him, rounded up. 0 turns the hunt off. |
+| `AICTactics_LordHuntShare` | `lordHuntShare` | 0–100 | 0 | Percent of the army at the lord's castle that goes for him, rounded up. 0 turns the hunt off. |
 
 An absent field uses the module setting from Customizations; an explicit value changes it for that character only.
 
 ## Examples
 
-Keep one AI on the native behaviour:
+Turn the lord hunt on for one AI:
 
 ```json
-"AICTactics_LordHuntRetarget": false,
-"AICTactics_LordHuntShare": 0
+"AICTactics_LordHuntRetarget": true,
+"AICTactics_LordHuntShare": 50
 ```
 
 Keep the full siege at the human's home and send a third of the army after the hiding lord's host:

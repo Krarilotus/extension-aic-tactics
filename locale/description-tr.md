@@ -30,7 +30,7 @@ AIC Tactics, kurulu her yapay zekânın asker alımını, saldırılarını, bas
 - `AICTactics_SiegeScreenForward` (0–10): yakın dövüş kuşatma savunma grupları için araçların önündeki kare sayısı.
 - `AICTactics_SiegeScreenExtraGroups` (0–6): araçlar çalışırken ayrılan, her biri kendi aracında duran ek kuşatma savunma grupları; sur hücumundan önce birleşirler.
 
-Belirtilmeyen değerler modül ayarlarını kullanır (tüm gruplar, `Routes`, 12 kare, ek grup yok, 4'lük gruplar, halka 12, muhafız açık, 4 kare, ek muhafız grubu yok).
+Belirtilmeyen değerler modül ayarlarını kullanır (yalnızca ilk grup, `Native`, 12 kare, ek grup yok, 4'lük gruplar, halka 12, muhafız kapalı, 4 kare, ek muhafız grubu yok).
 
 ### Lord avı
 
@@ -42,7 +42,7 @@ Bir yapay zekâ, lordu bir müttefikin surları ardına sığınmış bir insan 
 - `AICTactics_LordHuntSwitchPercent` (0–100): saldırı sırasında yapay zekâ, yalnızca ordusunun bu payı kaldıkça kale değiştirir.
 - `AICTactics_LordHuntShare` (0–100): lordun kalesindeki ordudan onu avlayan pay; 0 avı kapatır.
 
-Belirtilmeyen değerler modül ayarlarını kullanır (açık, `HidingCastle`, 50, 80, 50). Yapay zekâ oyunculara yapılan yapay zekâ saldırıları değişmez.
+Belirtilmeyen değerler modül ayarlarını kullanır (kapalı, `HidingCastle`, 50, 80, 0). Yapay zekâ oyunculara yapılan yapay zekâ saldırıları değişmez.
 
 ### Müttefik yardımı
 
@@ -59,7 +59,7 @@ Yapay zekâ müttefikleri yalnızca istendiğinde değil, kendiliğinden de birb
 - `AICTactics_AllyGoldSharePercent` (0–100): ayrılan altının üstündeki altından bir mal hediyesine eklenen pay; 0 hiç eklemez, istenen altın yine gönderilir.
 - `AICTactics_AllyMonthlyGivePercent` (0–100): her maldan ayda verdiği pay.
 
-Belirtilmeyen değerler modül ayarlarını kullanır (açık, %75, 0 ay, kapalı, kapalı, açık, 1000, 300, %25, %30). Monsterfish'in Ally Support'una dayanır.
+Belirtilmeyen değerler modül ayarlarını kullanır (kapalı, %75, 0 ay, kapalı, kapalı, kapalı, 1000, 300, %25, %30). Monsterfish'in Ally Support'una dayanır.
 
 ### Baskınlar
 
@@ -71,11 +71,11 @@ Belirtilmeyen değerler modül ayarlarını kullanır (açık, %75, 0 ay, kapal�
 
 ### Kuşatma ve mühendisler
 
-- `SafeSiegePlacement` dolu inşaat yerlerinden kaçınır (modül varsayılanı AÇIK).
+- `SafeSiegePlacement` dolu inşaat yerlerinden kaçınır (modül varsayılanı KAPALI).
 - `ActualSiegeResourcePayment` malzeme ve altın ister; eksikleri yapay zekâ olağan ticaretle alır (KAPALI).
 - `CoordinatedSiegeHarassment` toplanan araçları erişilebilir atış konumlarına yollar (KAPALI). `SiegeHarassMinEngines` istenen en az araç sayısıdır (0–20, varsayılan 3); `HarassingSiegeEnginesMax` toplam sınır olarak kalır.
 - `LargerSiegeForces`, canlı ve boş saldırı mühendisleri ile geçerli yerler kaldıkça ayarlı araçları üretir (KAPALI). `SiegeForceMax` isteğe bağlı üst sınırdır (0–64); 0'da sayı mühendislerle belirlenir. `AttMaxEngineers` mürettebatı sınırlar.
 
-Gelişmiş kuşatma ayarları güvenli yerleşimi otomatik açar. Mühendis rol sayımı varsayılan olarak açıktır; Fixed Engineers mürettebat ve araçların yaşam döngüsünü yönetir.
+Gelişmiş kuşatma ayarları güvenli yerleşimi otomatik açar. Mühendis rol sayımı varsayılan olarak kapalıdır; Fixed Engineers mürettebat ve araçların yaşam döngüsünü yönetir.
 
 AIC'de belirtilen kuşatma ayarları modül varsayılanlarından önceliklidir.

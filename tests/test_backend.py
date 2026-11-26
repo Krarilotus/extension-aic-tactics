@@ -383,10 +383,8 @@ def test_patrol_field_values_are_validated():
       assert(pcall(prepare,4,{AICTactics_PatrolSpacing=40}))
       local fallback=require('config.attacks').fallbacks
       local orders,formation,spacing,extra,minimum,radius,screen,forward=fallback(nil)
-      assert(orders==1 and formation==3 and spacing==12)
-      -- Smarter Patrols' tested defaults: the AIC's own group count, groups of 4,
-      -- the native ring distance 12, siege screens 4 tiles in front of the engines.
-      assert(extra==0 and minimum==4 and radius==12 and screen==1 and forward==4)
+      assert(orders==0 and formation==0 and spacing==12)
+      assert(extra==0 and minimum==4 and radius==12 and screen==0 and forward==4)
       orders,formation,spacing=fallback({patrolOrders='Native',patrolFormation='Mirror',patrolSpacing=20})
       assert(orders==0 and formation==2 and spacing==20)
       assert(not pcall(fallback,{patrolSpacing=3}))
@@ -483,7 +481,7 @@ def test_lord_hunt_field_values_are_validated():
       assert(not pcall(prepare,4,{AICTactics_LordHuntSiege='Keep'}))
       local fallback=require('config.lord-hunt').fallbacks
       local retarget,siege,switch,share,split=fallback(nil)
-      assert(retarget==1 and siege==0 and switch==80 and share==50 and split==50)
+      assert(retarget==0 and siege==0 and switch==80 and share==0 and split==50)
       retarget,siege,switch,share,split=fallback({lordHuntRetarget=false,lordHuntSiege='HomeCastle',
         lordHuntSwitchPercent=60,lordHuntShare=0,lordHuntSplitShare=25})
       assert(retarget==0 and siege==1 and switch==60 and share==0 and split==25)

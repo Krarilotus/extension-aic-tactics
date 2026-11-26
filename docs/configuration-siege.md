@@ -8,7 +8,7 @@ placement fails, it restores the old reservation and
 returns the selected assault engineers to their attack group. `false` retains
 native placement. If absent, the
 AI inherits the module's **Protect units at siege sites** switch
-(`safeSiegePlacement`, default ON).
+(`safeSiegePlacement`, default OFF).
 Advanced siege features enable safe placement automatically. An AIC cannot
 set it to `false` while enabling one of them.
 Improved Siegeengines' tent spot options choose which attack-angle spots the

@@ -30,7 +30,7 @@ Una proporción de salidas activa `WeightedRoles` automáticamente. Las reglas d
 - `AICTactics_SiegeScreenForward` (0–10): casillas delante de las máquinas para los grupos cuerpo a cuerpo.
 - `AICTactics_SiegeScreenExtraGroups` (0–6): grupos de defensa del asedio extra mientras trabajan las máquinas, cada uno en su máquina; se reúnen antes del asalto a la muralla.
 
-Los valores omitidos usan los ajustes del módulo (todos los grupos, `Routes`, 12 casillas, sin grupos extra, grupos de 4, anillo 12, escolta activada, 4 casillas, sin grupos de escolta extra).
+Los valores omitidos usan los ajustes del módulo (solo el primer grupo, `Native`, 12 casillas, sin grupos extra, grupos de 4, anillo 12, escolta desactivada, 4 casillas, sin grupos de escolta extra).
 
 ### Caza del señor
 
@@ -42,7 +42,7 @@ Cuando una IA ataca a un jugador humano cuyo señor se refugia tras los muros de
 - `AICTactics_LordHuntSwitchPercent` (0–100): durante un ataque, la IA solo cambia de castillo mientras le quede esta parte del ejército.
 - `AICTactics_LordHuntShare` (0–100): parte del ejército en el castillo del señor que lo caza; 0 desactiva la caza.
 
-Los valores omitidos usan los ajustes del módulo (activado, `HidingCastle`, 50, 80, 50). Los ataques de IA contra jugadores IA no cambian.
+Los valores omitidos usan los ajustes del módulo (desactivado, `HidingCastle`, 50, 80, 0). Los ataques de IA contra jugadores IA no cambian.
 
 ### Ayuda a aliados
 
@@ -59,7 +59,7 @@ Los aliados IA se ayudan entre sí y a ti, no solo cuando lo pides.
 - `AICTactics_AllyGoldSharePercent` (0–100): parte de su oro por encima de la reserva que añade a un regalo de bienes; 0 no añade nada, el oro pedido se envía igual.
 - `AICTactics_AllyMonthlyGivePercent` (0–100): parte de cada bien que regala al mes.
 
-Los valores omitidos usan los ajustes del módulo (activado, 75 %, 0 meses, desactivado, desactivado, activado, 1000, 300, 25 %, 30 %). Basado en Ally Support de Monsterfish.
+Los valores omitidos usan los ajustes del módulo (desactivado, 75 %, 0 meses, desactivado, desactivado, desactivado, 1000, 300, 25 %, 30 %). Basado en Ally Support de Monsterfish.
 
 ### Incursiones
 
@@ -71,11 +71,11 @@ Los cinco campos posteriores a `RaidTargetPolicy` requieren una política nueva.
 
 ### Asedio e ingenieros
 
-- `SafeSiegePlacement` evita lugares de construcción ocupados (módulo: ACTIVADO).
+- `SafeSiegePlacement` evita lugares de construcción ocupados (módulo: DESACTIVADO).
 - `ActualSiegeResourcePayment` exige materiales y oro; la IA compra lo que falte mediante su comercio normal (DESACTIVADO).
 - `CoordinatedSiegeHarassment` envía un grupo de máquinas a posiciones de tiro accesibles (DESACTIVADO). `SiegeHarassMinEngines` fija el mínimo deseado (0–20, valor 3); `HarassingSiegeEnginesMax` sigue limitando el total.
 - `LargerSiegeForces` repite la composición mientras queden ingenieros de ataque vivos y libres y sitios válidos (DESACTIVADO). `SiegeForceMax` es un límite opcional (0–64); con 0 decide la cantidad de ingenieros. `AttMaxEngineers` limita las dotaciones.
 
-El emplazamiento seguro se activa con las opciones avanzadas de asedio. El recuento de funciones de ingeniero viene activado; Fixed Engineers gestiona la vida de las dotaciones.
+El emplazamiento seguro se activa con las opciones avanzadas de asedio. El recuento de funciones de ingeniero viene desactivado; Fixed Engineers gestiona la vida de las dotaciones.
 
 Los valores de asedio del AIC prevalecen sobre los del módulo.

@@ -1,22 +1,22 @@
 # Attack patrol and siege-defence configuration
 
-The native game recruits up to two attack patrol groups (`AttUnitPatrolGroupsCount` 2) but orders only the first; the second waits at its staging point for the whole assault. Its siege-defence groups (`AttUnitSiegeDef`) walk together from one siege engine to the next. With AIC Tactics active, every patrol group joins in, a patrol can split into more groups during an attack, and siege-defence groups stand on the engines' approach, split into more groups if wanted. Per-character AIC fields change this for one AI; module settings in Customizations are the default for every AI.
+The native game recruits up to two attack patrol groups (`AttUnitPatrolGroupsCount` 2) but orders only the first; the second waits at its staging point for the whole assault. Its siege-defence groups (`AttUnitSiegeDef`) walk together from one siege engine to the next. AIC Tactics can send every patrol group in, split a patrol into more groups during an attack, and station siege-defence groups on the engines' approach, split into more groups if wanted. Per-character AIC fields change this for one AI; module settings in Customizations are the default for every AI and keep the game's behaviour unless changed.
 
 ## Fields
 
 | AIC field | Module setting | Values | Default | Effect |
 | --- | --- | --- | --- | --- |
-| `AICTactics_PatrolOrders` | `patrolOrders` | `AllGroups`, `Native` | `AllGroups` | `AllGroups` orders every patrol group after the first whenever the game re-orders its first patrol (attack states 3–5). `Native` keeps the game's single-group order; the fields below then have no effect. |
-| `AICTactics_PatrolFormation` | `patrolFormation` | `Routes`, `Wing`, `Mirror`, `Native` | `Routes` | Where the groups after the first go. See [Formations](#formations). |
+| `AICTactics_PatrolOrders` | `patrolOrders` | `AllGroups`, `Native` | `Native` | `AllGroups` orders every patrol group after the first whenever the game re-orders its first patrol (attack states 3–5). `Native` keeps the game's single-group order; the fields below then have no effect. |
+| `AICTactics_PatrolFormation` | `patrolFormation` | `Routes`, `Wing`, `Mirror`, `Native` | `Native` | Where the groups after the first go. See [Formations](#formations). |
 | `AICTactics_PatrolSpacing` | `patrolSpacing` | 4–40 tiles | 12 | Distance between neighbouring groups in `Wing` and `Mirror` (diagonal approaches use an equivalent shorter step). |
 | `AICTactics_PatrolExtraGroups` | `patrolExtraGroups` | 0–6 | 0 | Extra groups split off the native patrol groups while the army attacks. 0 keeps the AI's own groups. |
 | `AICTactics_PatrolMinSize` | `patrolMinSize` | 1–50 units | 4 | A patrol or the siege defence is only split as far as every group keeps this many units. |
 | `AICTactics_PatrolRadius` | `patrolRadius` | 4–100 | 12 | Walking distance from the target castle of the ring that `Routes` follow. 12 is the ring of the game's own patrol. |
-| `AICTactics_SiegeScreen` | `siegeScreen` | `EngineApproach`, `Native` | `EngineApproach` | `EngineApproach` stations the siege-defence groups in front of their engines while the engines work. `Native` keeps the game's rally. |
+| `AICTactics_SiegeScreen` | `siegeScreen` | `EngineApproach`, `Native` | `Native` | `EngineApproach` stations the siege-defence groups in front of their engines while the engines work. `Native` keeps the game's rally. |
 | `AICTactics_SiegeScreenForward` | `siegeScreenForward` | 0–10 tiles | 4 | How far in front of the engines, toward the target castle, melee siege-defence groups stand. Ranged groups stay at the engines. |
 | `AICTactics_SiegeScreenExtraGroups` | `siegeScreenExtraGroups` | 0–6 | 0 | Extra groups split off the two native siege-defence groups while the engines work (states 3–4), with `EngineApproach`. 0 keeps the AI's own groups. See [Extra siege-defence groups](#extra-siege-defence-groups). |
 
-An absent field uses the module setting; an explicit value changes it for that character only. The split and screen defaults are those Smarter Patrols was tested with.
+An absent field uses the module setting; an explicit value changes it for that character only. The numeric defaults are those Smarter Patrols was tested with.
 
 ## Formations
 
@@ -73,10 +73,10 @@ The game has two siege-defence slots (190 and 191, `AttUnitSiegeDefGroupsCount` 
 
 ## Example
 
-To keep the game's single patrol order for one AI while the module setting is on:
+To send every patrol group of one AI into assaults while the module setting is off:
 
 ```json
-"AICTactics_PatrolOrders": "Native"
+"AICTactics_PatrolOrders": "AllGroups"
 ```
 
 To give an AI two wing patrols 14 tiles apart:
@@ -115,7 +115,8 @@ More fragments are in `examples/attack-behaviour/`. They are examples and test f
 
 Smarter Patrols by Monsterfish, under GPL-3.0; see [CREDITS.md](../CREDITS.md).
 
-`AICTactics_SiegeTowerCrew` is a boolean and defaults to `true`. With compatible
+`AICTactics_SiegeTowerCrew` is a boolean; an absent field uses the module setting
+`siegeTowerCrew` (default off). With compatible
 Improved Siegeengines climbing active, the AI assigns troops from its current
-siege wave to wall-bound towers. Set it to `false` to retain standard boarding
+siege wave to wall-bound towers every 32 ticks. `false` keeps standard boarding
 for this character.

@@ -54,10 +54,10 @@ end
 -- Module settings: the defaults for every AI.
 function M.fallbacks(config)
   local retarget = config and config.lordHuntRetarget
-  if retarget == nil then retarget = true end
+  if retarget == nil then retarget = false end
   local siege = config and config.lordHuntSiege or 'HidingCastle'
   local switch = config and config.lordHuntSwitchPercent or 80
-  local share = config and config.lordHuntShare or 50
+  local share = config and config.lordHuntShare or 0
   local split = config and config.lordHuntSplitShare or 50
   assert(type(retarget) == 'boolean', 'AIC Tactics: lordHuntRetarget must be boolean')
   assert(sieges[siege] ~= nil, 'AIC Tactics: lordHuntSiege must be HidingCastle or HomeCastle')

@@ -71,11 +71,11 @@ def test_field_values_are_validated():
     ''')
 
 
-def test_module_settings_default_on_and_validate():
+def test_module_settings_default_off_and_validate():
     backend().execute('''
       local fallbacks=require('config.allies').fallbacks
       local words=fallbacks(nil)
-      assert(#words==10 and words[1]==1 and words[2]==1 and words[3]==1000 and words[4]==300
+      assert(#words==10 and words[1]==0 and words[2]==0 and words[3]==1000 and words[4]==300
         and words[5]==25 and words[6]==30 and words[7]==75 and words[8]==0 and words[9]==0
         and words[10]==0)
       words=fallbacks({allyRelief=false,allyGoods=false,allyGoldKeep=0,allyArmySharePercent=100})
@@ -195,9 +195,7 @@ def test_schema_options_and_locales_match_the_lua_bounds():
         entry = schema['properties'][field]
         assert entry['type'] == 'integer' and entry['minimum'] == low and entry['maximum'] == high
         assert [option(name, key) for key in ('min', 'max', 'value')] == [str(low), str(high), str(default)]
-    for name in ('allyRelief', 'allyGoods'):
-        assert option(name, 'value') == 'true'
-    for name in ('allyReliefGates', 'allyReliefKeep'):
+    for name in ('allyRelief', 'allyGoods', 'allyReliefGates', 'allyReliefKeep'):
         assert option(name, 'value') == 'false'
     locales = sorted((ROOT / 'locale').glob('*.yml'))
     assert len(locales) == 9

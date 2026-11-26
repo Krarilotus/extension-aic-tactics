@@ -9,7 +9,7 @@ options:
   url: aic-tactics.correctEngineerRoleCounting
   contents:
     type: boolean
-    value: true
+    value: false
 - category: ['{{ai}}', '{{fixes}}']
   name: safeSiegePlacement
   header: '{{safeSiegePlacement}}'
@@ -18,7 +18,7 @@ options:
   url: aic-tactics.safeSiegePlacement
   contents:
     type: boolean
-    value: true
+    value: false
 - category: ['{{ai}}', '{{improvements}}']
   name: actualSiegeResourcePayment
   header: '{{actualSiegeResourcePayment}}'
@@ -27,7 +27,7 @@ options:
   url: aic-tactics.actualSiegeResourcePayment
   contents:
     type: boolean
-    value: true
+    value: false
 - category: ['{{ai}}', '{{improvements}}']
   name: coordinatedSiegeHarassment
   header: '{{coordinatedSiegeHarassment}}'
@@ -36,7 +36,7 @@ options:
   url: aic-tactics.coordinatedSiegeHarassment
   contents:
     type: boolean
-    value: true
+    value: false
 - category: ['{{ai}}', '{{improvements}}']
   name: siegeHarassMinEngines
   header: '{{siegeHarassMinEngines}}'
@@ -56,7 +56,7 @@ options:
   url: aic-tactics.largerSiegeForces
   contents:
     type: boolean
-    value: true
+    value: false
 - category: ['{{ai}}', '{{improvements}}']
   name: siegeForceMax
   header: '{{siegeForceMax}}'
@@ -80,7 +80,7 @@ options:
       text: '{{patrolOrders_all}}'
     - name: Native
       text: '{{patrolOrders_native}}'
-    value: AllGroups
+    value: Native
 - category: ['{{ai}}', '{{improvements}}']
   name: patrolFormation
   header: '{{patrolFormation}}'
@@ -97,7 +97,7 @@ options:
       text: '{{patrolFormation_routes}}'
     - name: Native
       text: '{{patrolFormation_native}}'
-    value: Routes
+    value: Native
 - category: ['{{ai}}', '{{improvements}}']
   name: patrolSpacing
   header: '{{patrolSpacing}}'
@@ -117,7 +117,7 @@ options:
   url: aic-tactics.lordHuntRetarget
   contents:
     type: boolean
-    value: true
+    value: false
 - category: ['{{ai}}', '{{improvements}}']
   name: allyRelief
   header: '{{allyRelief}}'
@@ -126,7 +126,7 @@ options:
   url: aic-tactics.allyRelief
   contents:
     type: boolean
-    value: true
+    value: false
 - category: ['{{ai}}', '{{improvements}}']
   name: lordHuntSiege
   header: '{{lordHuntSiege}}'
@@ -170,7 +170,7 @@ options:
   url: aic-tactics.lordHuntShare
   contents:
     type: integer
-    value: 50
+    value: 0
     min: 0
     max: 100
 - category: ['{{ai}}', '{{improvements}}']
@@ -218,7 +218,7 @@ options:
       text: '{{siegeScreen_engineApproach}}'
     - name: Native
       text: '{{siegeScreen_native}}'
-    value: EngineApproach
+    value: Native
 - category: ['{{ai}}', '{{improvements}}']
   name: siegeScreenForward
   header: '{{siegeScreenForward}}'
@@ -241,6 +241,15 @@ options:
     value: 0
     min: 0
     max: 6
+- category: ['{{ai}}', '{{improvements}}']
+  name: siegeTowerCrew
+  header: '{{siegeTowerCrew}}'
+  text: '{{siegeTowerCrew_descr}}'
+  display: UCP2Switch
+  url: aic-tactics.siegeTowerCrew
+  contents:
+    type: boolean
+    value: false
 - category: ['{{ai}}', '{{improvements}}']
   name: allyArmySharePercent
   header: '{{allyArmySharePercent}}'
@@ -289,7 +298,7 @@ options:
   url: aic-tactics.allyGoods
   contents:
     type: boolean
-    value: true
+    value: false
 - category: ['{{ai}}', '{{improvements}}']
   name: allyGoldKeep
   header: '{{allyGoldKeep}}'

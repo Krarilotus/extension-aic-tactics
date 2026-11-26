@@ -278,7 +278,7 @@
     },
     "SafeSiegePlacement": {
       "type": "boolean",
-      "description": "Protect friendly units at siege construction sites. Module default ON; advanced siege policies require it."
+      "description": "Protect friendly units at siege construction sites. Module default OFF; advanced siege policies require it."
     },
     "ActualSiegeResourcePayment": {
       "type": "boolean",
@@ -309,7 +309,7 @@
         "Native",
         "AllGroups"
       ],
-      "description": "AllGroups also sends the second native attack patrol group (AttUnitPatrolGroupsCount 2) into assaults; Native orders only the first. Absent uses the module setting (default AllGroups)."
+      "description": "AllGroups also sends the second native attack patrol group (AttUnitPatrolGroupsCount 2) into assaults; Native orders only the first. Absent uses the module setting (default Native)."
     },
     "AICTactics_PatrolFormation": {
       "enum": [
@@ -318,7 +318,7 @@
         "Mirror",
         "Routes"
       ],
-      "description": "Where the patrol groups after the first go: Wing beside it in a line, Mirror the other side of the target keep, Routes on Smarter Patrols' routes (group 2 circles the target castle one way, group 3 sweeps along its front, group 4 circles the other way, later groups a quarter circle behind), Native their own route. Absent uses the module setting (default Routes)."
+      "description": "Where the patrol groups after the first go: Wing beside it in a line, Mirror the other side of the target keep, Routes on Smarter Patrols' routes (group 2 circles the target castle one way, group 3 sweeps along its front, group 4 circles the other way, later groups a quarter circle behind), Native their own route. Absent uses the module setting (default Native)."
     },
     "AICTactics_PatrolSpacing": {
       "type": "integer",
@@ -346,15 +346,14 @@
     },
     "AICTactics_SiegeTowerCrew": {
       "type": "boolean",
-      "default": true,
-      "description": "Board troops from this AI's siege wave on its wall-bound towers when climbing is active."
+      "description": "Board troops from this AI's siege wave on its wall-bound towers when climbing is active. Absent uses the module setting (default false)."
     },
     "AICTactics_SiegeScreen": {
       "enum": [
         "Native",
         "EngineApproach"
       ],
-      "description": "EngineApproach stations the siege-defence groups (AttUnitSiegeDef) on the engines' approach, the second group at a different engine, until the native wall assault takes over; Native keeps the game's rally. Absent uses the module setting (default EngineApproach)."
+      "description": "EngineApproach stations the siege-defence groups (AttUnitSiegeDef) on the engines' approach, the second group at a different engine, until the native wall assault takes over; Native keeps the game's rally. Absent uses the module setting (default Native)."
     },
     "AICTactics_SiegeScreenForward": {
       "type": "integer",
@@ -370,7 +369,7 @@
     },
     "AICTactics_LordHuntRetarget": {
       "type": "boolean",
-      "description": "When the attacked human player's lord shelters inside an ally's walls that the attackers cannot enter, attack that castle with the full native siege. Absent uses the module setting (default true)."
+      "description": "When the attacked human player's lord shelters inside an ally's walls that the attackers cannot enter, attack that castle with the full native siege. Absent uses the module setting (default false)."
     },
     "AICTactics_LordHuntSiege": {
       "enum": [
@@ -389,7 +388,7 @@
       "type": "integer",
       "minimum": 0,
       "maximum": 100,
-      "description": "Percent of the army attacking the lord's castle that goes for the lord once the way to him is open; 0 turns the hunt off. Absent uses the module setting (default 50)."
+      "description": "Percent of the army attacking the lord's castle that goes for the lord once the way to him is open; 0 turns the hunt off. Absent uses the module setting (default 0)."
     },
     "AICTactics_LordHuntSplitShare": {
       "type": "integer",
@@ -399,11 +398,11 @@
     },
     "AICTactics_AllyRelief": {
       "type": "boolean",
-      "description": "Send part of the idle attack army to an ally (human or AI) whose home is under attack, and when a human ally asks for help. false keeps the native help. Absent uses the module setting (default true)."
+      "description": "Send part of the idle attack army to an ally (human or AI) whose home is under attack, and when a human ally asks for help. false keeps the native help. Absent uses the module setting (default false)."
     },
     "AICTactics_AllyGoods": {
       "type": "boolean",
-      "description": "Ask AI allies for goods and gold this AI cannot buy, give to them, and send gold to a human ally who asks. false keeps native trade. Absent uses the module setting (default true)."
+      "description": "Ask AI allies for goods and gold this AI cannot buy, give to them, and send gold to a human ally who asks. false keeps native trade. Absent uses the module setting (default false)."
     },
     "AICTactics_AllyGoldKeep": {
       "type": "integer",

@@ -19,6 +19,6 @@ Keep existing assault-switch, wave-dispatch, growth and cap options.
 
 Installing the module alone changes no global Legacy options: a personality
 without new recruitment, target or raid settings keeps those native policies.
-The default-ON engineer-counting and safe-placement corrections are separate
-module switches. Required Legacy values belong to an AI pack that opts into the
+The engineer-counting and safe-placement corrections are separate module
+switches, off by default. Required Legacy values belong to an AI pack that opts into the
 matching tactics; runtime preflight also rejects conflicting direct launches.

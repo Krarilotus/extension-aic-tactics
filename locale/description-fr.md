@@ -30,7 +30,7 @@ Une part de sortie active `WeightedRoles` automatiquement. Les règles de situat
 - `AICTactics_SiegeScreenForward` (0–10) : cases devant les engins pour les groupes de mêlée.
 - `AICTactics_SiegeScreenExtraGroups` (0–6) : groupes de défense de siège en plus pendant que les engins travaillent, chacun à son engin ; ils se regroupent avant l’assaut des murs.
 
-Les valeurs omises suivent les réglages du module (tous les groupes, `Routes`, 12 cases, aucun groupe en plus, groupes de 4, anneau 12, escorte activée, 4 cases, aucun groupe d’escorte en plus).
+Les valeurs omises suivent les réglages du module (premier groupe seulement, `Native`, 12 cases, aucun groupe en plus, groupes de 4, anneau 12, escorte désactivée, 4 cases, aucun groupe d’escorte en plus).
 
 ### Chasse au seigneur
 
@@ -42,7 +42,7 @@ Quand une IA attaque un joueur humain dont le seigneur s’abrite derrière les 
 - `AICTactics_LordHuntSwitchPercent` (0–100) : pendant une attaque, l’IA ne change de château que s’il lui reste cette part de son armée.
 - `AICTactics_LordHuntShare` (0–100) : part de l’armée au château du seigneur qui le traque ; 0 désactive la chasse.
 
-Les valeurs omises suivent les réglages du module (activé, `HidingCastle`, 50, 80, 50). Les attaques d’IA contre des joueurs IA ne changent pas.
+Les valeurs omises suivent les réglages du module (désactivé, `HidingCastle`, 50, 80, 0). Les attaques d’IA contre des joueurs IA ne changent pas.
 
 ### Aide aux alliés
 
@@ -59,7 +59,7 @@ Les alliés IA s’entraident et vous aident, pas seulement sur demande.
 - `AICTactics_AllyGoldSharePercent` (0–100) : part de son or au-delà de la réserve jointe à un don de biens ; 0 n’ajoute rien, l’or demandé reste envoyé.
 - `AICTactics_AllyMonthlyGivePercent` (0–100) : part de chaque bien donnée par mois.
 
-Les valeurs omises suivent les réglages du module (activé, 75 %, 0 mois, désactivé, désactivé, activé, 1000, 300, 25 %, 30 %). D’après Ally Support de Monsterfish.
+Les valeurs omises suivent les réglages du module (désactivé, 75 %, 0 mois, désactivé, désactivé, désactivé, 1000, 300, 25 %, 30 %). D’après Ally Support de Monsterfish.
 
 ### Raids
 
@@ -71,11 +71,11 @@ Les cinq champs après `RaidTargetPolicy` exigent une nouvelle politique de raid
 
 ### Siège et ingénieurs
 
-- `SafeSiegePlacement` évite les emplacements occupés (module : ACTIVÉ).
+- `SafeSiegePlacement` évite les emplacements occupés (module : DÉSACTIVÉ).
 - `ActualSiegeResourcePayment` exige matériaux et or ; l’IA achète les manques par son commerce normal (DÉSACTIVÉ).
 - `CoordinatedSiegeHarassment` envoie des engins rassemblés vers des positions de tir accessibles (DÉSACTIVÉ). `SiegeHarassMinEngines` fixe le minimum souhaité (0–20, défaut 3) ; `HarassingSiegeEnginesMax` reste la limite totale.
 - `LargerSiegeForces` répète la composition tant que des ingénieurs d’attaque vivants et libres et des sites valides restent disponibles (DÉSACTIVÉ). `SiegeForceMax` est un plafond facultatif (0–64) ; 0 laisse décider le nombre d’ingénieurs. `AttMaxEngineers` limite les équipages.
 
-Le placement sûr s’active avec les options de siège avancées. Le décompte des rôles d’ingénieur est activé par défaut ; Fixed Engineers gère le cycle de vie des équipages.
+Le placement sûr s’active avec les options de siège avancées. Le décompte des rôles d’ingénieur est désactivé par défaut ; Fixed Engineers gère le cycle de vie des équipages.
 
 Les valeurs de siège définies dans l’AIC priment sur celles du module.

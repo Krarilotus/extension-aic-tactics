@@ -30,7 +30,7 @@ AIC Tactics 可分别调整每个已安装 AI 的招兵、进攻、袭扰和攻�
 - `AICTactics_SiegeScreenForward`（0–10）：近战攻城护卫队在器械前方的格数。
 - `AICTactics_SiegeScreenExtraGroups`（0–6）：器械作业时额外分出的攻城护卫队，各守一台器械，攻打城墙前重新合并。
 
-未设置的值使用模块设置（全部队伍、`Routes`、12 格、无额外队伍、每队 4 人、环线 12、开启攻城护卫、4 格、无额外护卫队）。
+未设置的值使用模块设置（仅第一队、`Native`、12 格、无额外队伍、每队 4 人、环线 12、关闭攻城护卫、4 格、无额外护卫队）。
 
 ### 追击领主
 
@@ -42,7 +42,7 @@ AI 进攻人类玩家时，若其领主躲在盟友城墙内，AI 会围攻那�
 - `AICTactics_LordHuntSwitchPercent`（0–100）：进攻中，只有剩余兵力不低于此比例时 AI 才会更换城堡。
 - `AICTactics_LordHuntShare`（0–100）：在领主所在城堡处追击领主的兵力比例；0 关闭追击。
 
-未设置的值使用模块设置（开启、`HidingCastle`、50、80、50）。AI 对 AI 玩家的进攻不变。
+未设置的值使用模块设置（关闭、`HidingCastle`、50、80、0）。AI 对 AI 玩家的进攻不变。
 
 ### 援助盟友
 
@@ -59,7 +59,7 @@ AI 盟友会互相援助，也会援助你，而不只是在你请求时。
 - `AICTactics_AllyGoldSharePercent`（0–100）：随物资附赠的、超出保留金币部分的比例；0 不附赠，请求的金币仍会送出。
 - `AICTactics_AllyMonthlyGivePercent`（0–100）：每月赠出每种物资的比例。
 
-未设置的值使用模块设置（开启、75%、0 个月、关闭、关闭、开启、1000、300、25%、30%）。基于 Monsterfish 的 Ally Support。
+未设置的值使用模块设置（关闭、75%、0 个月、关闭、关闭、关闭、1000、300、25%、30%）。基于 Monsterfish 的 Ally Support。
 
 ### 袭扰
 
@@ -71,11 +71,11 @@ AI 盟友会互相援助，也会援助你，而不只是在你请求时。
 
 ### 攻城与工程兵
 
-- `SafeSiegePlacement` 避开已被占用的建造位置（模块默认开启）。
+- `SafeSiegePlacement` 避开已被占用的建造位置（模块默认关闭）。
 - `ActualSiegeResourcePayment` 要求材料和金币；AI 通过正常贸易购买缺少的资源（默认关闭）。
 - `CoordinatedSiegeHarassment` 集结攻城器械，再前往可到达的射击位置（默认关闭）。`SiegeHarassMinEngines` 设置期望的最少数量（0–20，默认 3）；`HarassingSiegeEnginesMax` 仍限制总数。
 - `LargerSiegeForces` 在仍有存活且未分配的进攻工程兵和有效建造地点时循环使用器械配置（默认关闭）。`SiegeForceMax` 可选数量上限（0–64）；0 由可用工程兵决定。`AttMaxEngineers` 仍限制操作人员。
 
-启用高级攻城功能时，安全选址自动生效。工程兵角色计数默认开启；Fixed Engineers 负责器械和操作人员的生命周期。
+启用高级攻城功能时，安全选址自动生效。工程兵角色计数默认关闭；Fixed Engineers 负责器械和操作人员的生命周期。
 
 攻城 AIC 设置优先于模块默认值。

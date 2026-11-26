@@ -15,15 +15,15 @@ return {
     local identity = require('build-identity')
     local native = require('native').new(nativeGame)
     local safePlacement = config and config.safeSiegePlacement
-    if safePlacement == nil then safePlacement = true end
+    if safePlacement == nil then safePlacement = false end
     local siegePayment = config and config.actualSiegeResourcePayment
-    if siegePayment == nil then siegePayment = true end
+    if siegePayment == nil then siegePayment = false end
     local siegeHarassment = config and config.coordinatedSiegeHarassment
-    if siegeHarassment == nil then siegeHarassment = true end
+    if siegeHarassment == nil then siegeHarassment = false end
     local siegeHarassMinimum = config and config.siegeHarassMinEngines
     if siegeHarassMinimum == nil then siegeHarassMinimum = 3 end
     local largerSiege = config and config.largerSiegeForces
-    if largerSiege == nil then largerSiege = true end
+    if largerSiege == nil then largerSiege = false end
     local siegeForceMaximum = config and config.siegeForceMax
     if siegeForceMaximum == nil then siegeForceMaximum = 0 end
     -- The other siege features need safe placement, so it is configured first.
@@ -35,7 +35,7 @@ return {
     hooks.registerHookCallback('afterInit', native.refreshSiegeRanges)
     native.configureLargerSiegeForce(largerSiege, siegeForceMaximum)
     local roleCounting = config and config.correctEngineerRoleCounting
-    if roleCounting == nil then roleCounting = true end
+    if roleCounting == nil then roleCounting = false end
     native.configureEngineerRoles(roleCounting)
     native.configureAttackPatrols(require('config.attacks').fallbacks(config))
     native.configureLordHunt(require('config.lord-hunt').fallbacks(config))
@@ -48,7 +48,8 @@ return {
       'AIC Tactics requires full multiplayer content admission')
     local backend=require('config.backend').new(native)
     require('config.provider').register(modules.aicloader, backend)
-    require('siege-tower-crew').register(modules['improved-siegeengines'], native, nativeGame)
+    require('siege-tower-crew').register(modules['improved-siegeengines'], native, nativeGame,
+      config and config.siegeTowerCrew == true)
     -- Legacy's target choice and recruitment interval feed AIC decisions, so
     -- the match identity includes them.
     core.writeInteger(native.legacyTargetPolicy, native.legacyTargetChoice())
