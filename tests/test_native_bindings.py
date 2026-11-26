@@ -23,8 +23,6 @@ def test_entry_point_resolves_on_load_and_passes_bindings_on_enable():
         assert(phase=='enable' and resolved==game and resolves==1)
         error('native enable reached',0)
       end}
-      package.loaded['build-identity']={}
-      package.loaded['package-identity']={verify=function()end}
       modules={aicloader={registerAICUpdateProvider=function()end},
         ['map-extensions']={requiredStateVersion=function()return 1 end,
           getNativeSaveInterface=function()return {failureHandling=1,readContext=1} end}}

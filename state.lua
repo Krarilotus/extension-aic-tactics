@@ -23,8 +23,8 @@ local function number(bytes, offset)
   return a + b * 256 + c * 65536 + d * 16777216
 end
 
-function M.new(native, legacyInterval, fingerprint)
-  assert(type(fingerprint) == 'string' and #fingerprint == 64, 'AIC Tactics: missing package fingerprint')
+function M.new(native, legacyInterval, version)
+  assert(type(version) == 'string', 'AIC Tactics: missing module version')
   assert(native.configurationSize == 352, 'AIC Tactics: incompatible save ABI')
   assert(native.siegeHarassPlanSize == 36, 'AIC Tactics: incompatible siege plan ABI')
   local combat = require('combat-state').new(native)
@@ -88,7 +88,7 @@ function M.new(native, legacyInterval, fingerprint)
     return false
   end
   local function identity()
-    return header .. fingerprint .. word(legacyInterval and 1 or 0) .. word(core.readInteger(native.game.initialDefenseTicks))
+    return header .. word(legacyInterval and 1 or 0) .. word(core.readInteger(native.game.initialDefenseTicks))
       .. word(core.readInteger(native.legacyTargetPolicy))
       .. word(core.readInteger(native.safePlacementFallback))
       .. word(core.readInteger(native.engineerRoleFallback))
@@ -109,7 +109,7 @@ function M.new(native, legacyInterval, fingerprint)
   -- Those settings stay out of save admission: a save reloads with changed
   -- patrol settings and simply follows them from the next native decision.
   local function matchIdentity()
-    local result = {identity()}
+    local result = {identity(), version}
     for _, name in ipairs(patrolArrays) do result[#result + 1] = core.readString(native[name] + 4, 16 * 4) end
     for _, name in ipairs(patrolArrays) do result[#result + 1] = word(core.readInteger(native[name .. 'Fallback'])) end
     for _, name in ipairs(huntArrays) do result[#result + 1] = core.readString(native[name] + 4, 16 * 4) end
@@ -144,8 +144,11 @@ function M.new(native, legacyInterval, fingerprint)
   local function validate(bytes)
     assert(type(bytes) == 'string', 'AIC Tactics: missing saved recruitment state')
     local expected = identity()
-    assert(#bytes == #expected + 8 + (censusWords + combat.wordCount + army.wordCount + raids.wordCount + harassWords + groups.wordCount + hunts.wordCount + routes.wordCount + allies.wordCount) * 4 and bytes:sub(1, #expected) == expected,
-      'AIC Tactics: this save requires its original AIC configuration and module version')
+    local size = #expected + 8 + (censusWords + combat.wordCount + army.wordCount + raids.wordCount + harassWords + groups.wordCount + hunts.wordCount + routes.wordCount + allies.wordCount) * 4
+    -- Earlier saves carry a 64-character package fingerprint after the header.
+    if #bytes == size + 64 and bytes:sub(#header + 1, #header + 64):match('^%x+$') then bytes = bytes:sub(1, #header) .. bytes:sub(#header + 65) end
+    assert(#bytes == size and bytes:sub(1, #expected) == expected,
+      'AIC Tactics: this save requires its original AIC configuration')
     local offset = #expected + 1
     local tick, valid = number(bytes, offset), number(bytes, offset + 4)
     assert(valid <= 1, 'AIC Tactics: invalid saved defense census')

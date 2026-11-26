@@ -12,7 +12,6 @@ return {
       and mapState:getNativeSaveInterface()
     assert(saveInterface and saveInterface.failureHandling == 1 and saveInterface.readContext == 1,
       'AIC Tactics requires Map Extensions 1.1.4 for native load context and rejected state handling')
-    local identity = require('build-identity')
     local native = require('native').new(nativeGame)
     local safePlacement = config and config.safeSiegePlacement
     if safePlacement == nil then safePlacement = false end
@@ -43,9 +42,9 @@ return {
     local diagnostics = config and config.diagnostics
     assert(diagnostics == nil or type(diagnostics) == 'boolean', 'AIC Tactics: diagnostics must be boolean')
     core.writeInteger(native.diagnostics, diagnostics and 1 or 0)
-    local protocol=assert(modules.protocol,'AIC Tactics requires Protocol 1.1.0')
+    local protocol=assert(modules.protocol,'AIC Tactics requires Protocol 1.1.10')
     assert(type(protocol.multiplayerAdmissionVersion)=='function' and protocol:multiplayerAdmissionVersion()==1,
-      'AIC Tactics requires full multiplayer content admission')
+      'AIC Tactics requires Protocol multiplayer admission')
     local backend=require('config.backend').new(native)
     require('config.provider').register(modules.aicloader, backend)
     require('siege-tower-crew').register(modules['improved-siegeengines'], native, nativeGame,
@@ -53,20 +52,19 @@ return {
     -- Legacy's target choice and recruitment interval feed AIC decisions, so
     -- the match identity includes them.
     core.writeInteger(native.legacyTargetPolicy, native.legacyTargetChoice())
-    self.recruitmentState = require('state').new(native, native.intervalForced(), identity.sha256)
-    local packageVerified = false
+    local version
+    for _, extension in ipairs(allActiveExtensions) do
+      if extension.name == 'aic-tactics' then version = extension.version end
+    end
+    self.recruitmentState = require('state').new(native, native.intervalForced(), version)
     protocol:registerMultiplayerAdmission('aic-tactics',function()
-      if not packageVerified then
-        require('package-identity').verify(identity)
-        packageVerified = true
-      end
       backend.freezeMultiplayer()
       return sha.sha256(self.recruitmentState.matchIdentity())
     end,function(reason)
       -- The existing chat owner displays locally; do not broadcast another
       -- admission message or submit a simulation command for presentation.
       modules.chat:fireChatEvent(reason=='mismatch'
-        and 'AIC Tactics: settings differ. Use the same extension files and AI settings.'
+        and 'AIC Tactics: settings differ. Use the same extension versions and AI settings.'
         or reason=='error' and 'AIC Tactics: settings could not be verified. Check the UCP log and restart the game.'
         or 'AIC Tactics: checking settings. Press Start again when all players have responded.',0,0)
     end)
@@ -80,7 +78,7 @@ return {
       end
     end
     mapState:registerSection('aic-tactics', callbacks,
-      {required=true, format='aic-tactics-state-14', fingerprint=identity.sha256})
+      {required=true, format='aic-tactics-state-14'})
     log(INFO, string.format('[aic-tactics] configuration=0x%X size=%d observations=0x%X size=%d',
       native.configuration, native.configurationSize, native.observations, native.observationSize))
     local addresses = {}

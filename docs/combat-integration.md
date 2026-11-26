@@ -154,14 +154,13 @@ simulation state. Preset weights and maximum group count still need measured fix
 ## Save, replay and performance gates
 
 Configuration ABI is 344 bytes per character. State format 7 includes native AIC
-configuration, package fingerprint, census snapshots, incidents, commitments,
+configuration, census snapshots, incidents, commitments,
 reserve/raid identities and scheduler cursors. All payload fields validate before
 state writes. Map Extensions 1.1.0 adds required-provider admission and read-only
 capture; the dependent recorder change carries those entries through its existing
 custom ZIP and native restore path. Existing recordings require their exact original
 artifacts; this development format does not upgrade older policy saves silently.
 
-Startup verifies installed package contents through the framework VFS and SHA256.
 No hashes, logging, files or dynamic allocation run in native policy callbacks.
 Fixed memory/work bounds are implementation properties, **not measured speed or
 replay acceptance**. Native/default equivalence, gameplay handovers, two physical

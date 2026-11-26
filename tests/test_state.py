@@ -40,7 +40,7 @@ def state():
         raidStateSize=96,raidStates=80000,raidGroupCensus=81000,
         raidUnitPower=90000,raidStaticDefenses=130000,raidBuildingCensusTick=170000,
         raidBuildingCensusValid=170004,captureIntegrity=180000,integrityDigest=180004}
-      fingerprint=string.rep('a',64)
+      version='0.0.20'
       core={readInteger=function(a)return memory[a] or 0 end,
         readString=function(a,n)
           local result={}
@@ -55,7 +55,7 @@ def state():
         readSmallInteger=function(a)return memory[a] or 0 end,
         writeInteger=function(a,v)memory[a]=v;writes=writes+1 end,
         setMemory=function(a,v,n)for i=0,n-1,4 do memory[a+i]=v end end}
-      state=require('state').new(native,true,fingerprint)
+      state=require('state').new(native,true,version)
       memory[native.configuration+4*352]=1
       memory[native.configuration+4*352+280]=1
       memory[native.defenseCensusTick]=1234
@@ -134,7 +134,7 @@ def test_bad_payload_and_configuration_do_not_write():
       memory[0x23FC8E8+676+0x184]=24
       assert(not pcall(state.restore,bytes) and writes==0)
       memory[0x23FC8E8+676+0x184]=0
-      assert(not pcall(require('state').new(native,false,fingerprint).restore,bytes) and writes==0)
+      assert(not pcall(require('state').new(native,false,version).restore,bytes) and writes==0)
       memory[0x4D34B1]=800
       assert(not pcall(state.restore,bytes) and writes==0)
       memory[0x4D34B1]=0
@@ -233,7 +233,7 @@ def test_saved_combat_reserve_and_raid_state_survives_exactly():
     ''')
 
 
-def test_invalid_late_state_and_changed_build_rejected_before_any_write():
+def test_invalid_late_state_rejected_before_any_write():
     state().execute('''
       for _,entry in ipairs({{native.reserves+196+12,22},{native.raidStates+96+12,16},
           {native.raidStates+96+16+16,8},{native.combatCensusValid,2},
@@ -246,7 +246,6 @@ def test_invalid_late_state_and_changed_build_rejected_before_any_write():
       end
       local bytes=state.capture()
       writes=0
-      assert(not pcall(require('state').new(native,true,string.rep('b',64)).restore,bytes) and writes==0)
       local captured
       state.callbacks:capture({put=function(_,_,data)captured=data end})
       assert(captured==bytes and writes==0)
@@ -258,7 +257,7 @@ def test_native_only_optional_state_does_not_impose_new_package_requirement():
       memory[native.configuration+4*352]=0
       local bytes=state.capture()
       local reader={exists=function()return true end,get=function()return bytes end}
-      local other=require('state').new(native,true,string.rep('b',64))
+      local other=require('state').new(native,false,version)
       other.callbacks:validate(reader)
       assert(writes==0)
       reader.required=true
