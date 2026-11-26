@@ -83,7 +83,8 @@ function M.new(native, legacyInterval, fingerprint)
       if core.readInteger(address) ~= 0 or core.readInteger(address + 288) ~= 0
           or core.readInteger(address + 292) ~= 0 or core.readInteger(address + 296) ~= 0
           or core.readInteger(address + 316) ~= 0 or core.readInteger(address + 320) ~= 0
-          or core.readInteger(address + 344) ~= 0 then return true end
+          or core.readInteger(address + 344) ~= 0
+          or core.readInteger(address + 348) ~= 0 then return true end
     end
     return false
   end
