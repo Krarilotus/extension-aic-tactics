@@ -75,6 +75,7 @@ Die fünf Überfallfelder nach `RaidTargetPolicy` benötigen eine neue Überfall
 - `ActualSiegeResourcePayment` verlangt Rohstoffe und Gold; Fehlmengen kauft die KI über den normalen Handel (AUS).
 - `CoordinatedSiegeHarassment` schickt gesammelte Geräte zu erreichbaren Schusspositionen (AUS). `SiegeHarassMinEngines` ist die angestrebte Mindestzahl (0–20, Standard 3); `HarassingSiegeEnginesMax` bleibt die Gesamtgrenze.
 - `LargerSiegeForces` wiederholt den Gerätemix, solange lebende, freie Angriffsingenieure und Bauplätze vorhanden sind (AUS). `SiegeForceMax` ist eine optionale Obergrenze (0–64); 0 überlässt die Zahl den Ingenieuren. `AttMaxEngineers` begrenzt weiterhin Besatzungen.
+- `AICTactics_SiegeTowerCrew` setzt die Belagerungsschutz-Truppen in Belagerungstürme auf dem Weg zur Mauer; benötigt erkletterbare Belagerungstürme von Improved Siegeengines (AUS).
 
 Sichere Bauplätze gelten bei erweiterten Belagerungsregeln automatisch. Das richtige Zählen zugewiesener Ingenieure ist standardmäßig aus; Fixed Engineers betreut Besatzung und Gerätelebenszyklus.
 

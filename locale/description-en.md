@@ -75,6 +75,7 @@ The five raid controls after `RaidTargetPolicy` require a new raid policy. Exist
 - `ActualSiegeResourcePayment` requires construction materials and gold, buying shortages through normal AI trade (OFF).
 - `CoordinatedSiegeHarassment` sends a gathered group of engines to reachable firing positions (OFF). `SiegeHarassMinEngines` sets its preferred minimum (0–20, default 3); `HarassingSiegeEnginesMax` remains the total limit.
 - `LargerSiegeForces` cycles the configured assault equipment mix while living, unassigned attack engineers and valid sites remain (OFF). `SiegeForceMax` is an optional cap (0–64); 0 lets available engineers decide. `AttMaxEngineers` still limits crews.
+- `AICTactics_SiegeTowerCrew` boards the siege-defence troops onto wall-bound siege towers; needs climbable siege towers from Improved Siegeengines (OFF).
 
 Safe placement is enabled automatically with advanced siege behavior. Engineer role-quota counting is OFF by default; Fixed Engineers owns general crew and equipment lifecycle.
 

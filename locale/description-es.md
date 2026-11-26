@@ -75,6 +75,7 @@ Los cinco campos posteriores a `RaidTargetPolicy` requieren una política nueva.
 - `ActualSiegeResourcePayment` exige materiales y oro; la IA compra lo que falte mediante su comercio normal (DESACTIVADO).
 - `CoordinatedSiegeHarassment` envía un grupo de máquinas a posiciones de tiro accesibles (DESACTIVADO). `SiegeHarassMinEngines` fija el mínimo deseado (0–20, valor 3); `HarassingSiegeEnginesMax` sigue limitando el total.
 - `LargerSiegeForces` repite la composición mientras queden ingenieros de ataque vivos y libres y sitios válidos (DESACTIVADO). `SiegeForceMax` es un límite opcional (0–64); con 0 decide la cantidad de ingenieros. `AttMaxEngineers` limita las dotaciones.
+- `AICTactics_SiegeTowerCrew` sube las tropas de defensa del asedio a las torres de asedio que avanzan hacia la muralla; requiere torres escalables de Improved Siegeengines (DESACTIVADO).
 
 El emplazamiento seguro se activa con las opciones avanzadas de asedio. El recuento de funciones de ingeniero viene desactivado; Fixed Engineers gestiona la vida de las dotaciones.
 

@@ -75,6 +75,7 @@ Les cinq champs après `RaidTargetPolicy` exigent une nouvelle politique de raid
 - `ActualSiegeResourcePayment` exige matériaux et or ; l’IA achète les manques par son commerce normal (DÉSACTIVÉ).
 - `CoordinatedSiegeHarassment` envoie des engins rassemblés vers des positions de tir accessibles (DÉSACTIVÉ). `SiegeHarassMinEngines` fixe le minimum souhaité (0–20, défaut 3) ; `HarassingSiegeEnginesMax` reste la limite totale.
 - `LargerSiegeForces` répète la composition tant que des ingénieurs d’attaque vivants et libres et des sites valides restent disponibles (DÉSACTIVÉ). `SiegeForceMax` est un plafond facultatif (0–64) ; 0 laisse décider le nombre d’ingénieurs. `AttMaxEngineers` limite les équipages.
+- `AICTactics_SiegeTowerCrew` fait monter les troupes de défense de siège dans les tours de siège en route vers les murs ; exige des tours escaladables d’Improved Siegeengines (DÉSACTIVÉ).
 
 Le placement sûr s’active avec les options de siège avancées. Le décompte des rôles d’ingénieur est désactivé par défaut ; Fixed Engineers gère le cycle de vie des équipages.
 

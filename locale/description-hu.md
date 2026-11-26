@@ -75,6 +75,7 @@ A `RaidTargetPolicy` utáni öt mezőhöz új portyaszabály kell. A `RaidUnitsB
 - `ActualSiegeResourcePayment`: nyersanyagot és aranyat kér; a hiányt az MI a szokásos kereskedelemmel szerzi be (KI).
 - `CoordinatedSiegeHarassment`: összegyűjtött ostromgépeket küld elérhető lőállásokba (KI). A `SiegeHarassMinEngines` a kívánt minimum (0–20, alapérték 3); a `HarassingSiegeEnginesMax` marad az összes gép korlátja.
 - `LargerSiegeForces`: addig ismétli a gépösszetételt, amíg élő, szabad támadó mérnök és megfelelő hely van (KI). A `SiegeForceMax` választható korlát (0–64); 0-nál a mérnökök száma dönt. Az `AttMaxEngineers` továbbra is korlátozza a kezelőket.
+- `AICTactics_SiegeTowerCrew`: a falak felé haladó ostromtornyokba ülteti az ostromvédő csapatokat; az Improved Siegeengines megmászható ostromtornyai szükségesek hozzá (KI).
 
 A fejlett ostrombeállítások automatikusan bekapcsolják a biztonságos elhelyezést. A mérnökök szerepkörszámlálása alapból kikapcsolt; a Fixed Engineers a kezelők és gépek életciklusát kezeli.
 

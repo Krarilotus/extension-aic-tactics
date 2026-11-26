@@ -75,6 +75,7 @@ AI 盟友会互相援助，也会援助你，而不只是在你请求时。
 - `ActualSiegeResourcePayment` 要求材料和金币；AI 通过正常贸易购买缺少的资源（默认关闭）。
 - `CoordinatedSiegeHarassment` 集结攻城器械，再前往可到达的射击位置（默认关闭）。`SiegeHarassMinEngines` 设置期望的最少数量（0–20，默认 3）；`HarassingSiegeEnginesMax` 仍限制总数。
 - `LargerSiegeForces` 在仍有存活且未分配的进攻工程兵和有效建造地点时循环使用器械配置（默认关闭）。`SiegeForceMax` 可选数量上限（0–64）；0 由可用工程兵决定。`AttMaxEngineers` 仍限制操作人员。
+- `AICTactics_SiegeTowerCrew` 让攻城护卫队登上驶向城墙的攻城塔；需要 Improved Siegeengines 的可攀爬攻城塔（默认关闭）。
 
 启用高级攻城功能时，安全选址自动生效。工程兵角色计数默认关闭；Fixed Engineers 负责器械和操作人员的生命周期。
 

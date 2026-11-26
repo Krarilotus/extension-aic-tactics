@@ -75,6 +75,7 @@ Belirtilmeyen değerler modül ayarlarını kullanır (kapalı, %75, 0 ay, kapal
 - `ActualSiegeResourcePayment` malzeme ve altın ister; eksikleri yapay zekâ olağan ticaretle alır (KAPALI).
 - `CoordinatedSiegeHarassment` toplanan araçları erişilebilir atış konumlarına yollar (KAPALI). `SiegeHarassMinEngines` istenen en az araç sayısıdır (0–20, varsayılan 3); `HarassingSiegeEnginesMax` toplam sınır olarak kalır.
 - `LargerSiegeForces`, canlı ve boş saldırı mühendisleri ile geçerli yerler kaldıkça ayarlı araçları üretir (KAPALI). `SiegeForceMax` isteğe bağlı üst sınırdır (0–64); 0'da sayı mühendislerle belirlenir. `AttMaxEngineers` mürettebatı sınırlar.
+- `AICTactics_SiegeTowerCrew`, kuşatma savunma birliklerini surlara ilerleyen kuşatma kulelerine bindirir; Improved Siegeengines'in tırmanılabilir kuleleri gerekir (KAPALI).
 
 Gelişmiş kuşatma ayarları güvenli yerleşimi otomatik açar. Mühendis rol sayımı varsayılan olarak kapalıdır; Fixed Engineers mürettebat ve araçların yaşam döngüsünü yönetir.
 
