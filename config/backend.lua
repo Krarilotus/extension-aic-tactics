@@ -130,6 +130,9 @@ function M.new(native)
     if allies[8] == 2 then native.preflightAllyGates() end
     -- Per-AI values of a feature that is off are stored as unset.
     local off = native.unavailableFeatures
+    if off.Combat then
+      targeting.policy, targeting.commitment, targeting.activation, envelope.preparation = 0, 0, 0, 0
+    end
     if off.Raids then envelope.raids[1] = 0 end
     for index, key in pairs({'SafePlacement', 'SiegePayment', 'SiegeHarassment', [5] = 'LargerSiegeForce'}) do
       if off[key] then envelope.siege[index] = 0 end
