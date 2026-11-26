@@ -68,6 +68,10 @@ extern CharacterConfiguration configurations[17];
 extern RecruitmentObservation observations[9];
 extern int configurationLocked;
 extern int* legacyWallCounts;
+// Owner module queries (0 when the owner is absent); a 0 answer keeps the game's value.
+extern unsigned int ownerDefenseRow;    // (ai, unitType) -> row
+extern unsigned int ownerDefenseGroups; // (ai, row, slots, patrolGroups) -> groups + 1
+extern unsigned int ownerRaidType;      // (unitType) -> raid type
 extern int defenseTypeCounts[9][80];
 extern unsigned int defenseCensusTick;
 extern int defenseCensusValid;

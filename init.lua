@@ -54,6 +54,22 @@ return {
       local moving = core.exposeCode(native.siegeHarassMoving, 1, 0)
       siegeEngines:registerCatapultWalkPolicy(function(unit) return moving(unit) ~= 0 end)
     end
+    -- AIV Troop Behaviour owns the defence row and group count of a unit type,
+    -- Improved Tunnelers its raid troop. The WeightedRoles probe asks them through
+    -- native-callable stubs; an answer of 0 keeps the game's own value.
+    local function ownerQuery(target, owner, name, argc, answer)
+      local module = modules[owner]
+      if not module or type(module[name]) ~= 'function' then return end
+      local stub = core.allocateCode({0x90, 0x90, 0x90, 0x90, 0x90, 0xC3})
+      core.hookCode(function(...) return answer(module[name](module, ...)) end, stub, argc, 0, 5)
+      core.writeInteger(target, stub)
+    end
+    ownerQuery(native.ownerDefenseRow, 'aiv-troops-behaviour', 'defenseRowFor', 2,
+      function(row) return row or 0 end)
+    ownerQuery(native.ownerDefenseGroups, 'aiv-troops-behaviour', 'defenseGroupsFor', 4,
+      function(groups) return groups and groups + 1 or 0 end)
+    ownerQuery(native.ownerRaidType, 'improved-tunnelers', 'raidRoleFor', 1,
+      function(raidType) return raidType or 0 end)
     -- Legacy's target choice and recruitment interval feed AIC decisions, so
     -- the match identity includes them.
     core.writeInteger(native.legacyTargetPolicy, native.legacyTargetChoice())
