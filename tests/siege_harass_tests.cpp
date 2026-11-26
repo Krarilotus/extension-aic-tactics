@@ -19,7 +19,6 @@ unsigned char aic[16 * 676];
 int rows[400 * 3];
 int teams[9];
 unsigned int tick;
-unsigned char catapultRange = 0x53;
 int fireRange = 0x34;
 int pathCalls, moveCalls;
 int blockedTribe;
@@ -82,7 +81,7 @@ int main()
     nativeBindings.gameTick = reinterpret_cast<unsigned int>(&tick);
     nativeBindings.tribePath = reinterpret_cast<unsigned int>(&path);
     nativeBindings.siegeGroupMove = reinterpret_cast<unsigned int>(&move);
-    nativeBindings.siegeCatapultRange = reinterpret_cast<unsigned int>(&catapultRange);
+    siegeCatapultRange = 73;
     nativeBindings.siegeFireRange = reinterpret_cast<unsigned int>(&fireRange);
     for (int row = 0; row < 400; ++row) rows[row * 3] = row * 400;
     teams[1] = 1; teams[2] = 2;
@@ -115,7 +114,7 @@ int main()
     for (int id = 1; id <= 3; ++id) countSiegeHarassUnit(id);
     updateSiegeHarassment(aic, 1);
     assert(pathCalls == 3 && moveCalls == 3);
-    assert(moveX[1] == 54 && moveX[2] == 61);
+    assert(moveX[1] == 56 && moveX[2] == 61);
     assert(moveX[1] != moveX[2] || moveY[1] != moveY[2]);
     assert(moveX[2] != moveX[3] || moveY[2] != moveY[3]);
     assert(siegeHarassPlans[1].phase == 1);
@@ -151,7 +150,7 @@ int main()
     updateSiegeHarassment(aic, 1);
     assert(moveCalls == beforeBlocked + 2);
     const int previousX = moveX[1];
-    catapultRange = 0x70;
+    siegeCatapultRange = 0x70;
     fireRange = 0x70;
     blockedTribe = 0;
     std::memset(&siegeHarassPlans[1], 0, sizeof(SiegeHarassPlan));

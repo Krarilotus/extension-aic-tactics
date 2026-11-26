@@ -48,12 +48,7 @@ return {
       'AIC Tactics requires full multiplayer content admission')
     local backend=require('config.backend').new(native)
     require('config.provider').register(modules.aicloader, backend)
-    local siegeEngines = modules['improved-siegeengines']
-    require('siege-tower-crew').register(siegeEngines, native, nativeGame)
-    if siegeEngines and type(siegeEngines.registerCatapultWalkPolicy) == 'function' then
-      local moving = core.exposeCode(native.siegeHarassMoving, 1, 0)
-      siegeEngines:registerCatapultWalkPolicy(function(unit) return moving(unit) ~= 0 end)
-    end
+    require('siege-tower-crew').register(modules['improved-siegeengines'], native, nativeGame)
     -- AIV Troop Behaviour owns the defence row and group count of a unit type,
     -- Improved Tunnelers its raid troop. The WeightedRoles probe asks them through
     -- native-callable stubs; an answer of 0 keeps the game's own value.

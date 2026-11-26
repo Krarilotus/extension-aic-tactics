@@ -11,7 +11,7 @@ local names = {'gameTick','rngState','rngValue','rngNext','initialDefenseTicks',
     'originalSiegeTileCheck','siegeTileOccupancyOffset','siegeTileMap','siegeTentPointX',
     'siegeTribeIndexOffset','siegePlacementFail','siegeResourceCheck','siegeGroupMove',
     'siegePlaceTent','popUnitFromTribe','siegeAssaultBatch','siegeUnitCount',
-    'siegeGetUnitForIndex','siegeCatapultRange','siegeFireRange',
+    'siegeGetUnitForIndex','siegeFireRange',
     'attackPatrolDispatch','attackPatrolDestination','troopValueState','playableTiles',
     'areaMap','areaRoute','areaPathFinder','tileLogic','tileWallOwner',
     'distanceLayers','distanceLayerIndex','tribeRallyPoints','tribeRallyCount'}

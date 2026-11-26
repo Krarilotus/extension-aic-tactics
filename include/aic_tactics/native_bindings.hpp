@@ -84,7 +84,6 @@ struct NativeBindings {
     unsigned int siegeAssaultBatch;
     unsigned int siegeUnitCount;
     unsigned int siegeGetUnitForIndex;
-    unsigned int siegeCatapultRange;
     unsigned int siegeFireRange;
     unsigned int attackPatrolDispatch;
     unsigned int attackPatrolDestination;

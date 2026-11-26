@@ -5,7 +5,7 @@ namespace AicTactics {
 namespace SHC141 {
 
 int siegeHarassFallback = 0;
-int siegeCatapultRangeOverride = 0;
+int siegeCatapultRange = 0;
 int siegeHarassMinimumFallback = 3;
 int siegeHarassPolicy[17];
 int siegeHarassMinimum[17];
@@ -64,22 +64,17 @@ int clamp(int value, int lo, int hi)
 {
     return value < lo ? lo : value > hi ? hi : value;
 }
-bool farFromPlan(unsigned int unit, const SiegeHarassPlan& plan)
-{
-    int dx = at<short>(unit + 0xC4) - plan.x;
-    int dy = at<short>(unit + 0xC6) - plan.y;
-    if (dx < 0) dx = -dx;
-    if (dy < 0) dy = -dy;
-    return (dx > dy ? dx : dy) > 8;
-}
 int approachRadius(int type)
 {
     // Native target acquisition bounds its BFS in map tiles. Leave a quarter
     // of the range for buildings away from the target keep and terrain costs.
-    const int range = type == 77 ? at<int>(nativeBindings.siegeFireRange)
-        : siegeCatapultRangeOverride ? siegeCatapultRangeOverride
-        : at<unsigned char>(nativeBindings.siegeCatapultRange);
+    const int range = type == 77 ? at<int>(nativeBindings.siegeFireRange) : siegeCatapultRange;
     return range >= 16 && range <= 240 ? clamp(range * 3 / 4, 6, 70) : 0;
+}
+// An engine without a known range stays with the game's own behaviour.
+bool harassType(int type)
+{
+    return (type == 39 || type == 77) && approachRadius(type);
 }
 typedef int (__thiscall *Path)(void*, int, int);
 typedef int (__thiscall *Move)(void*, int, unsigned int, unsigned int, int, int, int);
@@ -100,7 +95,7 @@ void __cdecl countSiegeHarassUnit(int id)
     if (!collecting || id <= 0 || id >= static_cast<int>(nativeBindings.unitCapacity)) return;
     const unsigned int unit = nativeBindings.unitRecords + id * 0x490;
     const int type = at<short>(unit + 0x8E);
-    if ((type != 39 && type != 77) || at<short>(unit + 0x8C) != 2
+    if (!harassType(type) || at<short>(unit + 0x8C) != 2
         || at<short>(unit + 0x42A) != 0x15 || at<short>(unit + 0x3B4) != 2
         || at<short>(unit + 0x2A0) != 0 || at<int>(unit + 0x3C8) <= 0) return;
     const int player = at<short>(unit + 0x96);
@@ -125,7 +120,7 @@ int __cdecl suppressNativeSiegeHarassMove(int unitOffset)
     if (id <= 0 || id >= static_cast<int>(nativeBindings.unitCapacity)) return 0;
     const unsigned int unit = nativeBindings.unitRecords + unitOffset;
     const int type = at<short>(unit + 0x8E);
-    if ((type != 39 && type != 77) || at<short>(unit + 0x42A) != 0x15
+    if (!harassType(type) || at<short>(unit + 0x42A) != 0x15
         || at<short>(unit + 0x3B4) != 2) return 0;
     const int player = at<short>(unit + 0x96);
     if (!enabled(player) || !combatCensusValid) return 0;
@@ -133,23 +128,6 @@ int __cdecl suppressNativeSiegeHarassMove(int unitOffset)
     if (at<int>(nativeBindings.aicRecords + (characterID - 2) * 676 + 0x1EC) <= 0)
         return 0;
     return validTarget(player, playerValue(player, 0x2BD8)) ? 1 : 0;
-}
-
-int __cdecl siegeHarassMoving(int id)
-{
-    if (id <= 0 || id >= static_cast<int>(nativeBindings.unitCapacity)) return 0;
-    const unsigned int unit = nativeBindings.unitRecords + id * 0x490;
-    const int player = at<short>(unit + 0x96);
-    if (!enabled(player) || !combatCensusValid) return 0;
-    const SiegeHarassPlan& plan = siegeHarassPlans[player];
-    if (plan.phase != 1) return 0;
-    const SiegeHarassCensus& census = siegeHarassCensus[player];
-    for (int index = 0; index < census.count; ++index) {
-        const SiegeHarassEngine& engine = census.engines[index];
-        if (engine.unit == id)
-            return validEngine(player, engine) && farFromPlan(unit, plan) ? 1 : 0;
-    }
-    return 0;
 }
 
 void __cdecl updateSiegeHarassment(void* aic, int player)
@@ -191,7 +169,11 @@ void __cdecl updateSiegeHarassment(void* aic, int player)
         for (int index = 0; index < census.count; ++index) {
             const SiegeHarassEngine& engine = census.engines[index];
             const unsigned int unit = nativeBindings.unitRecords + engine.unit * 0x490;
-            if (farFromPlan(unit, plan)) ++distant;
+            int dx = at<short>(unit + 0xC4) - plan.x;
+            int dy = at<short>(unit + 0xC6) - plan.y;
+            if (dx < 0) dx = -dx;
+            if (dy < 0) dy = -dy;
+            if ((dx > dy ? dx : dy) > 8) ++distant;
             if (at<int>(unit + 0x3BC) > 0 || at<short>(unit + 0x39C) == 9) ++aiming;
         }
         if (distant == 0 && aiming == census.count) {

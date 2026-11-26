@@ -304,14 +304,19 @@ defer:
     core.writeInteger(native.siegePaymentFallback, native.enableOptional('SiegePayment', fallback) and 1 or 0)
   end
   -- Rebalancer owns the siege ranges once it has applied a ranges block.
-  local function rebalancedCatapultRange()
+  -- Otherwise the game's own range code must be unchanged.
+  local catapultRangeWarned = false
+  function native.refreshSiegeRanges()
+    if not game.siegeRangeSelection then return end
     local rebalancer = modules.rebalancer
     local ranges = rebalancer and type(rebalancer.getSiegeRanges) == 'function'
       and rebalancer:getSiegeRanges()
-    return ranges and ranges.catapult or 0
-  end
-  function native.refreshSiegeRanges()
-    core.writeInteger(native.siegeCatapultRangeOverride, rebalancedCatapultRange())
+    local range = ranges and ranges.catapult or require('native-siege-bindings').catapultRange(game)
+    if not range and not catapultRangeWarned then
+      catapultRangeWarned = true
+      log(WARNING, '[aic-tactics] siege harassment with catapults is off; another module changed their range code')
+    end
+    core.writeInteger(native.siegeCatapultRange, range or 0)
   end
   function native.preflightSiegeHarassment()
     native.preflightCombat()
@@ -321,9 +326,6 @@ defer:
     context.verify(game.siegeFireRange - 1, 'fire ballista target range',
       'B9 ? ? ? ?')
     native.refreshSiegeRanges()
-    if core.readInteger(native.siegeCatapultRangeOverride) == 0 then
-      context.verify(game.siegeCatapultRange - 2, 'catapult target range', '83 C1 ?')
-    end
     for index, site in ipairs({game.siegeCatapultPathGate, game.siegeFirePathGate}) do
       if siegeHarassHooks then
         assert(core.readByte(site) == 0xE9

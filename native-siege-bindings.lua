@@ -168,13 +168,14 @@ function M.resolve(game)
     '0F BF AC 08 ? ? ? ? 8D 34 08')
   context.verify(harassTargeting + 0x1eb, 'fire ballista target range',
     'B9 ? ? ? ? EB ?')
-  context.verify(harassTargeting + 0x1fc, 'catapult target range',
-    '83 C1 ? 83 3D ? ? ? ? 00')
   local fireRange = core.readInteger(harassTargeting + 0x1ec)
-  local catapultRange = core.readByte(harassTargeting + 0x1fe)
-  assert(fireRange >= 16 and fireRange <= 240
-      and catapultRange >= 16 and catapultRange <= 240,
-    'AIC Tactics: unsupported native siege target ranges')
+  assert(fireRange >= 16 and fireRange <= 240, 'AIC Tactics: unsupported native siege target ranges')
+  -- A jump table on the engine type, from the catapult (39) on, sets the range selector.
+  context.verify(harassTargeting + 0x2b, 'native siege range selector',
+    '83 C0 D9 33 DB 83 F8 26 BA C8 00 00 00 89 4C 24 10 89 4C 24 14 77 ? 0F B6 80 ? ? ? ? FF 24 85')
+  local catapultCase = core.readInteger(core.readInteger(harassTargeting + 0x4c)
+    + 4 * core.readByte(core.readInteger(harassTargeting + 0x45)))
+  context.verify(catapultCase, 'native catapult range selector', 'B9 ? ? ? ?')
   local catapultUpdate = context.find('native catapult update',
     '83 EC 74 53 8B 1D ? ? ? ? 55 56 8B F3 69 F6 90 04 00 00 '..
     '0F BF 86 ? ? ? ? 57 8B F8 69 FF F4 39 00 00')
@@ -213,11 +214,26 @@ function M.resolve(game)
     siegeAssaultBatchCall = assaultCall, siegeAssaultBatch = assault,
     tribeAttackWave = tribeAttackWave, siegeUnitCount = unitCount, siegeGetUnitForIndex = getUnit,
     siegeHarassTargeting = harassTargeting,
-    siegeCatapultRange = harassTargeting + 0x1fe,
+    siegeRangeSelection = harassTargeting + 0x1f2,
+    siegeCatapultSelector = core.readInteger(catapultCase + 1),
     siegeFireRange = harassTargeting + 0x1ec,
     siegeCatapultPathGate = catapultGate,
     siegeCatapultPathExit = catapultExit, siegeFirePathGate = fireGate,
     siegeFirePathExit = fireExit}
+end
+
+-- The selection computes add + (selector - 3 ~= 0 and mask or 0): 83 for the
+-- trebuchet (3) and 73 for the catapult (2) in the unmodified game.
+-- Returns nil when another module changed that code.
+function M.catapultRange(game)
+  local site = game.siegeRangeSelection
+  if not pcall(context.verify, site, 'catapult target range', '83 E9 03 F7 D9 1B C9 83 E1 ? 83 C1 ?') then
+    return nil
+  end
+  local function signed(byte) return byte < 0x80 and byte or byte - 0x100 end
+  local range = signed(core.readByte(site + 12))
+    + (game.siegeCatapultSelector ~= 3 and signed(core.readByte(site + 9)) or 0)
+  if range >= 16 and range <= 240 then return range end
 end
 
 return M
