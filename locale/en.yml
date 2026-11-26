@@ -51,7 +51,7 @@ siegeScreenForward_descr: "Tiles in front of the engines where melee escorts sta
 siegeScreenExtraGroups: "Extra escort groups"
 siegeScreenExtraGroups_descr: "Splits the AI's siege-defence groups into more groups while its engines work, as long as each keeps the smallest group size; each group guards its own engine. They rejoin before the wall assault; 0 keeps the AI's own two groups. Needs the engine escort."
 siegeTowerCrew: "Crew the siege towers"
-siegeTowerCrew_descr: "When siege towers can be climbed, the AI boards troops of its current attack wave onto its towers heading for the walls. Each AI's AIC value takes precedence."
+siegeTowerCrew_descr: "When siege towers can be climbed, the AI boards its siege-defence troops onto its towers heading for the walls. Each AI's AIC value takes precedence."
 allyRelief: "Ally relief"
 allyRelief_descr: "An AI sends part of its idle army to an ally (you or an AI) whose castle is under attack, and when you ask it for help. Each AI's AIC value takes precedence."
 allyArmySharePercent: "Relief army share"

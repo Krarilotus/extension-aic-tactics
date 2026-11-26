@@ -51,7 +51,7 @@ siegeScreenForward_descr: "近战护卫站在器械前方的格数；远程护�
 siegeScreenExtraGroups: "额外护卫队"
 siegeScreenExtraGroups_descr: "器械作业时把 AI 的攻城护卫队分成更多队伍，每队不少于最小人数，各守一台器械。攻打城墙前重新合并；0 保持 AI 原有两队。需开启攻城器械护卫。"
 siegeTowerCrew: "攻城塔载兵"
-siegeTowerCrew_descr: "攻城塔可攀爬时，AI 会让当前进攻波次的部队登上驶向城墙的攻城塔。各 AI 的 AIC 设置优先。"
+siegeTowerCrew_descr: "攻城塔可攀爬时，AI 会让攻城护卫队登上驶向城墙的攻城塔。各 AI 的 AIC 设置优先。"
 allyRelief: "援救盟友"
 allyRelief_descr: "盟友（你或 AI）的城堡遭到进攻时，或你请求援助时，AI 派出部分空闲军队。各 AI 的 AIC 设置优先。"
 allyArmySharePercent: "援军比例"

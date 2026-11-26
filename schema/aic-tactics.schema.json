@@ -346,7 +346,7 @@
     },
     "AICTactics_SiegeTowerCrew": {
       "type": "boolean",
-      "description": "Board troops from this AI's siege wave on its wall-bound towers when climbing is active. Absent uses the module setting (default false)."
+      "description": "Board this AI's siege-defence troops (AttUnitSiegeDef) on its wall-bound towers when climbing is active. Absent uses the module setting (default false)."
     },
     "AICTactics_SiegeScreen": {
       "enum": [

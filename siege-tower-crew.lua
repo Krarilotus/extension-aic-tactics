@@ -37,6 +37,19 @@ function M.register(riders, native, game, fallback)
       and integer(tribe + 0x34) == integer(record + 0x2E4)
       and short(tribe + game.tribeAttackWave) == wave
   end
+  -- The siege-defence slots 190-191 with the native dispatcher's checks.
+  local function defenceTribes(owner, player)
+    local tribes = {}
+    for slot = 190, 191 do
+      local id = short(owner + 0x310C + slot * 2)
+      local tribe = game.tribes + id * game.tribeStride
+      if id > 0 and id < 1250 and integer(tribe + 0x34) == integer(owner + 0x329C + slot * 4)
+          and integer(tribe + 0x2C) == player and short(tribe + 0x40) == 2 then
+        tribes[id] = integer(tribe + 0x34)
+      end
+    end
+    return tribes
+  end
   local scanned = {}
   local function wallBound(record)
     return short(record + 0x39C) == 0x17 and short(record + 0x2C0) == 0x65
@@ -61,17 +74,19 @@ function M.register(riders, native, game, fallback)
     local tick = integer(game.gameTick)
     if tick % 32 ~= 0 or scanned[player] == tick then return true end
     scanned[player] = tick
+    local defence = defenceTribes(owner, player)
     local towers, units = {}, {{}, {}}
     for id = 1, game.unitCapacity - 1 do
       local candidate = game.unitRecords + id * 0x490
       local kind = short(candidate + 0x8E)
-      if (kind == 58 or priority[kind]) and inWave(candidate, player, wave) then
-        if kind == 58 then
-          if wallBound(candidate) then
-            local seats = riders:getFreeSeats(id)
-            if seats > 0 then towers[#towers + 1] = {id=id, seats=seats} end
-          end
-        else
+      if kind == 58 then
+        if wallBound(candidate) and inWave(candidate, player, wave) then
+          local seats = riders:getFreeSeats(id)
+          if seats > 0 then towers[#towers + 1] = {id=id, seats=seats} end
+        end
+      elseif priority[kind] and short(candidate + 0x8C) == 2 and short(candidate + 0x96) == player then
+        local uid = defence[short(candidate + 0x2D8)]
+        if uid and integer(candidate + 0x2E4) == uid then
           local group = units[priority[kind]]
           group[#group + 1] = id
         end

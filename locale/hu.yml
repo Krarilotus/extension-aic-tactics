@@ -51,7 +51,7 @@ siegeScreenForward_descr: "Mezők a gépek előtt a közelharcos fedezetnek; a t
 siegeScreenExtraGroups: "További fedezőcsoportok"
 siegeScreenExtraGroups_descr: "Több csoportra bontja az MI ostromvédő csoportjait, amíg a gépek dolgoznak és mindegyik megtartja a legkisebb létszámot; minden csoport a saját gépét védi. A falroham előtt újra egyesülnek; 0 az MI saját két csoportját tartja. Az ostromgépek fedezete szükséges hozzá."
 siegeTowerCrew: "Ostromtornyok megrakása"
-siegeTowerCrew_descr: "Ha az ostromtornyokra fel lehet mászni, az MI a falak felé haladó tornyaiba a jelenlegi támadóhullámának csapatait ülteti. Az adott MI AIC-értéke elsőbbséget élvez."
+siegeTowerCrew_descr: "Ha az ostromtornyokra fel lehet mászni, az MI a falak felé haladó tornyaiba az ostromvédő csapatait ülteti. Az adott MI AIC-értéke elsőbbséget élvez."
 allyRelief: "Felmentés szövetségesnek"
 allyRelief_descr: "Az MI tétlen seregének egy részét elküldi egy szövetségeshez (hozzád vagy egy MI-hez), akinek a várát megtámadták, és akkor is, ha segítséget kérsz. Az egyes MI-k AIC-értéke elsőbbséget élvez."
 allyArmySharePercent: "Felmentő sereg aránya"

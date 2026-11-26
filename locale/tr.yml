@@ -51,7 +51,7 @@ siegeScreenForward_descr: "Yakın dövüş muhafızlarının araçların önünd
 siegeScreenExtraGroups: "Ek muhafız grupları"
 siegeScreenExtraGroups_descr: "Araçlar çalışırken, her grup en küçük boyutu korudukça yapay zekânın kuşatma savunma gruplarını daha çok gruba böler; her grup kendi aracını korur. Sur hücumundan önce birleşirler; 0 yapay zekânın iki grubunu korur. Araç muhafızı gerekir."
 siegeTowerCrew: "Kuşatma kulelerine asker bindir"
-siegeTowerCrew_descr: "Kuşatma kulelerine tırmanılabiliyorsa yapay zekâ, surlara ilerleyen kulelerine mevcut saldırı dalgasındaki birlikleri bindirir. Her yapay zekânın AIC değeri önceliklidir."
+siegeTowerCrew_descr: "Kuşatma kulelerine tırmanılabiliyorsa yapay zekâ, surlara ilerleyen kulelerine kuşatma savunma birliklerini bindirir. Her yapay zekânın AIC değeri önceliklidir."
 allyRelief: "Müttefike takviye"
 allyRelief_descr: "Yapay zekâ, kalesi saldırı altındaki bir müttefike (sana ya da bir yapay zekâya) ve sen yardım istediğinde boştaki ordusunun bir kısmını gönderir. Her yapay zekânın AIC değeri önceliklidir."
 allyArmySharePercent: "Takviye ordu payı"

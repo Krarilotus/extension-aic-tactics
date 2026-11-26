@@ -17,8 +17,10 @@ FIXTURE = """
   for id=1,2 do
     local tribe = game.tribes + id * game.tribeStride
     memory[tribe + 0x40], memory[tribe + 0x2C], memory[tribe + 0x34] = 2, 1, id
-    memory[tribe + game.tribeAttackWave] = id == 1 and 5 or 6
+    memory[tribe + game.tribeAttackWave] = 5
   end
+  memory[game.players + 0x39F4 + 0x310C + 190 * 2] = 1
+  memory[game.players + 0x39F4 + 0x329C + 190 * 4] = 1
   local function unit(id, kind, tribe, moving)
     local p = game.unitRecords + id * 0x490
     memory[p+0x8C], memory[p+0x8E], memory[p+0x96] = 2, kind, 1

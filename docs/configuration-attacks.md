@@ -117,6 +117,6 @@ Smarter Patrols by Monsterfish, under GPL-3.0; see [CREDITS.md](../CREDITS.md).
 
 `AICTactics_SiegeTowerCrew` is a boolean; an absent field uses the module setting
 `siegeTowerCrew` (default off). With compatible
-Improved Siegeengines climbing active, the AI assigns troops from its current
-siege wave to wall-bound towers every 32 ticks. `false` keeps standard boarding
+Improved Siegeengines climbing active, the AI assigns its siege-defence troops
+(`AttUnitSiegeDef`) to wall-bound towers every 32 ticks. `false` keeps standard boarding
 for this character.
