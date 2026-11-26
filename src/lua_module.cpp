@@ -72,7 +72,7 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         "screenSiegeDefenceMove", "siegeScreenExtraGroups", "siegeScreenExtraGroupsFallback",
         "allyBindings", "allyBindingsSize", "allySettings", "allyFallback", "allyStates", "allyStateSize",
         "allyGoldRequestAllowed", "allyGoldRequestCommand", "allyGateHeld", "diagnostics",
-        "ownerDefenseRow", "ownerDefenseGroups", "ownerRaidType"};
+        "ownerDefenseRows", "ownerDefenseGroups", "ownerRaidTypes"};
     const unsigned int values[] = {
         reinterpret_cast<unsigned int>(configurations), sizeof(CharacterConfiguration),
         reinterpret_cast<unsigned int>(observations), sizeof(RecruitmentObservation),
@@ -170,8 +170,8 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         reinterpret_cast<unsigned int>(&allyGoldRequestAllowed),
         reinterpret_cast<unsigned int>(&allyGoldRequestCommand),
         reinterpret_cast<unsigned int>(&allyGateHeld), reinterpret_cast<unsigned int>(&diagnosticsEnabled),
-        reinterpret_cast<unsigned int>(&ownerDefenseRow), reinterpret_cast<unsigned int>(&ownerDefenseGroups),
-        reinterpret_cast<unsigned int>(&ownerRaidType)};
+        reinterpret_cast<unsigned int>(ownerDefenseRows), reinterpret_cast<unsigned int>(ownerDefenseGroups),
+        reinterpret_cast<unsigned int>(ownerRaidTypes)};
     typedef char ExportCount[sizeof(names) / sizeof(names[0]) == sizeof(values) / sizeof(values[0]) ? 1 : -1];
     createTable(state, 0, sizeof(names) / sizeof(names[0]));
     for (unsigned int i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {

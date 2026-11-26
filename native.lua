@@ -520,6 +520,36 @@ finished:
     ]], {playerCharacter=game.players+0x2300, configuration=native.configuration, configurationSize=native.configurationSize, resume=(sites.interval+13)})
     core.writeCode(sites.interval+7, {0xE9, intervalHook - (sites.interval+12), 0x90})
   end
+  -- AIV Troop Behaviour owns the defence row and group count of a unit type,
+  -- Improved Tunnelers its raid troop. The WeightedRoles probe reads their
+  -- answers from tables; 0 keeps the game's value. ATB bounds the slots to
+  -- 10 and answers alike for patrol group counts from 10 up or 0 down.
+  function native.refreshOwnerAnswers()
+    local troops, tunnelers = modules['aiv-troops-behaviour'], modules['improved-tunnelers']
+    local function ask(module, name, ...)
+      local answer = module and type(module[name]) == 'function' and module[name](module, ...)
+      if type(answer) == 'number' and answer >= 0 and answer < 255 and answer % 1 == 0 then return answer end
+    end
+    local raids = {}
+    for unitType = 0, 79 do raids[unitType + 1] = ask(tunnelers, 'raidRoleFor', unitType) or 0 end
+    core.writeBytes(native.ownerRaidTypes, raids)
+    for ai = 1, 16 do
+      if core.readInteger(native.configuration + ai * native.configurationSize) == 1 then
+        local rows, groups = {}, {}
+        for unitType = 0, 79 do rows[unitType + 1] = ask(troops, 'defenseRowFor', ai, unitType) or 0 end
+        for row = 0, 19 do
+          for slots = 1, 10 do
+            for patrolGroups = 0, 10 do
+              local count = ask(troops, 'defenseGroupsFor', ai, row, slots, patrolGroups)
+              groups[#groups + 1] = count and count + 1 or 0
+            end
+          end
+        end
+        core.writeBytes(native.ownerDefenseRows + ai * 80, rows)
+        core.writeBytes(native.ownerDefenseGroups + ai * #groups, groups)
+      end
+    end
+  end
   function native.preflight()
   require('config.grace').preflight()
   if installed then return end

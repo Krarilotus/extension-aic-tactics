@@ -11,9 +11,9 @@ CharacterConfiguration configurations[17];
 RecruitmentObservation observations[9];
 int configurationLocked;
 int* legacyWallCounts;
-unsigned int ownerDefenseRow;
-unsigned int ownerDefenseGroups;
-unsigned int ownerRaidType;
+unsigned char ownerDefenseRows[17][80];
+unsigned char ownerDefenseGroups[17][20][10][11];
+unsigned char ownerRaidTypes[80];
 int defenseTypeCounts[9][80];
 unsigned int defenseCensusTick;
 int defenseCensusValid;
@@ -36,9 +36,6 @@ typedef void (__thiscall *PlayerAction)(void*, int);
 typedef int (__thiscall *PlayerQuery)(void*, int);
 typedef int (__thiscall *TwoIntQuery)(void*, int, int);
 typedef void (__thiscall *TwoIntAction)(void*, int, int);
-typedef int (__cdecl *OwnerQuery1)(int);
-typedef int (__cdecl *OwnerQuery2)(int, int);
-typedef int (__cdecl *OwnerQuery4)(int, int, int, int);
 
 bool active(int player) {
     if (player < 1 || player > 8) return false;
@@ -157,7 +154,7 @@ bool destinationAvailable(const Probe& probe, int player, int unitType, int beha
         if (count > maximum) return false;
         smallest = count > 1;
     } else if (probe.role == RaidRole) {
-        const int ownerType = ownerRaidType ? reinterpret_cast<OwnerQuery1>(ownerRaidType)(unitType) : 0;
+        const int ownerType = unitType >= 0 && unitType < 80 ? ownerRaidTypes[unitType] : 0;
         const int raidType = ownerType ? ownerType : unitType;
         int index = 0;
         while (index < 20 && memory<int>(nativeBindings.raidTypes + index * 4) != raidType) ++index;
@@ -173,8 +170,8 @@ bool destinationAvailable(const Probe& probe, int player, int unitType, int beha
             if (count < 1 || count > 10) return false;
             smallest = true;
         } else {
-            const int ownerRow = ownerDefenseRow
-                ? reinterpret_cast<OwnerQuery2>(ownerDefenseRow)(probe.character - 1, unitType) : 0;
+            const int ai = probe.character - 1;
+            const int ownerRow = unitType >= 0 && unitType < 80 ? ownerDefenseRows[ai][unitType] : 0;
             int index = 0;
             if (ownerRow >= 1 && ownerRow < 20) index = ownerRow;
             else if (probe.character != 7 && playerValue(player, (nativeBindings.players + 0x3864)) == 1
@@ -186,9 +183,8 @@ bool destinationAvailable(const Probe& probe, int player, int unitType, int beha
                 if (index == 20) index = 0;
             }
             count = playerValue(player, (nativeBindings.players + 0x308C) + index * 4);
-            const int ownerGroups = ownerDefenseGroups ? reinterpret_cast<OwnerQuery4>(ownerDefenseGroups)(
-                probe.character - 1, index, count, aicValue(probe.aic, probe.character, 0x114)) : 0;
-            if (ownerGroups) count = ownerGroups - 1;
+            // The game takes the one-slot fallback on the slot count alone, before
+            // it asks for the group count.
             if (count < 1) {
                 first = 1;
                 for (int i = 0; i < 7; ++i)
@@ -196,10 +192,11 @@ bool destinationAvailable(const Probe& probe, int player, int unitType, int beha
                 count = 1;
             } else {
                 first = memory<int>(nativeBindings.defenseSlots + index * 4);
-                if (!ownerGroups && (index == 8 || index == 10 || index == 17)) {
-                    const int maximum = aicValue(probe.aic, probe.character, 0x114);
-                    if (count > maximum) count = maximum;
-                }
+                const int maximum = aicValue(probe.aic, probe.character, 0x114);
+                const int ownerGroups = ownerDefenseGroups[ai][index][(count > 10 ? 10 : count) - 1]
+                    [maximum < 0 ? 0 : maximum > 10 ? 10 : maximum];
+                if (ownerGroups) count = ownerGroups - 1;
+                else if ((index == 8 || index == 10 || index == 17) && count > maximum) count = maximum;
                 if (count > (first == 160 ? 6 : 10)) return false;
                 smallest = true;
             }

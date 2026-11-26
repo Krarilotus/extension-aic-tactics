@@ -68,10 +68,10 @@ extern CharacterConfiguration configurations[17];
 extern RecruitmentObservation observations[9];
 extern int configurationLocked;
 extern int* legacyWallCounts;
-// Owner module queries (0 when the owner is absent); a 0 answer keeps the game's value.
-extern unsigned int ownerDefenseRow;    // (ai, unitType) -> row
-extern unsigned int ownerDefenseGroups; // (ai, row, slots, patrolGroups) -> groups + 1
-extern unsigned int ownerRaidType;      // (unitType) -> raid type
+// Owner module answers filled from Lua; 0 keeps the game's value.
+extern unsigned char ownerDefenseRows[17][80];           // [ai][unitType] -> row
+extern unsigned char ownerDefenseGroups[17][20][10][11]; // [ai][row][slots - 1][patrolGroups] -> groups + 1
+extern unsigned char ownerRaidTypes[80];                 // [unitType] -> raid type
 extern int defenseTypeCounts[9][80];
 extern unsigned int defenseCensusTick;
 extern int defenseCensusValid;

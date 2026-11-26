@@ -49,22 +49,6 @@ return {
     local backend=require('config.backend').new(native)
     require('config.provider').register(modules.aicloader, backend)
     require('siege-tower-crew').register(modules['improved-siegeengines'], native, nativeGame)
-    -- AIV Troop Behaviour owns the defence row and group count of a unit type,
-    -- Improved Tunnelers its raid troop. The WeightedRoles probe asks them through
-    -- native-callable stubs; an answer of 0 keeps the game's own value.
-    local function ownerQuery(target, owner, name, argc, answer)
-      local module = modules[owner]
-      if not module or type(module[name]) ~= 'function' then return end
-      local stub = core.allocateCode({0x90, 0x90, 0x90, 0x90, 0x90, 0xC3})
-      core.hookCode(function(...) return answer(module[name](module, ...)) end, stub, argc, 0, 5)
-      core.writeInteger(target, stub)
-    end
-    ownerQuery(native.ownerDefenseRow, 'aiv-troops-behaviour', 'defenseRowFor', 2,
-      function(row) return row or 0 end)
-    ownerQuery(native.ownerDefenseGroups, 'aiv-troops-behaviour', 'defenseGroupsFor', 4,
-      function(groups) return groups and groups + 1 or 0 end)
-    ownerQuery(native.ownerRaidType, 'improved-tunnelers', 'raidRoleFor', 1,
-      function(raidType) return raidType or 0 end)
     -- Legacy's target choice and recruitment interval feed AIC decisions, so
     -- the match identity includes them.
     core.writeInteger(native.legacyTargetPolicy, native.legacyTargetChoice())
@@ -85,7 +69,16 @@ return {
         or reason=='error' and 'AIC Tactics: settings could not be verified. Check the UCP log and restart the game.'
         or 'AIC Tactics: checking settings. Press Start again when all players have responded.',0,0)
     end)
-    mapState:registerSection('aic-tactics', self.recruitmentState.callbacks,
+    -- The owners' answers are fixed for a match, so they are read when its map or save is read.
+    local callbacks = self.recruitmentState.callbacks
+    for _, name in ipairs({'initialize', 'deserialize'}) do
+      local read = callbacks[name]
+      callbacks[name] = function(...)
+        native.refreshOwnerAnswers()
+        return read(...)
+      end
+    end
+    mapState:registerSection('aic-tactics', callbacks,
       {required=true, format='aic-tactics-state-14', fingerprint=identity.sha256})
     log(INFO, string.format('[aic-tactics] configuration=0x%X size=%d observations=0x%X size=%d',
       native.configuration, native.configurationSize, native.observations, native.observationSize))
