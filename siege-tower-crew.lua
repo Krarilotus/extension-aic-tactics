@@ -37,6 +37,7 @@ function M.register(riders, native, game, fallback)
       and integer(tribe + 0x34) == integer(record + 0x2E4)
       and short(tribe + game.tribeAttackWave) == wave
   end
+  local scanned = {}
   local function wallBound(record)
     return short(record + 0x39C) == 0x17 and short(record + 0x2C0) == 0x65
   end
@@ -55,6 +56,11 @@ function M.register(riders, native, game, fallback)
     -- Keep seats available before departure. The owning module checks both
     -- native and replacement tower orders here, before its proximity fill.
     if not wallBound(record) or riders:getFreeSeats(tower) == 0 then return true end
+    -- One scan every 32 ticks boards all wall-bound towers of the wave, at the
+    -- cadence of the owning module's proximity boarding.
+    local tick = integer(game.gameTick)
+    if tick % 32 ~= 0 or scanned[player] == tick then return true end
+    scanned[player] = tick
     local towers, units = {}, {{}, {}}
     for id = 1, game.unitCapacity - 1 do
       local candidate = game.unitRecords + id * 0x490
