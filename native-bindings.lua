@@ -32,6 +32,7 @@ function M.resolve()
   for key, value in pairs(require('native-recruitment').resolve(game)) do game[key] = value end
   for key, value in pairs(require('native-aic-queries').resolve(game)) do game[key] = value end
   -- Bindings used only by the listed features; when they do not resolve, those features stay off.
+  -- The siege bindings include the native group move that patrols, lord hunt and relief call.
   game.missingFeatures = {}
   for _, binding in ipairs({
       {'native-combat-bindings', 'Combat', 'Raids'},
