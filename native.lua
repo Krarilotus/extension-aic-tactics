@@ -533,14 +533,16 @@ finished:
     local raids = {}
     for unitType = 0, 79 do raids[unitType + 1] = ask(tunnelers, 'raidRoleFor', unitType) or 0 end
     core.writeBytes(native.ownerRaidTypes, raids)
+    local asksRows = troops and type(troops.defenseRowFor) == 'function'
+    local asksGroups = troops and type(troops.defenseGroupsFor) == 'function'
     for ai = 1, 16 do
       if core.readInteger(native.configuration + ai * native.configurationSize) == 1 then
         local rows, groups = {}, {}
-        for unitType = 0, 79 do rows[unitType + 1] = ask(troops, 'defenseRowFor', ai, unitType) or 0 end
+        for unitType = 0, 79 do rows[unitType + 1] = asksRows and ask(troops, 'defenseRowFor', ai, unitType) or 0 end
         for row = 0, 19 do
           for slots = 1, 10 do
             for patrolGroups = 0, 10 do
-              local count = ask(troops, 'defenseGroupsFor', ai, row, slots, patrolGroups)
+              local count = asksGroups and ask(troops, 'defenseGroupsFor', ai, row, slots, patrolGroups)
               groups[#groups + 1] = count and count + 1 or 0
             end
           end
