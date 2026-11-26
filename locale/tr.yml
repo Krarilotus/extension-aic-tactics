@@ -74,3 +74,6 @@ allyMonthlyGivePercent: "Aylık hediye sınırı"
 allyMonthlyGivePercent_descr: "Yapay zekânın her maldan, altın dahil, ayda verdiği yüzde. 0 hiçbir şey vermez; varsayılan 30."
 diagnostics: "Tanılama günlüğü"
 diagnostics_descr: "Her yapay zekânın lord avı, müttefik yardımı, hediye ve ek devriye kararlarını UCP günlüğüne yazar. Varsayılan olarak kapalıdır."
+ai: Yapay zekâ
+fixes: Düzeltmeler
+improvements: İyileştirmeler

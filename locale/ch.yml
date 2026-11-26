@@ -74,3 +74,6 @@ allyMonthlyGivePercent: "每月赠送上限"
 allyMonthlyGivePercent_descr: "AI 每月赠出每种物资（含金币）的百分比。0 不赠送；默认 30。"
 diagnostics: "诊断日志"
 diagnostics_descr: "将每个 AI 关于追击领主、援助盟友、赠送物资和额外巡逻的决定写入 UCP 日志。默认关闭。"
+ai: AI
+fixes: 修复
+improvements: 改进

@@ -74,3 +74,6 @@ allyMonthlyGivePercent: "Límite mensual de regalos"
 allyMonthlyGivePercent_descr: "Porcentaje de cada bien, oro incluido, que una IA regala al mes. 0 no regala nada; predeterminado 30."
 diagnostics: "Registro de diagnóstico"
 diagnostics_descr: "Escribe en el registro de UCP las decisiones de cada IA sobre la caza del señor, la ayuda a aliados, los regalos y las patrullas adicionales. Desactivado por defecto."
+ai: IA
+fixes: Correcciones
+improvements: Mejoras

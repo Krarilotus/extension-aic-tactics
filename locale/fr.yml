@@ -74,3 +74,6 @@ allyMonthlyGivePercent: "Limite mensuelle des dons"
 allyMonthlyGivePercent_descr: "Pourcentage de chaque bien, or compris, qu’une IA donne par mois. 0 ne donne rien ; par défaut : 30."
 diagnostics: "Journal de diagnostic"
 diagnostics_descr: "Écrit dans le journal UCP les décisions de chaque IA sur la chasse au seigneur, l’aide aux alliés, les dons et les patrouilles supplémentaires. Désactivé par défaut."
+ai: IA
+fixes: Correctifs
+improvements: Améliorations

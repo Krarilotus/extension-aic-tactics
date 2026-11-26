@@ -74,3 +74,6 @@ allyMonthlyGivePercent: "Havi ajándékkorlát"
 allyMonthlyGivePercent_descr: "Minden áruból, az aranyat is beleértve, ennyi százalékot ad oda az MI havonta. 0 semmit sem ad; alapérték: 30."
 diagnostics: "Diagnosztikai napló"
 diagnostics_descr: "Minden MI döntését a várúr üldözéséről, a szövetségesek segítéséről, az ajándékokról és a további őrjáratokról az UCP naplóba írja. Alapértelmezés szerint kikapcsolva."
+ai: MI
+fixes: Javítások
+improvements: Fejlesztések

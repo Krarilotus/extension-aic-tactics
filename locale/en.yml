@@ -74,3 +74,6 @@ allyMonthlyGivePercent: "Monthly gift limit"
 allyMonthlyGivePercent_descr: "Percent of each good, gold included, an AI gives away per month. 0 gives nothing; default 30."
 diagnostics: "Diagnostics log"
 diagnostics_descr: "Writes every AI's lord hunt, ally help, gift and extra patrol decisions to the UCP log. Off by default."
+ai: AI
+fixes: Fixes
+improvements: Improvements

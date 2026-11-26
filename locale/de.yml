@@ -74,3 +74,6 @@ allyMonthlyGivePercent: "Monatliche Geschenkgrenze"
 allyMonthlyGivePercent_descr: "Prozent jeder Ware, Gold eingeschlossen, die eine KI pro Monat abgibt. 0 gibt nichts; Standard 30."
 diagnostics: "Diagnoseprotokoll"
 diagnostics_descr: "Schreibt die Entscheidungen jeder KI zu Burgherrenjagd, Verbündetenhilfe, Geschenken und zusätzlichen Patrouillen ins UCP-Log. Standardmäßig aus."
+ai: KI
+fixes: Fehlerbehebungen
+improvements: Verbesserungen
