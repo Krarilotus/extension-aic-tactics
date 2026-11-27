@@ -7,12 +7,21 @@ function M.resolve(game)
   local callSite = context.find('siege footprint tile check',
     '8B 4C 24 10 8B 5C 24 40 6A 00 51 53 50 8B CE E8 ? ? ? ? 85 C0 B9 01 00 00 00 74 06')
   local original = context.call(callSite + 15, 'siege footprint tile check')
-  context.verify(original, 'tile placement owner',
-    '83 EC 0C 8B 54 24 18 53 55 56 8B F1 57 8B 7C 24 20 8B 9C BE ? ? ? ?')
+  -- Smarter Buildings patches the first 7 bytes; verify the body after them.
+  context.verify(original + 7, 'tile placement owner',
+    '53 55 56 8B F1 57 8B 7C 24 20 8B 9C BE ? ? ? ?')
+  -- Build Over Workers hooks the 8-byte unitLayer read at -8 and replays it first in its stub.
   local occupancy = context.find('siege footprint unit occupancy',
-    '0F BF 8C 5E ? ? ? ? 85 C9 74 26 0F BF 44 24 28 83 C0 D3 83 F8 21 77 0E '..
+    '85 C9 74 26 0F BF 44 24 28 83 C0 D3 83 F8 21 77 0E '..
     '0F B6 90 ? ? ? ? FF 24 95 ? ? ? ? 51 B9 ? ? ? ? E8 ? ? ? ?')
-  local offset = core.readInteger(occupancy + 4)
+  local occupancyRead = occupancy - 8
+  if core.readByte(occupancyRead) == 0xE9 then
+    context.verify(occupancyRead + 5, 'siege footprint unit occupancy', '90 90 90')
+    occupancyRead = occupancyRead + 5 + core.readInteger(occupancyRead + 1)
+    assert(occupancyRead > 0, 'AIC Tactics: invalid native siege footprint unit occupancy jump')
+  end
+  context.verify(occupancyRead, 'siege footprint unit occupancy', '0F BF 8C 5E')
+  local offset = core.readInteger(occupancyRead + 4)
   assert(offset == 0x23D7E0 and game.unitCapacity >= 2500,
     'AIC Tactics: unsupported native siege footprint layout')
   local noSpot = context.find('siege harassment no-site return',
@@ -35,16 +44,24 @@ function M.resolve(game)
     'C7 80 ? ? ? ? 00 00 00 00 C7 80 ? ? ? ? 00 00 00 00 6A 0F '..
     '8B C7 C1 E0 05 89 88 ? ? ? ? 8B 88 ? ? ? ? 6A 03 52 8B 90 ? ? ? ?')
   local placer = reservation - 0x64
-  context.verify(placer, 'siege attack-angle placer',
-    '53 8B 5C 24 08 56 8B F3 69 F6 ? ? ? ? 0F BF 86 ? ? ? ? '..
+  -- Improved Siege Engines wraps the 5-byte prologue; verify the body after it.
+  context.verify(placer + 5, 'siege attack-angle placer',
+    '56 8B F3 69 F6 ? ? ? ? 0F BF 86 ? ? ? ? '..
     '69 C0 90 04 00 00 0F BF 88 ? ? ? ? 0F BF 90 ? ? ? ? '..
     '57 53 51 52 68 C8 00 00 00 B9 ? ? ? ? E8 ? ? ? ?')
   assert(core.readInteger(placer + 10) == game.tribeStride,
     'AIC Tactics: incompatible siege tribe layout')
   local finder = context.call(placer + 0x37, 'siege attack-angle finder')
   local candidate = finder + 0x1a1
-  context.verify(candidate, 'siege attack-angle candidate',
-    '8B C8 C1 E1 05 83 B9 ? ? ? ? 00 75 ? 83 B9 ? ? ? ? 00 0F 84 ? ? ? ?')
+  -- Improved Siege Engines replaces the 21 bytes before candidateBranch with a jump + NOPs
+  -- and returns through candidateBranch (je) when accepting a spot.
+  if core.readByte(candidate) == 0xE9 then
+    context.verify(candidate + 5, 'siege attack-angle candidate',
+      '90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 0F 84 ? ? ? ?')
+  else
+    context.verify(candidate, 'siege attack-angle candidate',
+      '8B C8 C1 E1 05 83 B9 ? ? ? ? 00 75 ? 83 B9 ? ? ? ? 00 0F 84 ? ? ? ?')
+  end
   local candidateBranch = candidate + 0x15
   assert(core.readByte(candidateBranch) == 0x0F and core.readByte(candidateBranch+1) == 0x84,
     'AIC Tactics: incompatible siege candidate branch')
@@ -92,8 +109,23 @@ function M.resolve(game)
       and core.readByte(failedPlacement + 1) == 0x85,
     'AIC Tactics: incompatible native building rejection')
   local failureExit = failedPlacement + 6 + core.readInteger(failedPlacement + 2)
-  context.verify(failureExit, 'native building placement failure exit',
-    '5F 5E 5D 5B 83 C4 08 C2 18 00')
+  local epilogue = '5F 5E 5D 5B 83 C4 08 C2 18 00'
+  if core.readByte(failureExit) == 0xE9 then
+    -- Build Over Workers hooks the 10-byte epilogue and replays it in its stub.
+    context.verify(failureExit + 5, 'native building placement failure exit', '90 90 90 90 90')
+    local stub = failureExit + 5 + core.readInteger(failureExit + 1)
+    assert(stub > 0, 'AIC Tactics: invalid native building placement failure exit jump')
+    local matched = false
+    for delta = 0, 48 do
+      if pcall(context.verify, stub + delta, 'native building placement failure exit', epilogue) then
+        matched = true
+        break
+      end
+    end
+    assert(matched, 'AIC Tactics: modified native building placement failure exit')
+  else
+    context.verify(failureExit, 'native building placement failure exit', epilogue)
+  end
   local resourceCheck = context.find('native construction resource admission',
     '83 EC 18 8B 44 24 1C 53 55 56 57 89 4C 24 20 BE 01 00 00 00 '..
     '50 B9 ? ? ? ? 89 74 24 14 C7 44 24 18 00 00 00 00 E8 ? ? ? ?')
@@ -138,8 +170,9 @@ function M.resolve(game)
   context.verify(assaultPlacementCall, 'native assault siege construction call',
     'E8 ? ? ? ? 83 C6 01 83 C7 04 83 FE 08 0F 8C ? ? ? ?')
   local placeTent = context.call(assaultPlacementCall, 'native assault siege construction')
-  context.verify(placeTent, 'native assault siege construction',
-    '53 8B 5C 24 08 55 56 57 8B 6C 24 1C 8B FB 69 FF ? ? ? ?')
+  -- Improved Siege Engines wraps the 5-byte prologue; verify the body after it.
+  context.verify(placeTent + 5, 'native assault siege construction',
+    '55 56 57 8B 6C 24 1C 8B FB 69 FF ? ? ? ?')
   assert(core.readInteger(placeTent + 16) == game.tribeStride,
     'AIC Tactics: incompatible native assault siege construction layout')
   context.verify(placeTent + 0x10e, 'native pending siege wave write',

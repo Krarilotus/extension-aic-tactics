@@ -98,7 +98,7 @@ for pattern,_,address in contexts:
     negative+=1
 g.core.uniqueScan=sites.__getitem__;g.core.scanForAOB=lambda *_:None
 for index,offset in [(1,22),(1,27),(2,12),(2,289),(3,22),(4,2),(4,44),
-                     (5,13),(5,118),(6,30),(7,142),(8,46)]:
+                     (5,3),(5,108),(6,30),(7,142),(8,46)]:
     target=contexts[index][2]+offset
     g.core.readInteger=lambda address:0 if address==target else get(address)
     try:owner.resolve(g.game)
