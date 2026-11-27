@@ -27,7 +27,7 @@ def backend():
         patrolExtraGroups=24100,patrolMinSize=24200,patrolRadius=24300,siegeScreen=24400,
         siegeScreenForward=24500,siegeScreenExtraGroups=24600,
         allySettings=26000,allyFallback=26800,
-        game={gameTick=0x1FE7DA8},
+        game={gameTick=0x1FE7DA8,initialDefenseTicks=30000},
         admissionTick=function() return native.game.gameTick end,
         preflightLordHunt=function()huntPreflights=(huntPreflights or 0)+1 end,
         activateLordHunt=function()huntActivations=(huntActivations or 0)+1 end,

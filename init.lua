@@ -65,6 +65,10 @@ local function enable(self, config)
     {required=true, format='aic-tactics-state-14'})
 
   -- The other siege features need safe placement.
+  if largerSiege then
+    native.preflightLargerSiegeForce()
+    largerSiege = not native.unavailableFeatures.LargerSiegeForce
+  end
   native.configureSafePlacement(safePlacement or siegePayment or siegeHarassment or largerSiege)
   native.configureSiegePayment(siegePayment)
   native.configureSiegeHarassment(siegeHarassment, siegeHarassMinimum)

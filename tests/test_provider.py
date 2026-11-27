@@ -309,7 +309,7 @@ def test_native_identity_is_independent_of_character_update_order(lua, native_fi
         patrolExtraGroups=502000,patrolMinSize=502100,patrolRadius=502200,siegeScreen=502300,
         siegeScreenForward=502400,siegeScreenExtraGroups=502500,
         allySettings=503000,allyFallback=503800,
-        game={gameTick=300000},
+        game={gameTick=300000,initialDefenseTicks=300004},
         admissionTick=function() return 300000 end,
         preflightCombat=function()end,activateCombat=function()end}
       backend.prepare=require('config.backend').new(native).prepare

@@ -107,6 +107,14 @@ function M.new(native)
       changesPolicy = changesPolicy or attacks[index] ~= 0 or previousPatrol[index] ~= 0
     end
     if multiplayerLocked or changesPolicy or anyPolicyActive() then admission() end
+    local recordActive = personality.recordActive(authored)
+    local grace = compiled.initialDefenseTicks
+    if recordActive and grace == nil then
+      if not native.game.initialDefenseTicks then
+        require('native-bindings').requireBindings(native.game, {'Grace'})
+      end
+      grace = core.readInteger(native.game.initialDefenseTicks)
+    end
     if compiled.mode == 1 then native.preflight() end
     if compiled.mode == 1 and compiled.defenseComposition == 1 then native.preflightComposition() end
     local needsCombat = targeting.policy ~= 0 or targeting.commitment ~= 0 or targeting.activation ~= 0
@@ -121,10 +129,16 @@ function M.new(native)
     end
     if needsCombat then native.preflightCombat() end
     if envelope.raids[1] ~= 0 then native.preflightRaids() end
+    if envelope.siege[5] == 1 then
+      native.preflightLargerSiegeForce()
+      if native.unavailableFeatures.LargerSiegeForce and authored.SafeSiegePlacement == nil
+          and envelope.siege[2] ~= 1 and envelope.siege[3] ~= 1 then
+        envelope.siege[1] = 0
+      end
+    end
     if envelope.siege[1] == 1 then native.preflightSafePlacement() end
     if envelope.siege[2] == 1 then native.preflightSiegePayment() end
     if envelope.siege[3] == 1 then native.preflightSiegeHarassment() end
-    if envelope.siege[5] == 1 then native.preflightLargerSiegeForce() end
     if attacks[1] == 2 then native.preflightAttackPatrols() end
     if lordHunt.enables(hunt) then native.preflightLordHunt() end
     if attacks[7] == 2 then native.preflightSiegeScreen() end
@@ -171,7 +185,7 @@ function M.new(native)
       end
     end
     words[#words + 1] = compiled.defenseComposition
-    words[#words + 1] = compiled.initialDefenseTicks or (native.game.initialDefenseTicks and core.readInteger(native.game.initialDefenseTicks) or 0)
+    words[#words + 1] = grace or 0
     words[#words + 1] = targeting.policy
     words[#words + 1] = targeting.commitment
     words[#words + 1] = targeting.activation
@@ -183,7 +197,7 @@ function M.new(native)
     -- provider admission starts covering every update. Keep their unused
     -- storage identical to an unvisited record for save/MP/replay identity.
     -- The provider retains authored values for subsequent partial edits.
-    if not personality.recordActive(authored) then
+    if not recordActive then
       for index = 1, #words do words[index] = 0 end
     end
     words[88] = attacks[10] or 0

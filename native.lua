@@ -798,7 +798,7 @@ handled:
   optional('SafePlacement', 'safe siege placement', siege)
   optional('SiegePayment', 'siege resource payment', siege, 'SafePlacement')
   optional('SiegeHarassment', 'coordinated siege harassment', siege, 'SafePlacement', 'Combat')
-  optional('LargerSiegeForce', 'larger siege forces', siege, 'SafePlacement')
+  optional('LargerSiegeForce', 'larger siege forces', {'AICLayout', table.unpack(siege)}, 'SafePlacement')
   optional('EngineerRoles', 'engineer role counting', {'Layout', 'Engineer'})
   optional('AttackPatrols', 'attack patrol orders', patrol, 'Combat')
   optional('SiegeScreen', 'siege escorts', patrol)
