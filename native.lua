@@ -306,17 +306,22 @@ defer:
   -- Rebalancer owns the siege ranges once it has applied a ranges block.
   -- Otherwise the game's own range code must be unchanged.
   local catapultRangeReported = false
-  function native.refreshSiegeRanges(checkHarassment)
+  local siegeRangesFinalized = false
+  local function refreshSiegeRanges(reportUnavailable)
     if not game.siegeRangeSelection then return end
     local rebalancer = modules.rebalancer
     local ranges = rebalancer and type(rebalancer.getSiegeRanges) == 'function'
       and rebalancer:getSiegeRanges()
     local range = ranges and ranges.catapult or require('native-siege-bindings').catapultRange(game)
-    if not range and (checkHarassment or siegeHarassHooks) and not catapultRangeReported then
+    if not range and reportUnavailable and not catapultRangeReported then
       catapultRangeReported = true
       log(ERROR, 'AI catapult harassment is off. The catapult range could not be verified.')
     end
     core.writeInteger(native.siegeCatapultRange, range or 0)
+  end
+  function native.finalizeSiegeRanges()
+    refreshSiegeRanges(siegeHarassHooks ~= nil)
+    siegeRangesFinalized = true
   end
   function native.preflightSiegeHarassment()
     native.preflightCombat()
@@ -325,7 +330,7 @@ defer:
       '83 EC 10 53 55 56 57')
     context.verify(game.siegeFireRange - 1, 'fire ballista target range',
       'B9 ? ? ? ?')
-    native.refreshSiegeRanges(true)
+    refreshSiegeRanges(siegeRangesFinalized)
     for index, site in ipairs({game.siegeCatapultPathGate, game.siegeFirePathGate}) do
       if siegeHarassHooks then
         assert(core.readByte(site) == 0xE9

@@ -31,7 +31,7 @@ return {
     native.configureSiegePayment(siegePayment)
     native.configureSiegeHarassment(siegeHarassment, siegeHarassMinimum)
     -- A module enabled after this one may still change the siege ranges.
-    hooks.registerHookCallback('afterInit', function() native.refreshSiegeRanges() end)
+    hooks.registerHookCallback('afterInit', native.finalizeSiegeRanges)
     native.configureLargerSiegeForce(largerSiege, siegeForceMaximum)
     local roleCounting = config and config.correctEngineerRoleCounting
     if roleCounting == nil then roleCounting = false end

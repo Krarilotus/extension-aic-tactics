@@ -40,7 +40,12 @@ def test_fields_store_inherit_or_explicit_values_per_ai():
       -- Gate opening installs its gate hook; keep standing and the minimum stay install nothing.
       prepare(7,{AICTactics_AllyReliefKeep=true,AICTactics_AllyReliefMinMonths=6}).commit()
       stored=words(7)
-      assert(stored[9]==2 and stored[10]==7 and gatePreflights==nil)
+      assert(stored[9]==2 and stored[10]==7 and gatePreflights==nil and keepPreflights==1)
+      native.unavailableFeatures.AllyReliefKeep=true
+      prepare(7,{AICTactics_AllyReliefKeep=true}).commit()
+      assert(words(7)[9]==0 and keepPreflights==2)
+      prepare(7,{AICTactics_AllyReliefKeep=false}).commit()
+      assert(keepPreflights==2)
       prepare(8,{AICTactics_AllyReliefGates=true}).commit()
       assert(words(8)[8]==2 and gatePreflights==1 and gateActivations==1)
       -- A rollback restores every earlier word.

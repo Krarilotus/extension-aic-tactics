@@ -128,6 +128,7 @@ function M.new(native)
     if allies[1] == 2 then native.preflightAllyRelief() end
     if allies[2] == 2 then native.preflightAllyGoods() end
     if allies[8] == 2 then native.preflightAllyGates() end
+    if allies[9] == 2 then native.preflightAllyReliefKeep() end
     -- Per-AI values of a feature that is off are stored as unset.
     local off = native.unavailableFeatures
     if off.Combat then

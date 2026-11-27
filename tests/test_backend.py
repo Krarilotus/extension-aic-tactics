@@ -47,6 +47,7 @@ def backend():
         activateAllyGoods=function()goodsActivations=(goodsActivations or 0)+1 end,
         preflightAllyGates=function()gatePreflights=(gatePreflights or 0)+1 end,
         activateAllyGates=function()gateActivations=(gateActivations or 0)+1 end,
+        preflightAllyReliefKeep=function()keepPreflights=(keepPreflights or 0)+1 end,
         preflightEngineerRoles=function()rolePreflights=rolePreflights+1 end,
         activateEngineerRoles=function()roleActivations=roleActivations+1 end}
       backend=require('config.backend').new(native)
