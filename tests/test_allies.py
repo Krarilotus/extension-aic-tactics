@@ -181,7 +181,8 @@ def test_schema_options_and_locales_match_the_lua_bounds():
     options = (ROOT / 'options.yml').read_text(encoding='utf-8')
 
     def option(name, key):
-        block = options.split('  name: %s\n' % name, 1)[1].split('  name: ', 1)[0]
+        block = re.split(r'^ +(?:- )?name: ' + name + r'\n', options, maxsplit=1, flags=re.M)[1]
+        block = re.split(r'^ +(?:- )?name: ', block, maxsplit=1, flags=re.M)[0]
         return re.search(r'^\s+%s: (.+)$' % key, block, re.M).group(1).strip()
     bounds = {'AICTactics_AllyGoldKeep': (0, 100000, 'allyGoldKeep', 1000),
               'AICTactics_AllyRecruitGoldBuffer': (0, 5000, 'allyRecruitGoldBuffer', 300),
@@ -197,10 +198,12 @@ def test_schema_options_and_locales_match_the_lua_bounds():
         assert [option(name, key) for key in ('min', 'max', 'value')] == [str(low), str(high), str(default)]
     for name in ('allyRelief', 'allyGoods', 'allyReliefGates', 'allyReliefKeep'):
         assert option(name, 'value') == 'false'
+    for name in ('allyReliefGates', 'allyReliefKeep', *(value[2] for value in bounds.values())):
+        assert f'- hidden: true\n  name: {name}\n' in options
     locales = sorted((ROOT / 'locale').glob('*.yml'))
     assert len(locales) == 9
     for path in locales:
         text = path.read_text(encoding='utf-8')
-        for name in ['allyRelief', 'allyGoods', 'allyReliefGates', 'allyReliefKeep'] + [value[2] for value in bounds.values()]:
+        for name in ('allyRelief', 'allyGoods'):
             for key in (name, name + '_descr'):
                 assert re.search(r'^%s: "[^"]+"' % key, text, re.M), (path.name, key)

@@ -305,16 +305,16 @@ defer:
   end
   -- Rebalancer owns the siege ranges once it has applied a ranges block.
   -- Otherwise the game's own range code must be unchanged.
-  local catapultRangeWarned = false
-  function native.refreshSiegeRanges()
+  local catapultRangeReported = false
+  function native.refreshSiegeRanges(checkHarassment)
     if not game.siegeRangeSelection then return end
     local rebalancer = modules.rebalancer
     local ranges = rebalancer and type(rebalancer.getSiegeRanges) == 'function'
       and rebalancer:getSiegeRanges()
     local range = ranges and ranges.catapult or require('native-siege-bindings').catapultRange(game)
-    if not range and not catapultRangeWarned then
-      catapultRangeWarned = true
-      log(WARNING, '[aic-tactics] siege harassment with catapults is off; another module changed their range code')
+    if not range and (checkHarassment or siegeHarassHooks) and not catapultRangeReported then
+      catapultRangeReported = true
+      log(ERROR, 'AI catapult harassment is off. The catapult range could not be verified.')
     end
     core.writeInteger(native.siegeCatapultRange, range or 0)
   end
@@ -325,7 +325,7 @@ defer:
       '83 EC 10 53 55 56 57')
     context.verify(game.siegeFireRange - 1, 'fire ballista target range',
       'B9 ? ? ? ?')
-    native.refreshSiegeRanges()
+    native.refreshSiegeRanges(true)
     for index, site in ipairs({game.siegeCatapultPathGate, game.siegeFirePathGate}) do
       if siegeHarassHooks then
         assert(core.readByte(site) == 0xE9
@@ -687,11 +687,15 @@ handled:
   -- then stay off for this process: its preflight passes, its
   -- activation installs nothing and the match identity lists it. A feature
   -- whose installed hooks were replaced afterwards still fails.
-  local off, names = {}, {}
+  local off, names, reported = {}, {}, {}
+  local missing = game.missingFeatures or {}
   native.unavailableFeatures = off
   local function leaveOff(key, reason)
     off[key] = true
-    log(WARNING, string.format('[aic-tactics] %s is off; %s', names[key], reason))
+    if reported[key] then return end
+    reported[key] = true
+    log(DEBUG, '[aic-tactics] ' .. (reason or names[key]))
+    log(ERROR, string.format('AIC Tactics: %s is off. The required game code could not be verified.', names[key]))
   end
   local function optional(key, name, ...)
     names[key] = name
@@ -703,7 +707,10 @@ handled:
       end
     end
     native['preflight' .. key] = function()
-      if off[key] then return end
+      if off[key] then
+        leaveOff(key, missing[key])
+        return
+      end
       local reason = needOff()
       if not reason then
         local ok, failure = pcall(preflight)
@@ -731,14 +738,14 @@ handled:
   optional('LargerSiegeForce', 'larger siege forces', 'SafePlacement')
   optional('EngineerRoles', 'engineer role counting')
   optional('AttackPatrols', 'attack patrol orders', 'Combat')
-  optional('SiegeScreen', 'siege screen')
+  optional('SiegeScreen', 'siege escorts')
   optional('LordHunt', 'lord hunt', 'Combat')
   optional('AllyRelief', 'ally relief', 'Combat')
   optional('AllyGoods', 'ally goods', 'Combat', 'Raids')
   optional('AllyGates', 'relief gate opening', 'AllyRelief')
   optional('AllyReliefKeep', 'relief on the keep', 'AllyRelief')
-  for key, failure in pairs(game.missingFeatures or {}) do
-    leaveOff(key, 'its game code was not found: ' .. failure)
+  for key in pairs(missing) do
+    off[key] = true
   end
   -- Activates a module switch and returns whether the feature is on.
   function native.enableOptional(key, wanted)

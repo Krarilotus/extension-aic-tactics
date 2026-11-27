@@ -1,114 +1,65 @@
 meta:
   version: 1.0.0
 options:
-- category: ['{{ai}}', '{{fixes}}']
-  name: correctEngineerRoleCounting
-  header: '{{correctEngineerRoleCounting}}'
-  text: '{{correctEngineerRoleCounting_descr}}'
-  display: UCP2Switch
-  url: aic-tactics.correctEngineerRoleCounting
-  contents:
-    type: boolean
-    value: false
-- category: ['{{ai}}', '{{fixes}}']
-  name: safeSiegePlacement
-  header: '{{safeSiegePlacement}}'
-  text: '{{safeSiegePlacement_descr}}'
-  display: UCP2Switch
-  url: aic-tactics.safeSiegePlacement
-  contents:
-    type: boolean
-    value: false
 - category: ['{{ai}}', '{{improvements}}']
-  name: actualSiegeResourcePayment
-  header: '{{actualSiegeResourcePayment}}'
-  text: '{{actualSiegeResourcePayment_descr}}'
-  display: UCP2Switch
-  url: aic-tactics.actualSiegeResourcePayment
-  contents:
-    type: boolean
-    value: false
+  name: attack_patrols
+  display: GroupBox
+  header: '{{attack_patrols}}'
+  text: '{{tactics_defaults}}'
+  children:
+  - name: patrolOrders
+    header: '{{patrolOrders}}'
+    text: '{{patrolOrders_descr}}'
+    display: Choice
+    url: aic-tactics.patrolOrders
+    contents:
+      choices:
+      - name: AllGroups
+        text: '{{patrolOrders_all}}'
+      - name: Native
+        text: '{{patrolOrders_native}}'
+      value: Native
+  - name: patrolFormation
+    header: '{{patrolFormation}}'
+    text: '{{patrolFormation_descr}}'
+    display: Choice
+    url: aic-tactics.patrolFormation
+    contents:
+      choices:
+      - name: Wing
+        text: '{{patrolFormation_wing}}'
+      - name: Mirror
+        text: '{{patrolFormation_mirror}}'
+      - name: Routes
+        text: '{{patrolFormation_routes}}'
+      - name: Native
+        text: '{{patrolFormation_native}}'
+      value: Native
 - category: ['{{ai}}', '{{improvements}}']
-  name: coordinatedSiegeHarassment
-  header: '{{coordinatedSiegeHarassment}}'
-  text: '{{coordinatedSiegeHarassment_descr}}'
-  display: UCP2Switch
-  url: aic-tactics.coordinatedSiegeHarassment
-  contents:
-    type: boolean
-    value: false
-- category: ['{{ai}}', '{{improvements}}']
-  name: siegeHarassMinEngines
-  header: '{{siegeHarassMinEngines}}'
-  text: '{{siegeHarassMinEngines_descr}}'
-  display: Number
-  url: aic-tactics.siegeHarassMinEngines
-  contents:
-    type: integer
-    value: 3
-    min: 0
-    max: 20
-- category: ['{{ai}}', '{{improvements}}']
-  name: largerSiegeForces
-  header: '{{largerSiegeForces}}'
-  text: '{{largerSiegeForces_descr}}'
-  display: UCP2Switch
-  url: aic-tactics.largerSiegeForces
-  contents:
-    type: boolean
-    value: false
-- category: ['{{ai}}', '{{improvements}}']
-  name: siegeForceMax
-  header: '{{siegeForceMax}}'
-  text: '{{siegeForceMax_descr}}'
-  display: Number
-  url: aic-tactics.siegeForceMax
-  contents:
-    type: integer
-    value: 0
-    min: 0
-    max: 64
-- category: ['{{ai}}', '{{improvements}}']
-  name: patrolOrders
-  header: '{{patrolOrders}}'
-  text: '{{patrolOrders_descr}}'
-  display: Choice
-  url: aic-tactics.patrolOrders
-  contents:
-    choices:
-    - name: AllGroups
-      text: '{{patrolOrders_all}}'
-    - name: Native
-      text: '{{patrolOrders_native}}'
-    value: Native
-- category: ['{{ai}}', '{{improvements}}']
-  name: patrolFormation
-  header: '{{patrolFormation}}'
-  text: '{{patrolFormation_descr}}'
-  display: Choice
-  url: aic-tactics.patrolFormation
-  contents:
-    choices:
-    - name: Wing
-      text: '{{patrolFormation_wing}}'
-    - name: Mirror
-      text: '{{patrolFormation_mirror}}'
-    - name: Routes
-      text: '{{patrolFormation_routes}}'
-    - name: Native
-      text: '{{patrolFormation_native}}'
-    value: Native
-- category: ['{{ai}}', '{{improvements}}']
-  name: patrolSpacing
-  header: '{{patrolSpacing}}'
-  text: '{{patrolSpacing_descr}}'
-  display: Number
-  url: aic-tactics.patrolSpacing
-  contents:
-    type: integer
-    value: 12
-    min: 4
-    max: 40
+  name: siege_tactics
+  display: GroupBox
+  header: '{{siege_tactics}}'
+  children:
+  - name: siegeScreen
+    header: '{{siegeScreen}}'
+    text: '{{siegeScreen_descr}}'
+    display: Choice
+    url: aic-tactics.siegeScreen
+    contents:
+      choices:
+      - name: EngineApproach
+        text: '{{siegeScreen_engineApproach}}'
+      - name: Native
+        text: '{{siegeScreen_native}}'
+      value: Native
+  - name: siegeTowerCrew
+    header: '{{siegeTowerCrew}}'
+    text: '{{siegeTowerCrew_descr}}'
+    display: UCP2Switch
+    url: aic-tactics.siegeTowerCrew
+    contents:
+      type: boolean
+      value: false
 - category: ['{{ai}}', '{{improvements}}']
   name: lordHuntRetarget
   header: '{{lordHuntRetarget}}'
@@ -119,235 +70,214 @@ options:
     type: boolean
     value: false
 - category: ['{{ai}}', '{{improvements}}']
-  name: allyRelief
-  header: '{{allyRelief}}'
-  text: '{{allyRelief_descr}}'
-  display: UCP2Switch
-  url: aic-tactics.allyRelief
+  name: ally_help
+  display: GroupBox
+  header: '{{ally_help}}'
+  children:
+  - name: allyRelief
+    header: '{{allyRelief}}'
+    text: '{{allyRelief_descr}}'
+    display: UCP2Switch
+    url: aic-tactics.allyRelief
+    contents:
+      type: boolean
+      value: false
+  - name: allyGoods
+    header: '{{allyGoods}}'
+    text: '{{allyGoods_descr}}'
+    display: UCP2Switch
+    url: aic-tactics.allyGoods
+    contents:
+      type: boolean
+      value: false
+- hidden: true
+  name: correctEngineerRoleCounting
+  url: aic-tactics.correctEngineerRoleCounting
   contents:
     type: boolean
     value: false
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
+  name: safeSiegePlacement
+  url: aic-tactics.safeSiegePlacement
+  contents:
+    type: boolean
+    value: false
+- hidden: true
+  name: actualSiegeResourcePayment
+  url: aic-tactics.actualSiegeResourcePayment
+  contents:
+    type: boolean
+    value: false
+- hidden: true
+  name: coordinatedSiegeHarassment
+  url: aic-tactics.coordinatedSiegeHarassment
+  contents:
+    type: boolean
+    value: false
+- hidden: true
+  name: siegeHarassMinEngines
+  url: aic-tactics.siegeHarassMinEngines
+  contents:
+    type: integer
+    value: 3
+    min: 0
+    max: 20
+- hidden: true
+  name: largerSiegeForces
+  url: aic-tactics.largerSiegeForces
+  contents:
+    type: boolean
+    value: false
+- hidden: true
+  name: siegeForceMax
+  url: aic-tactics.siegeForceMax
+  contents:
+    type: integer
+    value: 0
+    min: 0
+    max: 64
+- hidden: true
+  name: patrolSpacing
+  url: aic-tactics.patrolSpacing
+  contents:
+    type: integer
+    value: 12
+    min: 4
+    max: 40
+- hidden: true
   name: lordHuntSiege
-  header: '{{lordHuntSiege}}'
-  text: '{{lordHuntSiege_descr}}'
-  display: Choice
   url: aic-tactics.lordHuntSiege
   contents:
     choices:
     - name: HidingCastle
-      text: '{{lordHuntSiege_hiding}}'
     - name: HomeCastle
-      text: '{{lordHuntSiege_home}}'
     value: HidingCastle
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: lordHuntSplitShare
-  header: '{{lordHuntSplitShare}}'
-  text: '{{lordHuntSplitShare_descr}}'
-  display: Number
   url: aic-tactics.lordHuntSplitShare
   contents:
     type: integer
     value: 50
     min: 0
     max: 100
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: lordHuntSwitchPercent
-  header: '{{lordHuntSwitchPercent}}'
-  text: '{{lordHuntSwitchPercent_descr}}'
-  display: Number
   url: aic-tactics.lordHuntSwitchPercent
   contents:
     type: integer
     value: 80
     min: 0
     max: 100
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: lordHuntShare
-  header: '{{lordHuntShare}}'
-  text: '{{lordHuntShare_descr}}'
-  display: Number
   url: aic-tactics.lordHuntShare
   contents:
     type: integer
     value: 0
     min: 0
     max: 100
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: patrolExtraGroups
-  header: '{{patrolExtraGroups}}'
-  text: '{{patrolExtraGroups_descr}}'
-  display: Number
   url: aic-tactics.patrolExtraGroups
   contents:
     type: integer
     value: 0
     min: 0
     max: 6
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: patrolMinSize
-  header: '{{patrolMinSize}}'
-  text: '{{patrolMinSize_descr}}'
-  display: Number
   url: aic-tactics.patrolMinSize
   contents:
     type: integer
     value: 4
     min: 1
     max: 50
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: patrolRadius
-  header: '{{patrolRadius}}'
-  text: '{{patrolRadius_descr}}'
-  display: Number
   url: aic-tactics.patrolRadius
   contents:
     type: integer
     value: 12
     min: 4
     max: 100
-- category: ['{{ai}}', '{{improvements}}']
-  name: siegeScreen
-  header: '{{siegeScreen}}'
-  text: '{{siegeScreen_descr}}'
-  display: Choice
-  url: aic-tactics.siegeScreen
-  contents:
-    choices:
-    - name: EngineApproach
-      text: '{{siegeScreen_engineApproach}}'
-    - name: Native
-      text: '{{siegeScreen_native}}'
-    value: Native
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: siegeScreenForward
-  header: '{{siegeScreenForward}}'
-  text: '{{siegeScreenForward_descr}}'
-  display: Number
   url: aic-tactics.siegeScreenForward
   contents:
     type: integer
     value: 4
     min: 0
     max: 10
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: siegeScreenExtraGroups
-  header: '{{siegeScreenExtraGroups}}'
-  text: '{{siegeScreenExtraGroups_descr}}'
-  display: Number
   url: aic-tactics.siegeScreenExtraGroups
   contents:
     type: integer
     value: 0
     min: 0
     max: 6
-- category: ['{{ai}}', '{{improvements}}']
-  name: siegeTowerCrew
-  header: '{{siegeTowerCrew}}'
-  text: '{{siegeTowerCrew_descr}}'
-  display: UCP2Switch
-  url: aic-tactics.siegeTowerCrew
-  contents:
-    type: boolean
-    value: false
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: allyArmySharePercent
-  header: '{{allyArmySharePercent}}'
-  text: '{{allyArmySharePercent_descr}}'
-  display: Number
   url: aic-tactics.allyArmySharePercent
   contents:
     type: integer
     value: 75
     min: 0
     max: 100
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: allyReliefMinMonths
-  header: '{{allyReliefMinMonths}}'
-  text: '{{allyReliefMinMonths_descr}}'
-  display: Number
   url: aic-tactics.allyReliefMinMonths
   contents:
     type: integer
     value: 0
     min: 0
     max: 12
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: allyReliefGates
-  header: '{{allyReliefGates}}'
-  text: '{{allyReliefGates_descr}}'
-  display: UCP2Switch
   url: aic-tactics.allyReliefGates
   contents:
     type: boolean
     value: false
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: allyReliefKeep
-  header: '{{allyReliefKeep}}'
-  text: '{{allyReliefKeep_descr}}'
-  display: UCP2Switch
   url: aic-tactics.allyReliefKeep
   contents:
     type: boolean
     value: false
-- category: ['{{ai}}', '{{improvements}}']
-  name: allyGoods
-  header: '{{allyGoods}}'
-  text: '{{allyGoods_descr}}'
-  display: UCP2Switch
-  url: aic-tactics.allyGoods
-  contents:
-    type: boolean
-    value: false
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: allyGoldKeep
-  header: '{{allyGoldKeep}}'
-  text: '{{allyGoldKeep_descr}}'
-  display: Number
   url: aic-tactics.allyGoldKeep
   contents:
     type: integer
     value: 1000
     min: 0
     max: 100000
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: allyRecruitGoldBuffer
-  header: '{{allyRecruitGoldBuffer}}'
-  text: '{{allyRecruitGoldBuffer_descr}}'
-  display: Number
   url: aic-tactics.allyRecruitGoldBuffer
   contents:
     type: integer
     value: 300
     min: 0
     max: 5000
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: allyGoldSharePercent
-  header: '{{allyGoldSharePercent}}'
-  text: '{{allyGoldSharePercent_descr}}'
-  display: Number
   url: aic-tactics.allyGoldSharePercent
   contents:
     type: integer
     value: 25
     min: 0
     max: 100
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: allyMonthlyGivePercent
-  header: '{{allyMonthlyGivePercent}}'
-  text: '{{allyMonthlyGivePercent_descr}}'
-  display: Number
   url: aic-tactics.allyMonthlyGivePercent
   contents:
     type: integer
     value: 30
     min: 0
     max: 100
-- category: ['{{ai}}', '{{improvements}}']
+- hidden: true
   name: diagnostics
-  header: '{{diagnostics}}'
-  text: '{{diagnostics_descr}}'
-  display: UCP2Switch
   url: aic-tactics.diagnostics
   contents:
     type: boolean
