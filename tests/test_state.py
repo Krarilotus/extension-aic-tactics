@@ -263,7 +263,9 @@ def test_native_only_optional_state_does_not_impose_new_package_requirement():
       other.callbacks:validate(reader)
       assert(writes==0)
       reader.required=true
-      assert(not pcall(other.callbacks.validate,other.callbacks,reader) and writes==0)
+      -- A save made with other AIC settings loads with empty policy state.
+      other.callbacks:validate(reader)
+      assert(writes==0)
       reader.exists=function()return false end
       assert(not pcall(state.callbacks.validate,state.callbacks,reader) and writes==0)
     ''')

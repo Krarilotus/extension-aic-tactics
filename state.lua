@@ -291,17 +291,16 @@ function M.new(native, legacyInterval, version)
       validate = function(self, handle)
         if handle.required then
           assert(handle:exists(path), 'AIC Tactics: required policy state is missing from this save')
-          validate(handle:get(path))
-          return
         end
-        if not active() then return end
-        if handle:exists(path) then validate(handle:get(path)) end
       end,
       deserialize = function(self, handle)
         -- A matching section is restored even with its features now off: the
         -- detached groups in it go back to their slots at the next AI update.
-        if handle:exists(path) and pcall(validate, handle:get(path)) then restore(handle:get(path))
-        else initialize() end
+        -- A save made with other AIC settings loads with empty policy state.
+        local ok, err = handle:exists(path) and pcall(validate, handle:get(path))
+        if ok then restore(handle:get(path)) return end
+        if err then log(INFO, 'AIC Tactics: saved policy state not restored (' .. tostring(err) .. '); starting with empty policy state') end
+        initialize()
       end,
     },
   }
