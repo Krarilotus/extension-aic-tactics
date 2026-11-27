@@ -34,7 +34,7 @@ lordHuntSplitShare_descr: "Prozent der Armee für die andere Burg, solange die e
 lordHuntSwitchPercent: "Wechsel nur mit"
 lordHuntSwitchPercent_descr: "Während eines Angriffs wechselt die KI nur die Burg, solange dieser Prozentsatz ihrer Armee übrig ist; Standard 80."
 lordHuntShare: "Anteil für die Jagd"
-lordHuntShare_descr: "Prozent der Armee an der Burg des Burgherrn, der direkt auf ihn losgeht, sobald der Weg frei ist; 0 schaltet die Jagd aus."
+lordHuntShare_descr: "Anteil der Armee an der Burg, der den Burgherrn direkt angreift, sobald der Weg frei ist; 0 schaltet die Jagd aus."
 patrolFormation_routes: "Um die Burg und entlang ihrer Front"
 patrolExtraGroups: "Zusätzliche Patrouillengruppen"
 patrolExtraGroups_descr: "Teilt die Patrouille der KI während eines Angriffs in mehr Gruppen, solange jede die Mindestgröße behält. Nach dem Angriff vereinen sie sich wieder; 0 behält die Gruppen der KI."
