@@ -15,7 +15,7 @@ siegeScreen_descr: 指派攻城护卫队在攻城器械作业时进行掩护。
 siegeScreen_engineApproach: 护卫攻城器械
 siegeScreen_native: 游戏默认
 siegeTowerCrew: 让 AI 部队登上攻城塔
-siegeTowerCrew_descr: 在 Improved Siegeengines 启用可登乘攻城塔时，指派攻城护卫队登上驶向城墙的攻城塔。
+siegeTowerCrew_descr: 在 Improved Siegeengines 中启用登塔功能后，让负责掩护攻城器械的部队登上正驶向城墙的攻城塔。
 allyRelief: 派兵支援遇袭盟友
 allyRelief_descr: 可在盟友界面请求援军，或在城堡遇袭时自动获得支援。
 allyGoods: 允许 AI 盟友共享物资与金币

@@ -11,11 +11,11 @@ lordHuntRetarget: İnsan lordu barındıran kaleye saldır
 lordHuntRetarget_descr: Lord, yapay zekânın giremediği bir müttefik surunun arkasına sığındığında saldırıyı o kaleye yönlendirir.
 patrolFormation_routes: Çevrele ve süpür
 siegeScreen: Yapay zekâ birliklerini kuşatma araçlarının yanında tut
-siegeScreen_descr: Kuşatma araçları çalışırken onları korumak için kuşatma savunma gruplarını görevlendirir.
+siegeScreen_descr: Kuşatma araçlarını kullanıldıkları sırada korumak için refakat birlikleri görevlendirir.
 siegeScreen_engineApproach: Kuşatma araçlarına eşlik et
 siegeScreen_native: Oyun varsayılanı
 siegeTowerCrew: Yapay zekâ birliklerini kuşatma kulelerine bindir
-siegeTowerCrew_descr: Improved Siegeengines’te kuleye binme etkinken sura ilerleyen kulelere kuşatma savunma birliklerini atar.
+siegeTowerCrew_descr: Improved Siegeengines’te kuleye binme açıksa refakat birliklerini sura ilerleyen kuşatma kulelerine bindirir.
 allyRelief: Saldırı altındaki müttefiklere asker gönder
 allyRelief_descr: Müttefik ekranından asker isteyin veya kaleniz saldırı altındayken otomatik yardım alın.
 allyGoods: Yapay zekâ müttefikleri erzak ve altın paylaşsın

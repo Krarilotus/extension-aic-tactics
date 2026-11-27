@@ -11,11 +11,11 @@ lordHuntRetarget: A játékos lordját bújtató vár megtámadása
 lordHuntRetarget_descr: Átirányítja a támadást, ha a lord egy szövetséges falai mögött rejtőzik, ahová az MI nem jut be.
 patrolFormation_routes: Körbejárás és tisztogatás
 siegeScreen: MI-csapatok állítása ostromgépek mellé
-siegeScreen_descr: Ostromvédő csoportokat rendel az ostromgépek őrzésére működés közben.
+siegeScreen_descr: Fedezőcsapatokat rendel a működő ostromgépek védelmére.
 siegeScreen_engineApproach: Ostromgépek kísérése
 siegeScreen_native: Játék alapértelmezése
 siegeTowerCrew: MI-csapatok ültetése ostromtornyokba
-siegeTowerCrew_descr: Ostromvédő csapatokat oszt be a falak felé haladó tornyokba, ha a beszállás be van kapcsolva az Improved Siegeengines modulban.
+siegeTowerCrew_descr: A fedezőcsapatokat a falak felé tartó ostromtornyokra küldi, ha a beszállás engedélyezve van az Improved Siegeengines modulban.
 allyRelief: Csapatok küldése támadás alatt álló szövetségeseknek
 allyRelief_descr: Kérj csapatokat a szövetségesek képernyőjén, vagy kapj automatikus segítséget, ha megtámadják a váradat.
 allyGoods: Az MI-szövetségesek osszanak meg nyersanyagot és aranyat

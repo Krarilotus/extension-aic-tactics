@@ -8,14 +8,14 @@ patrolFormation_wing: "Neben der ersten Gruppe"
 patrolFormation_mirror: Gegenüberliegende Burgseite
 patrolFormation_native: Spielstandard
 lordHuntRetarget: Die Burg angreifen, die den menschlichen Lord schützt
-lordHuntRetarget_descr: Lenkt den Angriff um, wenn der Lord hinter den Mauern eines Verbündeten Schutz sucht, in die die KI nicht eindringen kann.
+lordHuntRetarget_descr: Lenkt den Angriff um, wenn der Lord in der Burg eines Verbündeten Schutz sucht und die KI nicht hineinkommt.
 patrolFormation_routes: Umfassen und aufräumen
 siegeScreen: KI-Truppen neben Belagerungsgeräten aufstellen
-siegeScreen_descr: Teilt Belagerungsschutz-Gruppen ein, um Belagerungsgeräte im Einsatz zu decken.
+siegeScreen_descr: Teilt Begleittruppen ein, die Belagerungsgeräte während ihres Einsatzes schützen.
 siegeScreen_engineApproach: Belagerungsgeräte eskortieren
 siegeScreen_native: Spielstandard
 siegeTowerCrew: KI-Truppen auf Belagerungstürme schicken
-siegeTowerCrew_descr: Teilt Belagerungsschutz-Truppen Türmen auf dem Weg zur Mauer zu, wenn bemannte Türme in Improved Siegeengines aktiv sind.
+siegeTowerCrew_descr: Schickt die Begleittruppen auf Belagerungstürme, die zur Mauer fahren, wenn das Einsteigen in Improved Siegeengines erlaubt ist.
 allyRelief: Truppen an angegriffene Verbündete senden
 allyRelief_descr: Fordere im Verbündetenmenü Truppen an oder erhalte automatisch Hilfe, wenn deine Burg angegriffen wird.
 allyGoods: KI-Verbündete Vorräte und Gold teilen lassen

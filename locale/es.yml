@@ -11,11 +11,11 @@ lordHuntRetarget: Atacar el castillo que refugia al señor humano
 lordHuntRetarget_descr: Redirige el ataque cuando el señor se refugia tras las murallas de un aliado en las que la IA no puede entrar.
 patrolFormation_routes: Rodear y barrer
 siegeScreen: Apostar tropas de la IA junto a máquinas de asedio
-siegeScreen_descr: Asigna grupos de defensa de asedio para proteger las máquinas mientras operan.
+siegeScreen_descr: Asigna grupos de escolta para proteger las máquinas de asedio mientras actúan.
 siegeScreen_engineApproach: Escoltar las máquinas
 siegeScreen_native: Predeterminado del juego
 siegeTowerCrew: Embarcar tropas de la IA en torres de asedio
-siegeTowerCrew_descr: Asigna tropas de defensa de asedio a las torres que avanzan hacia la muralla cuando las torres abordables estén activas en Improved Siegeengines.
+siegeTowerCrew_descr: Embarca a las tropas de escolta en las torres de asedio que avanzan hacia la muralla si está activado el embarque en Improved Siegeengines.
 allyRelief: Enviar tropas a aliados bajo ataque
 allyRelief_descr: Pide tropas en la pantalla de aliados o recibe ayuda automáticamente cuando ataquen tu castillo.
 allyGoods: Permitir que los aliados de la IA compartan suministros y oro

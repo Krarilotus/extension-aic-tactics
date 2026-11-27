@@ -11,11 +11,11 @@ lordHuntRetarget: Attaquer le château abritant le seigneur humain
 lordHuntRetarget_descr: Redirige l’attaque lorsque le seigneur s’abrite derrière les murs d’un allié inaccessibles à l’IA.
 patrolFormation_routes: Contourner et balayer
 siegeScreen: Poster les troupes IA près des engins de siège
-siegeScreen_descr: Affecte des groupes de défense de siège à la protection des engins pendant leur action.
+siegeScreen_descr: Affecte des groupes d’escorte à la protection des engins de siège pendant leur utilisation.
 siegeScreen_engineApproach: Escorter les engins
 siegeScreen_native: Par défaut du jeu
 siegeTowerCrew: Embarquer les troupes IA dans les tours de siège
-siegeTowerCrew_descr: Affecte des troupes de défense de siège aux tours en route vers les murs lorsque l’embarquement est activé dans Improved Siegeengines.
+siegeTowerCrew_descr: Fait monter les troupes d’escorte dans les tours de siège en route vers les murs si l’embarquement est activé dans Improved Siegeengines.
 allyRelief: Envoyer des troupes aux alliés attaqués
 allyRelief_descr: Demandez des troupes sur l’écran des alliés ou recevez de l’aide automatiquement lorsque votre château est attaqué.
 allyGoods: Laisser les alliés IA partager vivres et or
