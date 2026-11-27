@@ -252,12 +252,7 @@ function M.new(native, legacyInterval, version)
         value >= 2147483648 and value - 4294967296 or value)
     end
   end
-  local function validateAbsent(kind)
-    assert(not active() or kind == 'map',
-      'AIC Tactics: this old save has no policy state; start a new match with these parameters')
-  end
-  local function initialize(self, context)
-    validateAbsent(context and context.kind)
+  local function initialize()
     core.writeInteger(native.defenseCensusValid, 0)
     core.setMemory(native.defenseTypeCounts, 0, censusWords * 4)
     core.writeInteger(native.defenseCensusTick, 0)
@@ -300,13 +295,13 @@ function M.new(native, legacyInterval, version)
           return
         end
         if not active() then return end
-        if handle:exists(path) then validate(handle:get(path)) else validateAbsent(handle.loadKind) end
+        if handle:exists(path) then validate(handle:get(path)) end
       end,
       deserialize = function(self, handle)
         -- A matching section is restored even with its features now off: the
         -- detached groups in it go back to their slots at the next AI update.
         if handle:exists(path) and pcall(validate, handle:get(path)) then restore(handle:get(path))
-        else initialize(nil, {kind=handle.loadKind}) end
+        else initialize() end
       end,
     },
   }

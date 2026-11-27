@@ -153,9 +153,10 @@ def test_native_old_save_and_new_match_initialization():
       assert(state.callbacks.isRequired())
       for _,tick in ipairs({0,1000}) do
         memory[0x1FE7DA8]=tick
-        assert(not pcall(state.callbacks.initialize) and writes==0)
-        assert(not pcall(state.callbacks.initialize,nil,{kind='save'}) and writes==0)
-        assert(not pcall(state.callbacks.validate,nil,{loadKind='save',exists=function()return false end}) and writes==0)
+        -- A save without policy state loads with empty policy state.
+        assert(pcall(state.callbacks.validate,nil,{loadKind='save',exists=function()return false end}))
+        state.callbacks.initialize(nil,{kind='save'})
+        assert(memory[native.defenseCensusValid]==0)
       end
       -- Maps can contain an editor tick; only the owner's file context admits them.
       state.callbacks:initialize({kind='map'})
@@ -177,7 +178,7 @@ def test_default_on_siege_fallback_requires_state_but_map_starts_fresh():
       assert(state.callbacks.isRequired())
       local onIdentity=state.identity()
       local missing={loadKind='save',exists=function()return false end}
-      assert(not pcall(state.callbacks.validate,state.callbacks,missing))
+      assert(pcall(state.callbacks.validate,state.callbacks,missing))
       state.callbacks:initialize({kind='map'})
       memory[native.safePlacementFallback]=0
       assert(not state.callbacks.isRequired())

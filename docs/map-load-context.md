@@ -4,9 +4,7 @@ AIC Tactics 0.0.9 requires Map Extensions 1.1.4. New maps initialize empty polic
 state using Map's native file context, even if the map contains an editor tick.
 The earlier zero-tick test could reject a fresh match as an incompatible save.
 
-Saves and Recorder snapshots still require matching policy state when any
-personality opts in. Missing context cannot admit an empty save, including at
-tick zero. Native personalities can load older saves without policy state.
+A save without policy state loads with empty policy state.
 Present manifests and payloads retain their format/content/configuration checks.
 Map uses the existing UCP fatal logger to stop a rejected native load, because
 stock RPS catches ordinary Lua callback errors and otherwise resumes native code.
