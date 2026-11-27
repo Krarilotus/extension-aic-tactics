@@ -1,24 +1,28 @@
-patrolOrders: "Második támadó járőr"
-patrolOrders_descr: "Az MI második támadó járőrcsoportját is rohamba küldi. Az egyes MI-k AIC-értéke elsőbbséget élvez."
-patrolOrders_all: "Mindkét járőrcsoport"
-patrolOrders_native: "Csak az első csoport"
-patrolFormation: "További járőrök helye"
-patrolFormation_descr: "Hová mennek a további járőrcsoportok: az első csoport mellé, a célvár túloldalára vagy egy körre a vár körül."
+patrolOrders: Támadó járőrcsoportok
+patrolOrders_descr: Mindkét csoportot rohamra küldi, ha az MI rendelkezik második járőrcsoporttal.
+patrolOrders_all: Mindkét támadó járőrcsoport bevetése
+patrolOrders_native: Játék alapértelmezése
+patrolFormation: Második járőr útvonala
+patrolFormation_descr: Válaszd ki, merre induljon a második járőrcsoport támadáskor.
 patrolFormation_wing: "Az első csoport mellett"
-patrolFormation_mirror: "A vár túloldalán"
-patrolFormation_native: "Saját útvonal"
-lordHuntRetarget: "A várúr rejtekének ostroma"
-lordHuntRetarget_descr: "Ha egy emberi játékos várura egy szövetséges falai mögé húzódik, ahová a támadók nem jutnak be, az MI azt a várat támadja. Az egyes MI-k AIC-értéke elsőbbséget élvez."
-patrolFormation_routes: "A vár körül és az előterében"
-siegeScreen: "Ostromgépek fedezete"
-siegeScreen_descr: "Hol állnak az MI ostromvédő csoportjai, amíg a gépei dolgoznak: a gépek előtt, a két csoport különböző gépeknél, vagy a játék saját gyülekezési pontján."
-siegeScreen_engineApproach: "A gépek előtt"
-siegeScreen_native: "A játék gyülekezési pontja"
-siegeTowerCrew: "Ostromtornyok legénysége"
-siegeTowerCrew_descr: "Ha az ostromtornyokra fel lehet mászni, az MI a falak felé haladó tornyaiba az ostromvédő csapatait ülteti. Az adott MI AIC-értéke elsőbbséget élvez."
-allyRelief: "Felmentés szövetségesnek"
-allyRelief_descr: "Az MI tétlen seregének egy részét elküldi egy szövetségeshez (hozzád vagy egy MI-hez), akinek a várát megtámadták, és akkor is, ha segítséget kérsz. Az egyes MI-k AIC-értéke elsőbbséget élvez."
-allyGoods: "Áruk és arany szövetségeseknek"
-allyGoods_descr: "Az MI-szövetségesek egymásnak adják a meg nem vehető árukat és aranyat, és egy MI-szövetséges kérésre aranyat küld neked. Az egyes MI-k AIC-értéke elsőbbséget élvez."
+patrolFormation_mirror: A vár túloldala
+patrolFormation_native: Játék alapértelmezése
+lordHuntRetarget: A játékos lordját bújtató vár megtámadása
+lordHuntRetarget_descr: Átirányítja a támadást, ha a lord egy szövetséges falai mögött rejtőzik, ahová az MI nem jut be.
+patrolFormation_routes: Körbejárás és tisztogatás
+siegeScreen: MI-csapatok állítása ostromgépek mellé
+siegeScreen_descr: Ostromvédő csoportokat rendel az ostromgépek őrzésére működés közben.
+siegeScreen_engineApproach: Ostromgépek kísérése
+siegeScreen_native: Játék alapértelmezése
+siegeTowerCrew: MI-csapatok ültetése ostromtornyokba
+siegeTowerCrew_descr: Ostromvédő csapatokat oszt be a falak felé haladó tornyokba, ha a beszállás be van kapcsolva az Improved Siegeengines modulban.
+allyRelief: Csapatok küldése támadás alatt álló szövetségeseknek
+allyRelief_descr: Kérj csapatokat a szövetségesek képernyőjén, vagy kapj automatikus segítséget, ha megtámadják a váradat.
+allyGoods: Az MI-szövetségesek osszanak meg nyersanyagot és aranyat
+allyGoods_descr: Kérj aranyat a szövetségesek képernyőjén, miközben az MI-szövetségesek szükség szerint nyersanyagot és aranyat is megosztanak.
 ai: MI
 improvements: Fejlesztések
+attack_patrols: Támadó járőrök
+siege_tactics: Ostromkíséret és személyzet
+ally_help: Szövetségesi segítség
+tactics_defaults: Ezek alapértelmezéseket állítanak be, amelyeket az egyes MI-személyiségek felülírhatnak.

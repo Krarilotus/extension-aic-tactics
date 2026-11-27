@@ -1,24 +1,28 @@
-patrolOrders: "第二支进攻巡逻队"
-patrolOrders_descr: "进攻时同时派出 AI 的第二支进攻巡逻队。各 AI 的 AIC 设置优先。"
-patrolOrders_all: "两支巡逻队"
-patrolOrders_native: "仅第一支"
-patrolFormation: "其余巡逻队位置"
-patrolFormation_descr: "其余巡逻队的去向：第一支队伍旁边、目标城堡另一侧，或绕城堡的环线。"
+patrolOrders: 进攻巡逻编组
+patrolOrders_descr: 当 AI 拥有第二支巡逻队时，命令两支队伍一同发起进攻。
+patrolOrders_all: 出动全部两支进攻巡逻队
+patrolOrders_native: 游戏默认
+patrolFormation: 第二支巡逻队路线
+patrolFormation_descr: 选择第二支巡逻队在进攻时的行进方向。
 patrolFormation_wing: "第一支队伍旁边"
-patrolFormation_mirror: "城堡另一侧"
-patrolFormation_native: "自行选择路线"
-lordHuntRetarget: "围攻领主藏身的城堡"
-lordHuntRetarget_descr: "人类玩家的领主躲进攻方无法进入的盟友城墙内时，AI 改为进攻那座城堡。各 AI 的 AIC 设置优先。"
-patrolFormation_routes: "绕城并沿正面巡逻"
-siegeScreen: "攻城器械护卫"
-siegeScreen_descr: "攻城器械作业时 AI 攻城护卫队的位置：器械前方、两队分守不同器械，或游戏原有集结点。"
-siegeScreen_engineApproach: "器械前方"
-siegeScreen_native: "游戏原有集结点"
-siegeTowerCrew: "攻城塔载兵"
-siegeTowerCrew_descr: "攻城塔可攀爬时，AI 会让攻城护卫队登上驶向城墙的攻城塔。各 AI 的 AIC 设置优先。"
-allyRelief: "援救盟友"
-allyRelief_descr: "盟友（你或 AI）的城堡遭到进攻时，或你请求援助时，AI 派出部分空闲军队。各 AI 的 AIC 设置优先。"
-allyGoods: "盟友物资与金币"
-allyGoods_descr: "AI 盟友互赠无法购买的物资和金币；你请求时，AI 盟友会送你金币。各 AI 的 AIC 设置优先。"
+patrolFormation_mirror: 城堡另一侧
+patrolFormation_native: 游戏默认
+lordHuntRetarget: 进攻庇护玩家领主的城堡
+lordHuntRetarget_descr: 当领主躲进 AI 无法进入的盟友城墙后方时，改攻该盟友城堡。
+patrolFormation_routes: 绕行包抄
+siegeScreen: 在攻城器械旁部署 AI 部队
+siegeScreen_descr: 指派攻城护卫队在攻城器械作业时进行掩护。
+siegeScreen_engineApproach: 护卫攻城器械
+siegeScreen_native: 游戏默认
+siegeTowerCrew: 让 AI 部队登上攻城塔
+siegeTowerCrew_descr: 在 Improved Siegeengines 启用可登乘攻城塔时，指派攻城护卫队登上驶向城墙的攻城塔。
+allyRelief: 派兵支援遇袭盟友
+allyRelief_descr: 可在盟友界面请求援军，或在城堡遇袭时自动获得支援。
+allyGoods: 允许 AI 盟友共享物资与金币
+allyGoods_descr: 可在盟友界面请求金币，同时 AI 盟友也会按需共享物资与金币。
 ai: AI
 improvements: 改进
+attack_patrols: 进攻巡逻队
+siege_tactics: 攻城护卫与乘员
+ally_help: 盟友援助
+tactics_defaults: 这些选项为默认设置，各 AI 性格可单独覆盖。
