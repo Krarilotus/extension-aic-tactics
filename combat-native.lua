@@ -180,6 +180,7 @@ function M.attach(native)
     ]], {reserved=native.isReserveUnit, resume=(sites.tunnelers+7), nextUnit=sites.nextTunneler})
     -- Every admission above precedes mutations. Original damage bodies stay in
     -- their existing owners; the trampolines only replay displaced prologues.
+    core.writeInteger(native.legacyTargetPolicy, native.legacyTargetChoice())
     jump(sites.unitReset, reset, 7)
     jump(sites.unitCount, count, 8)
     jump(sites.unitComplete, complete, 5)

@@ -64,11 +64,12 @@ end
 
 -- Module settings: the defaults for every AI, in storage order.
 function M.fallbacks(config)
+  local option = require('config.settings')
   local words = {}
   for index, setting in ipairs(settings) do
-    local value = config and config[setting[2]]
-    if value == nil then value = setting[6] end
-    words[index] = validate(value, setting, 'AIC Tactics: ' .. setting[2], assert)
+    local value = option(config, setting[2], setting[6], nil, setting[4], setting[5])
+    if setting[3] == 'boolean' then value = value and 1 or 0 end
+    words[index] = value
   end
   return words
 end

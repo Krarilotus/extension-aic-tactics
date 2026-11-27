@@ -57,17 +57,12 @@ end
 
 -- Module settings: the defaults for every AI.
 function M.fallbacks(config)
-  local retarget = config and config.lordHuntRetarget
-  if retarget == nil then retarget = false end
-  local siege = config and config.lordHuntSiege or 'HidingCastle'
-  local switch = config and config.lordHuntSwitchPercent or 80
-  local share = config and config.lordHuntShare or 0
-  local split = config and config.lordHuntSplitShare or 50
-  assert(type(retarget) == 'boolean', 'AIC Tactics: lordHuntRetarget must be boolean')
-  assert(sieges[siege] ~= nil, 'AIC Tactics: lordHuntSiege must be HidingCastle or HomeCastle')
-  for name, value in pairs({lordHuntSwitchPercent = switch, lordHuntShare = share, lordHuntSplitShare = split}) do
-    assert(percent(value), 'AIC Tactics: ' .. name .. ' must be an integer from 0 to 100')
-  end
+  local option = require('config.settings')
+  local retarget = option(config, 'lordHuntRetarget', false)
+  local siege = option(config, 'lordHuntSiege', 'HidingCastle', sieges)
+  local switch = option(config, 'lordHuntSwitchPercent', 80, nil, 0, 100)
+  local share = option(config, 'lordHuntShare', 0, nil, 0, 100)
+  local split = option(config, 'lordHuntSplitShare', 50, nil, 0, 100)
   return retarget and 1 or 0, sieges[siege], switch, share, split
 end
 

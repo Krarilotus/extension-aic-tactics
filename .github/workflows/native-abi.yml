@@ -10,6 +10,7 @@ on:
         description: Full commit SHA of the Map Extensions state prerequisite
         required: true
         type: string
+        default: d93a52f34c127cd875b15c34423da3b92dc760ca
       protocol_repository:
         description: Repository containing the Protocol admission prerequisite
         required: true
@@ -37,7 +38,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: UnofficialCrusaderPatch/extension-aicloader
-          ref: 27c184851006e08733d3aa19cf245b6998687496
+          ref: cef4b5e2b715d80217aaf94279aafb532b197165
           path: tests/deps/aicloader
           persist-credentials: false
       - uses: actions/setup-python@v5

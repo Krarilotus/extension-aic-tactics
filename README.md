@@ -2,7 +2,7 @@
 
 AIC Tactics adds optional per-personality recruitment, opponent, raid, attack patrol and siege policies to UCP 3. Every feature keeps the game's behaviour by default, including the engineer-counting and safe-siege fixes. An explicit siege setting in a personality's effective AIC takes precedence over a module fallback, including `false` and valid zero, except that advanced siege features require safe placement.
 
-AIC Tactics requires the UCP 3.0.8 unique code scanner and AIC Loader 1.1.8.
+AIC Tactics requires the UCP 3.0.8 unique code scanner and AIC Loader 1.1.9 and Map Extensions 1.2.2.
 
 For the test bundle and installation steps, see [the testing guide](docs/runtime-testing.md). The [JSON Schema](schema/aic-tactics.schema.json) describes the extension fields. [Siege configuration](docs/configuration-siege.md) gives defaults and a per-AI example. [Attack patrol configuration](docs/configuration-attacks.md) lets every patrol group join an assault, splits patrols into more groups on ring routes and stations siege-defence groups in front of their engines, split into more groups if wanted. How UCP2-Legacy options combine with AIC Tactics is in [the compatibility matrix](docs/compatibility-matrix.md).
 

@@ -83,22 +83,14 @@ end
 -- Module settings: the defaults for every AI, in the order of
 -- native.configureAttackPatrols.
 function M.fallbacks(config)
-  local order = config and config.patrolOrders or 'Native'
-  local formation = config and config.patrolFormation or 'Native'
-  local spacing = config and config.patrolSpacing or 12
-  local screen = config and config.siegeScreen or 'Native'
-  assert(orders[order] ~= nil, 'AIC Tactics: patrolOrders must be Native or AllGroups')
-  assert(formations[formation] ~= nil,
-    'AIC Tactics: patrolFormation must be Native, Wing, Mirror or Routes')
-  assert(integer(spacing, 4, 40), 'AIC Tactics: patrolSpacing must be an integer from 4 to 40')
-  assert(screens[screen] ~= nil, 'AIC Tactics: siegeScreen must be Native or EngineApproach')
+  local option = require('config.settings')
+  local order = option(config, 'patrolOrders', 'Native', orders)
+  local formation = option(config, 'patrolFormation', 'Native', formations)
+  local spacing = option(config, 'patrolSpacing', 12, nil, 4, 40)
+  local screen = option(config, 'siegeScreen', 'Native', screens)
   local values = {}
   for _, number in ipairs(numbers) do
-    local value = config and config[number[2]]
-    if value == nil then value = number[5] end
-    assert(integer(value, number[3], number[4]),
-      string.format('AIC Tactics: %s must be an integer from %d to %d', number[2], number[3], number[4]))
-    values[#values + 1] = value
+    values[#values + 1] = option(config, number[2], number[5], nil, number[3], number[4])
   end
   return orders[order], formations[formation], spacing, values[1], values[2], values[3], screens[screen], values[4],
     values[5]

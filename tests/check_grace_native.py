@@ -93,11 +93,14 @@ g.owner = owner
 g.native = lua.table_from({'nativeBindings': 0x3001000, 'nativeBindingsSize':364,
                            'allyBindings': 0x3002000, 'allyBindingsSize': 56})
 lua.execute('''
+  assert(owner.resolve())
   modules={aicloader={getNativeAICLayout=function()
     return {version=1,address=owner.getAIStartAddress(1),characters=16,stride=676}
   end}}
   local bindings=require('native-bindings')
-  bindings.initialize(native, bindings.resolve())
+  local game = bindings.resolve()
+  bindings.requireBindings(game, {'AICLayout', 'Grace'})
+  bindings.initialize(native, game)
   bindings.publish(native)
 ''')
 bound = g.native.game

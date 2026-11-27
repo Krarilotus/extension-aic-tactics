@@ -139,7 +139,7 @@ def test_legacy_interval_stays_and_weighted_roles_reload_theirs_once():
         assert(address~=0x4D3B41)
         if address==0x4D3B48 then chained=chained+1 end
       end
-      assert(chained==1 and allocations[1]:find('mov eax, dword [edx + ebp * 4 + 0x164]',1,true))
+      assert(chained==1 and allocations[2]:find('mov eax, dword [edx + ebp * 4 + 0x164]',1,true))
       native.preflight()
     ''')
 

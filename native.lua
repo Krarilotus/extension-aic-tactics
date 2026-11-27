@@ -8,9 +8,34 @@ function M.new(game)
   bindings.initialize(native, game)
   game = native.game
   local sites = game.recruitmentSites
-  local base = {'AICLayout', 'Grace', 'Layout', 'Legacy'}
-  function native.hasStateBindings()
-    return pcall(bindings.requireBindings, game, base)
+  local stateReady, stateInterval, stateTarget
+  function native.prepareState()
+    if stateReady == nil then
+      stateReady, stateInterval, stateTarget = pcall(function()
+        bindings.requireBindings(game, {'AICLayout', 'Grace', 'Layout', 'Interval', 'Target'})
+        return native.intervalForced(), native.legacyTargetChoice()
+      end)
+      if not stateReady then
+        log(ERROR, 'AIC Tactics: save and multiplayer identity is unavailable: ' .. tostring(stateInterval))
+      end
+    end
+    if stateReady then return stateInterval, stateTarget end
+    return nil, stateInterval
+  end
+  local admissionTick
+  function native.admissionTick()
+    if admissionTick then return admissionTick end
+    local protocol = modules.protocol
+    if protocol and type(protocol.getNativeCommandInterface) == 'function' then
+      local ok, command = pcall(protocol.getNativeCommandInterface, protocol)
+      if ok and command and command.version == 1 and type(command.tick) == 'number' and command.tick > 0 then
+        admissionTick = command.tick
+        return admissionTick
+      end
+    end
+    bindings.requireBindings(game, {'Grace'})
+    admissionTick = game.gameTick
+    return admissionTick
   end
   local installed = false
   local wallCounter
@@ -320,6 +345,7 @@ defer:
     core.writeInteger(native.siegeCatapultRange, range or 0)
   end
   function native.finalizeSiegeRanges()
+    if not siegeHarassHooks then return end
     refreshSiegeRanges(siegeHarassHooks ~= nil)
     siegeRangesFinalized = true
   end
@@ -330,7 +356,6 @@ defer:
       '83 EC 10 53 55 56 57')
     context.verify(game.siegeFireRange - 1, 'fire ballista target range',
       'B9 ? ? ? ?')
-    refreshSiegeRanges(siegeRangesFinalized)
     for index, site in ipairs({game.siegeCatapultPathGate, game.siegeFirePathGate}) do
       if siegeHarassHooks then
         assert(core.readByte(site) == 0xE9
@@ -345,7 +370,6 @@ defer:
   function native.activateSiegeHarassment()
     if siegeHarassHooks then return end
     native.preflightSiegeHarassment()
-    native.activateCombat()
     local hooks = {}
     for index, site in ipairs({game.siegeCatapultPathGate, game.siegeFirePathGate}) do
       local exit = index == 1 and game.siegeCatapultPathExit or game.siegeFirePathExit
@@ -367,8 +391,12 @@ coordinated:
         jmp nativeExit
       ]], {suppress=native.suppressNativeSiegeHarassMove,
         harassMode=game.unitRecords+0x3fe, resume=site+7, nativeExit=exit})
-      core.writeCode(site, {core.jmpTo(hook),0x90,0x90})
       hooks[index] = hook
+    end
+    refreshSiegeRanges(siegeRangesFinalized)
+    native.activateCombat()
+    for index, site in ipairs({game.siegeCatapultPathGate, game.siegeFirePathGate}) do
+      core.writeCode(site, {core.jmpTo(hooks[index]),0x90,0x90})
     end
     siegeHarassHooks = hooks
   end
@@ -618,8 +646,6 @@ finished:
   function native.activate()
   if installed then return end
   native.preflight()
-  core.writeInteger(native.legacyWallCounts, wallCounter)
-  native.activateInterval()
 
   local hook = core.allocateAssembly([[
     pushfd
@@ -643,6 +669,8 @@ handled:
     popfd
     jmp finished
   ]], {spendingMode=game.players+0x30F8, recruitOpportunity=native.recruitOpportunity, original=(sites.opportunity+6), finished=sites.finished})
+  native.activateInterval()
+  core.writeInteger(native.legacyWallCounts, wallCounter)
   core.writeCode(sites.opportunity, {core.jmpTo(hook), 0x90})
   core.writeCode(sites.ranged, {core.callTo(native.rangedSortie)})
   core.writeCode(sites.melee, {core.callTo(native.meleeSortie)})
@@ -731,7 +759,6 @@ handled:
       local reason = needOff()
       if not reason then
         local ok, failure = pcall(function()
-          bindings.requireBindings(game, base)
           bindings.requireBindings(game, groups)
           preflight()
         end)
@@ -747,16 +774,23 @@ handled:
       native['preflight' .. suffix]()
       if installed then return end
       if off[key] then return end
-      bindings.publish(native)
-      activate()
-      installed = true
+      local ok, reason = pcall(function()
+        bindings.publish(native)
+        activate()
+      end)
+      if ok then installed = true else leaveOff(key, tostring(reason)) end
     end
   end
-  local recruitment = {'Army', 'Groups', 'Recruitment', 'Queries'}
-  local combat = {'Army', 'Groups', 'Projectiles', 'Recruitment', 'Queries', 'Market', 'Combat'}
-  local siege = {'Army', 'Groups', 'Market', 'Siege'}
-  local patrol = {'Army', 'Groups', 'Projectiles', 'Recruitment', 'Queries', 'Market', 'Combat', 'Siege', 'Patrol'}
-  local hunt = {'Army', 'Groups', 'Projectiles', 'Recruitment', 'Queries', 'Market', 'Combat', 'Siege', 'Hunt'}
+  local recruitment = {'AICLayout', 'Grace', 'Layout', 'Interval', 'Army', 'Groups', 'Recruitment', 'Queries'}
+  local combat = {'AICLayout', 'Grace', 'Layout', 'Interval', 'Target', 'Army', 'Groups', 'Projectiles',
+    'Recruitment', 'Queries', 'Market', 'Combat'}
+  local siege = {'Layout', 'Army', 'Groups', 'Market', 'Siege'}
+  local function withSiegeCombat(extra)
+    local groups = {table.unpack(combat)}
+    groups[#groups + 1], groups[#groups + 2] = 'Siege', extra
+    return groups
+  end
+  local patrol = withSiegeCombat('Patrol')
   optional('Recruitment', 'weighted recruitment', recruitment)
   optional('Composition', 'defender composition', recruitment, 'Recruitment')
   optional('Combat', 'attack control', combat)
@@ -765,15 +799,15 @@ handled:
   optional('SiegePayment', 'siege resource payment', siege, 'SafePlacement')
   optional('SiegeHarassment', 'coordinated siege harassment', siege, 'SafePlacement', 'Combat')
   optional('LargerSiegeForce', 'larger siege forces', siege, 'SafePlacement')
-  optional('EngineerRoles', 'engineer role counting', {'Engineer'})
+  optional('EngineerRoles', 'engineer role counting', {'Layout', 'Engineer'})
   optional('AttackPatrols', 'attack patrol orders', patrol, 'Combat')
   optional('SiegeScreen', 'siege escorts', patrol)
-  optional('LordHunt', 'lord hunt', hunt, 'Combat')
-  optional('AllyRelief', 'ally relief', {'Army', 'Groups', 'Market', 'Siege', 'Allies'}, 'Combat')
-  optional('AllyGoods', 'ally goods', {'Market', 'Allies'}, 'Combat', 'Raids')
-  optional('AllyGates', 'relief gate opening', {'Gate'}, 'AllyRelief')
-  optional('AllyReliefKeep', 'relief on the keep', {'Keep'}, 'AllyRelief')
-  optional('TowerCrew', 'siege tower crews', siege)
+  optional('LordHunt', 'lord hunt', withSiegeCombat('Hunt'), 'Combat')
+  optional('AllyRelief', 'ally relief', {'AICLayout', 'Layout', 'Army', 'Groups', 'Market', 'Siege', 'Allies'}, 'Combat')
+  optional('AllyGoods', 'ally goods', {'AICLayout', 'Layout', 'Market', 'Allies'}, 'Combat', 'Raids')
+  optional('AllyGates', 'relief gate opening', {'Layout', 'Gate'}, 'AllyRelief')
+  optional('AllyReliefKeep', 'relief on the keep', {'Layout', 'Keep'}, 'AllyRelief')
+  optional('TowerCrew', 'siege tower crews', {'Grace', table.unpack(siege)})
   -- Activates a module switch and returns whether the feature is on.
   function native.enableOptional(key, wanted)
     if wanted then native['activate' .. key]() end

@@ -23,25 +23,26 @@ def test_entry_point_resolves_only_during_enable():
         assert(phase=='enable' and resolved==game and resolves==1)
         error('native enable reached',0)
       end}
+      ERROR, WARNING=0,1
+      local messages={}
+      log=function(level,message) messages[#messages+1]={level,message} end
+      local available=false
       modules={aicloader={registerAICUpdateProvider=function()end},
+        protocol={multiplayerAdmissionVersion=function()return 1 end},
         ['map-extensions']={requiredStateVersion=function()return 1 end,
-          getNativeSaveInterface=function()return {failureHandling=1,readContext=1} end}}
+          hasNativeSaveInterface=function()return available end,
+          getNativeSaveInterface=function()error('the dependent must check availability')end}}
       local module=assert(loadfile(root..'/init.lua'))()
       assert(resolves==0)
       phase='enable'
-      local owner=modules['map-extensions']
-      local supported=owner.getNativeSaveInterface
-      owner.getNativeSaveInterface=nil
-      local missing,reason=pcall(module.enable,module,{})
-      assert(not missing and reason:find('Map Extensions 1.1.4',1,true))
-      owner.getNativeSaveInterface=function()return {version=1} end
-      local old,whyOld=pcall(module.enable,module,{})
-      assert(not old and whyOld:find('Map Extensions 1.1.4',1,true))
-      owner.getNativeSaveInterface=function()return {failureHandling=1} end
-      assert(not pcall(module.enable,module,{}))
-      owner.getNativeSaveInterface=supported
-      local ok,why=pcall(module.enable,module,{})
-      assert(not ok and why=='native enable reached' and resolves==1)
+      module:enable({})
+      assert(resolves==0 and #messages==1 and messages[1][2]:find('save admission is unavailable',1,true))
+      available=true
+      module:enable({patrolSpacing=3, diagnostics='yes'})
+      assert(resolves==1 and #messages==4)
+      assert(messages[2][1]==ERROR and messages[2][2]:find('diagnostics',1,true))
+      assert(messages[3][1]==WARNING and messages[3][2]:find('patrolSpacing',1,true))
+      assert(messages[4][2]:find('native enable reached',1,true))
     ''')
 
 

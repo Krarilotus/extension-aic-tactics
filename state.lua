@@ -27,6 +27,8 @@ function M.new(native, legacyInterval, version)
   assert(type(version) == 'string', 'AIC Tactics: missing module version')
   assert(native.configurationSize == 352, 'AIC Tactics: incompatible save ABI')
   assert(native.siegeHarassPlanSize == 36, 'AIC Tactics: incompatible siege plan ABI')
+  assert(type(native.captureIntegrityWithIdentity) == 'number'
+    and type(native.observeIntegrityBoundaryWithIdentity) == 'number', 'AIC Tactics: incompatible integrity ABI')
   local combat = require('combat-state').new(native)
   local army = require('army-state').new(native)
   local raids = require('raid-state').new(native)
@@ -36,8 +38,8 @@ function M.new(native, legacyInterval, version)
   local attacks = require('config.attacks')
   local patrolArrays, routesFormation = attacks.arrays, attacks.formations.Routes
   local allies = require('ally-state').new(native)
-  local nativeIntegrity = core.exposeCode(native.captureIntegrity, 1, 0)
-  local observeBoundary = core.exposeCode(native.observeIntegrityBoundary, 1, 0)
+  local nativeIntegrity = core.exposeCode(native.captureIntegrityWithIdentity, 4, 0)
+  local observeBoundary = core.exposeCode(native.observeIntegrityBoundaryWithIdentity, 4, 0)
   local boundaryIntegrity = core.exposeCode(native.captureBoundaryIntegrity, 0, 0)
   local observed=false
   local function digest()
@@ -45,6 +47,20 @@ function M.new(native, legacyInterval, version)
     if first < 0 then first = first + 4294967296 end
     if second < 0 then second = second + 4294967296 end
     return string.format('aic-tactics-word-digest-v1-%08x%08x', first, second)
+  end
+  local function legacyIdentity()
+    local value = legacyInterval
+    if type(value) == 'function' then
+      local target
+      value, target = value()
+      assert(value ~= nil, target)
+      return value and 1 or 0, target
+    end
+    return value and 1 or 0, core.readInteger(native.legacyTargetPolicy)
+  end
+  local function observe(callback)
+    local interval, target = legacyIdentity()
+    callback(interval, core.readInteger(native.game.initialDefenseTicks), target, native.game.aicRecords)
   end
   local function active()
     -- The module-level engineer switch participates in match identity.
@@ -88,8 +104,9 @@ function M.new(native, legacyInterval, version)
     return false
   end
   local function identity()
-    return header .. word(legacyInterval and 1 or 0) .. word(core.readInteger(native.game.initialDefenseTicks))
-      .. word(core.readInteger(native.legacyTargetPolicy))
+    local interval, target = legacyIdentity()
+    return header .. word(interval) .. word(core.readInteger(native.game.initialDefenseTicks))
+      .. word(target)
       .. word(core.readInteger(native.safePlacementFallback))
       .. word(core.readInteger(native.engineerRoleFallback))
       .. word(core.readInteger(native.siegePaymentFallback))
@@ -253,20 +270,24 @@ function M.new(native, legacyInterval, version)
     allies.initialize()
     core.setMemory(native.siegeHarassPlans, 0, harassWords * 4)
   end
+  local function writeState(self, handle)
+    if type(legacyInterval) == 'function' and legacyInterval() == nil and not active() then return end
+    handle:put(path, capture())
+  end
   return {
     capture = capture, validate = validate, restore = restore, identity = identity,
     matchIdentity = matchIdentity,
     callbacks = {
       isRequired = active,
       initialize = initialize,
-      serialize = function(self, handle) handle:put(path, capture()) end,
-      capture = function(self, handle) handle:put(path, capture()) end,
+      serialize = writeState,
+      capture = writeState,
       integrity = function()
-        nativeIntegrity(legacyInterval and 1 or 0)
+        observe(nativeIntegrity)
         return digest()
       end,
       observeBoundary = function()
-        observeBoundary(legacyInterval and 1 or 0); observed=true
+        observe(observeBoundary); observed=true
       end,
       boundaryIntegrity = function()
         assert(observed,'AIC Tactics: no observed replay boundary')

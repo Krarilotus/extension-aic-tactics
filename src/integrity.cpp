@@ -42,12 +42,13 @@ struct Digest {
         }
     }
 };
-template<class Sink> void visitIntegrity(Sink& digest, int legacyInterval)
+template<class Sink> void visitIntegrity(Sink& digest, int legacyInterval,
+    unsigned int defenseTicks, int targetPolicy, const void* aicRecords)
 {
     digest.word(1); // aic-tactics-word-digest-v1
     digest.word(legacyInterval ? 1U : 0U);
-    digest.word(*reinterpret_cast<const unsigned int*>(nativeBindings.initialDefenseTicks));
-    digest.word(static_cast<unsigned int>(legacyTargetPolicy));
+    digest.word(defenseTicks);
+    digest.word(static_cast<unsigned int>(targetPolicy));
     digest.word(static_cast<unsigned int>(safePlacementFallback));
     digest.word(static_cast<unsigned int>(engineerRoleFallback));
     digest.word(static_cast<unsigned int>(siegePaymentFallback));
@@ -77,7 +78,7 @@ template<class Sink> void visitIntegrity(Sink& digest, int legacyInterval)
     digest.word(static_cast<unsigned int>(lordHuntShareFallback));
     digest.word(static_cast<unsigned int>(lordHuntSplitFallback));
     digest.block(configurations + 1, sizeof(CharacterConfiguration) * 16);
-    digest.block(reinterpret_cast<const void*>(nativeBindings.aicRecords), 676 * 16);
+    digest.block(aicRecords, 676 * 16);
     digest.word(defenseCensusTick);
     digest.word(static_cast<unsigned int>(defenseCensusValid));
     digest.block(defenseTypeCounts, sizeof(defenseTypeCounts));
@@ -130,19 +131,19 @@ typedef char BoundaryCapacity[(sizeof(CharacterConfiguration) * 16 + 676 * 16
 
 // Observational, allocation-free checkpoint of the explicitly serialized words.
 // This detects simulation divergence; package authentication uses SHA256 instead.
-void __cdecl captureIntegrity(int legacyInterval)
+void __cdecl captureIntegrity(int legacyInterval, unsigned int defenseTicks, int targetPolicy, const void* aicRecords)
 {
     Digest digest = {2166136261U, 0x27D4EB2FU};
-    visitIntegrity(digest, legacyInterval);
+    visitIntegrity(digest, legacyInterval, defenseTicks, targetPolicy, aicRecords);
     integrityDigest[0] = digest.first;
     integrityDigest[1] = digest.second;
 }
 
-void __cdecl observeIntegrityBoundary(int legacyInterval)
+void __cdecl observeIntegrityBoundary(int legacyInterval, unsigned int defenseTicks, int targetPolicy, const void* aicRecords)
 {
     boundaryCount = 0;
     Boundary snapshot;
-    visitIntegrity(snapshot, legacyInterval);
+    visitIntegrity(snapshot, legacyInterval, defenseTicks, targetPolicy, aicRecords);
 }
 
 void __cdecl captureBoundaryIntegrity()

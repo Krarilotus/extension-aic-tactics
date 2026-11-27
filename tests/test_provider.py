@@ -18,7 +18,8 @@ def lua(request):
       memory,writes,messages={},{},{}
       core={readInteger=function(a)return memory[a] or 0 end,
         writeInteger=function(a,v)memory[a]=v; writes[#writes+1]={a,v} end}
-      package.loaded.addresses={getAIStartAddress=function(ai)return 10000+ai*676 end}
+      core.AOBScanUnique=function() return 5000 end
+      memory[5004], memory[5031]=10000,10000
       log=function(level,message)messages[#messages+1]=message end
       hooks={registerHookCallback=function(_,callback)afterInit=callback end}
       modules={}
@@ -309,6 +310,7 @@ def test_native_identity_is_independent_of_character_update_order(lua, native_fi
         siegeScreenForward=502400,siegeScreenExtraGroups=502500,
         allySettings=503000,allyFallback=503800,
         game={gameTick=300000},
+        admissionTick=function() return 300000 end,
         preflightCombat=function()end,activateCombat=function()end}
       backend.prepare=require('config.backend').new(native).prepare
       local function nativeCaliph() loader:overwriteAIC(6,{TargetChoice='Balanced'}) end

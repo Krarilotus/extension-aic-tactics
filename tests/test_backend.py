@@ -28,6 +28,7 @@ def backend():
         siegeScreenForward=24500,siegeScreenExtraGroups=24600,
         allySettings=26000,allyFallback=26800,
         game={gameTick=0x1FE7DA8},
+        admissionTick=function() return native.game.gameTick end,
         preflightLordHunt=function()huntPreflights=(huntPreflights or 0)+1 end,
         activateLordHunt=function()huntActivations=(huntActivations or 0)+1 end,
         preflight=function()end,activate=function()end,preflightComposition=function()end,activateComposition=function()end,

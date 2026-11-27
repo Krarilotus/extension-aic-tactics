@@ -116,6 +116,7 @@ package.path=root..'/?.lua;'..package.path
 modules={aicloader={getNativeAICLayout=function()
   return {version=1,address=owner.getAIStartAddress(1),characters=16,stride=676}
 end}}
+assert(owner.resolve())
 local recruitment=require('native-recruitment')
 local resolveRecruitment=recruitment.resolve
 recruitment.resolve=function(game)
@@ -147,7 +148,7 @@ before_enable_scans=scan_count
 lua.execute('''
 local bindings=require('native-bindings')
 preparedGame=bindings.resolve()
-assert(preparedGame.resolved.Legacy==true,preparedGame.resolved.Legacy)
+bindings.requireBindings(preparedGame, {'AICLayout', 'Grace', 'Layout', 'Interval', 'Target'})
 package.loaded['aicTactics.dll']={configurationSize=352,configuration=0x3050000,
   nativeBindings=0x3051000,nativeBindingsSize=364,allyBindings=0x3052000,allyBindingsSize=56,
   resetDefenseCensus=0x3070000,countDefenseUnit=0x3070020}

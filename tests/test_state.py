@@ -39,7 +39,8 @@ def state():
         reserveSize=196,reserves=60000,reserveGroupOwner=65000,reserveGroupUID=71000,
         raidStateSize=96,raidStates=80000,raidGroupCensus=81000,
         raidUnitPower=90000,raidStaticDefenses=130000,raidBuildingCensusTick=170000,
-        raidBuildingCensusValid=170004,captureIntegrity=180000,integrityDigest=180004}
+        raidBuildingCensusValid=170004,captureIntegrityWithIdentity=180000,
+        observeIntegrityBoundaryWithIdentity=180008,integrityDigest=180004}
       version='0.0.20'
       core={readInteger=function(a)return memory[a] or 0 end,
         readString=function(a,n)

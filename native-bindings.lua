@@ -24,11 +24,6 @@ local function ownerLayout()
   return {aicRecords = layout.address}
 end
 
-local function legacySites()
-  return {recruitmentInterval = require('native-recruitment').resolveInterval(),
-    targetSelection = require('native-combat-bindings').resolveTargetSelection()}
-end
-
 local function bind(game, key, resolver)
   if game.resolved[key] then return end
   local ok, result = pcall(resolver, game)
@@ -39,15 +34,19 @@ local function bind(game, key, resolver)
 end
 
 function M.resolve()
-  local game = {resolved = {}}
-  bind(game, 'AICLayout', ownerLayout)
-  bind(game, 'Grace', require('config.grace').resolveNative)
-  bind(game, 'Layout', require('native-layout').resolve)
-  bind(game, 'Legacy', legacySites)
-  return game
+  return {resolved = {}}
 end
 
 local owners = {
+  AICLayout = ownerLayout,
+  Interval = function()
+    return {recruitmentInterval = require('native-recruitment').resolveInterval()}
+  end,
+  Target = function()
+    return {targetSelection = require('native-combat-bindings').resolveTargetSelection()}
+  end,
+  Grace = {'config.grace', 'resolveNative'},
+  Layout = {'native-layout'},
   Army = {'native-layout', 'resolveArmy'},
   Projectiles = {'native-layout', 'resolveProjectiles'},
   Groups = {'native-group-actions'},
@@ -67,7 +66,8 @@ local owners = {
 function M.requireBindings(game, keys)
   for _, key in ipairs(keys) do
     local owner = owners[key]
-    if owner then bind(game, key, require(owner[1])[owner[2] or 'resolve']) end
+    local resolver = type(owner) == 'table' and require(owner[1])[owner[2] or 'resolve'] or owner
+    bind(game, key, resolver)
     assert(game.resolved[key] == true, game.resolved[key])
   end
 end

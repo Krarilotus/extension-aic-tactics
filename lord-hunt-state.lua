@@ -14,10 +14,10 @@ function M.new(native)
     {native.lordHuntUnits, players}}
   local count = 0
   for _, block in ipairs(blocks) do count = count + block[2] end
-  local units = native.game.unitCapacity
   -- `groups` are the detached group words (group-state.lua): a reference
   -- must name a record of the matching duty.
   local function validate(values, groups)
+    local units = native.game.unitCapacity
     assert(#values == count, 'AIC Tactics: invalid lord hunt state size')
     local function range(value, maximum)
       assert(value >= 0 and value <= maximum, 'AIC Tactics: invalid saved lord hunt state')
