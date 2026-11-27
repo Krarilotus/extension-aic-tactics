@@ -132,7 +132,7 @@ function M.preflight(game, expected)
 end
 
 function M.install(game, handler)
-  for _, site in ipairs(game.attackPatrolCalls) do core.writeCode(site, {0xE8, handler - site - 5}) end
+  for _, site in ipairs(game.attackPatrolCalls) do core.writeCode(site, {core.callTo(handler)}) end
 end
 
 -- `expected` is the current target of the rally's move order: the game's group
@@ -144,7 +144,7 @@ end
 
 function M.installScreen(game, handler)
   local site = game.siegeDefenceRallyMove
-  core.writeCode(site, {0xE8, handler - site - 5})
+  core.writeCode(site, {core.callTo(handler)})
 end
 
 return M

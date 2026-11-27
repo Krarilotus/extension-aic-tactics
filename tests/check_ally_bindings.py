@@ -61,8 +61,13 @@ def runtime(image, base):
     lua.globals().market_caller = MARKET_CALLER
     lua.execute('''
       package.path=root..'/?.lua;'..package.path
-      core={AOBScan=aob,readByte=read_byte,readInteger=read_integer,
-        writeCode=function(address, values) write_code(address, values) end,
+      core={AOBScanUnique=function(pattern) return aob(pattern) end,readByte=read_byte,readInteger=read_integer,
+        jmpTo=function(target)return target end,
+        writeCode=function(address, values)
+          table.insert(values, 1, 0xE9)
+          values[2]=values[2]-address-5
+          write_code(address, values)
+        end,
         allocateAssembly=function(text, symbols)
           allocated=(allocated or 0x30000000)+0x1000
           stubs[#stubs+1]={address=allocated,text=text,symbols=symbols}

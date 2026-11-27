@@ -71,7 +71,7 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         "siegeScreenFallback", "siegeScreenForwardFallback", "patrolRoutes", "patrolRouteSize",
         "screenSiegeDefenceMove", "siegeScreenExtraGroups", "siegeScreenExtraGroupsFallback",
         "allyBindings", "allyBindingsSize", "allySettings", "allyFallback", "allyStates", "allyStateSize",
-        "allyGoldRequestAllowed", "allyGoldRequestCommand", "allyGateHeld", "diagnostics",
+        "allyGoldRequestAllowed", "allyGoldRequestCommand", "allyGateHeld", "diagnosticsLog",
         "ownerDefenseRows", "ownerDefenseGroups", "ownerRaidTypes"};
     const unsigned int values[] = {
         reinterpret_cast<unsigned int>(configurations), sizeof(CharacterConfiguration),
@@ -169,7 +169,7 @@ extern "C" __declspec(dllexport) int __cdecl luaopen_aicTactics(lua_State* state
         reinterpret_cast<unsigned int>(allyStates), sizeof(AllyState),
         reinterpret_cast<unsigned int>(&allyGoldRequestAllowed),
         reinterpret_cast<unsigned int>(&allyGoldRequestCommand),
-        reinterpret_cast<unsigned int>(&allyGateHeld), reinterpret_cast<unsigned int>(&diagnosticsEnabled),
+        reinterpret_cast<unsigned int>(&allyGateHeld), reinterpret_cast<unsigned int>(&diagnosticsLog),
         reinterpret_cast<unsigned int>(ownerDefenseRows), reinterpret_cast<unsigned int>(ownerDefenseGroups),
         reinterpret_cast<unsigned int>(ownerRaidTypes)};
     typedef char ExportCount[sizeof(names) / sizeof(names[0]) == sizeof(values) / sizeof(values[0]) ? 1 : -1];

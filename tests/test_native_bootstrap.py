@@ -11,7 +11,10 @@ def runtime():
       package.path=root..'/?.lua;'..package.path
       -- This fixture isolates interval ownership. Shared native discovery has
       -- its own real-executable and failure-before-write checks.
-      package.loaded['native-bindings']={initialize=function()end}
+      package.loaded['native-bindings']={initialize=function()end,
+        requireBindings=function()end,publish=function()end}
+      messages={}
+      log=function(level,message) messages[#messages+1]=message end
       package.loaded['config.grace']={preflight=function()end}
       package.loaded['aicTactics.dll']={configurationSize=352,configuration=0x3100000,legacyWallCounts=0x3200000,
         rangedSortie=0x3300000,meleeSortie=0x3300100,
@@ -39,8 +42,11 @@ def runtime():
         allocateAssembly=function(text,symbols)
           allocations[#allocations+1]=text;return 0x3000000
         end,
+        callTo=function(target)return function(site)return 0xE8,target-site-5 end end,
+        jmpTo=function(target)return function(site)return 0xE9,target-site-5 end end,
         writeCode=function(address,bytes)
-          writes[#writes+1]=address;memory[address]=bytes[1];memory[address+1]=bytes[2]
+          writes[#writes+1]=address
+          memory[address],memory[address+1]=bytes[1](address)
         end}
       native=require('native').new()
     ''')
@@ -141,6 +147,9 @@ def test_legacy_interval_stays_and_weighted_roles_reload_theirs_once():
 def test_foreign_interval_patch_rejected_before_write():
     runtime().execute('''
       memory[0x4D3B41]=0xE9
-      assert(not pcall(native.activate))
+      native.activate()
+      native.activate()
+      assert(native.unavailableFeatures.Recruitment and #messages==2)
+      assert(messages[2]:find('weighted recruitment',1,true))
       assert(#writes==0 and #allocations==0)
     ''')

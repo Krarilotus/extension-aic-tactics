@@ -1,7 +1,7 @@
 local context = require('native-context')
 local M = {}
 local signatures = {
-  targetSelection = '83 EC 20 8B 54 24 24 53 8B DA 69 DB F4 39 00 00 8B 83 ? ? ? ? 55 33 ED 3B C5 89 4C 24 20 0F 84 ? ? ? ? 83 C0 FF 89 44 24 1C 8B 83 ? ? ? ? 89 44 24 18 8B 83 ? ? ? ? 52 C7 44 24 0C 10 27 00 00 89 6C 24 10 C7 44 24 14 40 42 0F 00 89 44 24 18 E8 ? ? ? ? 8B 83 ? ? ? ? 83 F8 02 74 05 83 F8 01 75 1B 8B 8B ? ? ? ? 51 B9 ? ? ? ? E8 ? ? ? ? 85 C0 75 06 89 AB ? ? ? ? 8B 83 ? ? ? ? 83 F8 02 75 0E 89 AB ? ? ? ? 5D 5B 83 C4 20 C2 04 00 83 F8 01 75 1F 8B 93 ? ? ? ? 52 B9 ? ? ? ? E8 ? ? ? ? 85 C0 0F 85 ? ? ? ? 89 AB ? ? ? ? 56 57 BF 01 00 00 00 BE ? ? ? ? 8B FF 8B 0C BD ? ? ? ? 8B 54 24 34 3B 0C 95 ? ? ? ? 0F 84 ? ? ? ? 57 B9 ? ? ? ? E8 ? ? ? ? 85 C0 0F 84 ? ? ? ? 8B 44 24 1C 8B 4C 24 20 8B 96 D0 FC FF FF 50 8B 86 CC FC FF FF 51 52 50 B9 ? ? ? ? E8 ? ? ? ? 8B 4C 24 24 8B 54 24 28 69 C9 A4 02 00 00 8B 84 11 A0 02 00 00 83 F8 04 75 33 83 3C BD ? ? ? ? FF 0F 84 ? ? ? ? A1 ? ? ? ? 3B 44 24 10 7F 77 89 44 24 10 EB 6F 8B 83 ? ? ? ? 5D 89 83 ? ? ? ? 5B 83 C4 20 C2 04 00 83 F8 02 74 D6 85 C0 75 0E 8B 06 3B 44 24 14 7C 4C 89 44 24 14 EB 44 83 F8 01 75 41 8B 86 74 1C 00 00 8B 0E 8D 04 80 03 86 DC 33 00 00 89 44 24 2C B8 1F 85 EB 51 F7 E9 8B 4C 24 2C C1 FA 05 8B C2 C1 E8 1F 03 CA 03 C1 8B 0D ? ? ? ? 8D 04 48 3B 44 24 18 7F 06 89 44 24 18 8B EF 83 C7 01 81 C6 F4 39 00 00 83 FF 09 0F 8C ? ? ? ? 85 ED 75 74 BE 01 00 00 00 BF ? ? ? ? EB 07 8D A4 24 00 00 00 00 8B 14 B5 ? ? ? ? 8B 44 24 34 3B 14 85 ? ? ? ? 74 3B 56 B9 ? ? ? ? E8 ? ? ? ? 85 C0 74 2C 8B 4C 24 1C 8B 54 24 20 8B 47 04 51 8B 0F 52 50 51 B9 ? ? ? ? E8 ? ? ? ? A1 ? ? ? ? 3B 44 24 10 7F 06 89 44 24 10 8B EE 83 C6 01 81 C7 F4 39 00 00 83 FE 09 7C A3 85 ED 74 0C 89 AB ? ? ? ? 89 AB ? ? ? ? 5F 5E 5D 5B 83 C4 20 C2 04 00 CC',
+  targetSelection = '83 EC 20 8B 54 24 24 53 8B DA 69 DB F4 39 00 00 8B 83 ? ? ? ? 55 33 ED 3B C5 89 4C 24 20 0F 84 ? ? ? ? 83 C0 FF 89 44 24 1C 8B 83 ? ? ? ? 89 44 24 18 8B 83 ? ? ? ? 52 C7 44 24 0C 10 27 00 00 89 6C 24 10 C7 44 24 14 40 42 0F 00 89 44 24 18 E8 ? ? ? ? 8B 83 ? ? ? ? 83 F8 02 74 05 83 F8 01 75 1B 8B 8B ? ? ? ? 51 B9 ? ? ? ? E8 ? ? ? ? 85 C0 75 06 89 AB ? ? ? ? 8B 83 ? ? ? ? 83 F8 02 75 0E 89 AB ? ? ? ? 5D 5B 83 C4 20 C2 04 00 83 F8 01 75 1F 8B 93 ? ? ? ? 52 B9 ? ? ? ? E8 ? ? ? ? 85 C0 0F 85 ? ? ? ? 89 AB ? ? ? ? 56 57 BF 01 00 00 00 BE ? ? ? ? 8B FF 8B 0C BD ? ? ? ? 8B 54 24 34 3B 0C 95 ? ? ? ? 0F 84 ? ? ? ? 57 B9 ? ? ? ? E8 ? ? ? ? 85 C0 0F 84 ? ? ? ? ? ? ? ? ? ? ? ? 8B 96 D0 FC FF FF 50 8B 86 CC FC FF FF 51 52 50 B9 ? ? ? ? E8 ? ? ? ? 8B 4C 24 24 8B 54 24 28 69 C9 A4 02 00 00 8B 84 11 A0 02 00 00 ? ? ? 75 33 83 3C BD ? ? ? ? FF 0F 84 ? ? ? ? A1 ? ? ? ? 3B 44 24 10 7F 77 89 44 24 10 EB 6F 8B 83 ? ? ? ? 5D 89 83 ? ? ? ? 5B 83 C4 20 C2 04 00 83 F8 02 74 D6 85 C0 75 0E 8B 06 3B 44 24 14 7C 4C 89 44 24 14 EB 44 83 F8 01 75 41 8B 86 74 1C 00 00 8B 0E 8D 04 80 03 86 DC 33 00 00 89 44 24 2C B8 1F 85 EB 51 F7 E9 8B 4C 24 2C C1 FA 05 8B C2 C1 E8 1F 03 CA 03 C1 8B 0D ? ? ? ? 8D 04 48 3B 44 24 18 7F 06 89 44 24 18 8B EF 83 C7 01 81 C6 F4 39 00 00 83 FF 09 0F 8C ? ? ? ? 85 ED 75 74 BE 01 00 00 00 BF ? ? ? ? EB 07 8D A4 24 00 00 00 00 8B 14 B5 ? ? ? ? 8B 44 24 34 3B 14 85 ? ? ? ? 74 3B 56 B9 ? ? ? ? E8 ? ? ? ? 85 C0 74 2C 8B 4C 24 1C 8B 54 24 20 8B 47 04 51 8B 0F 52 50 51 B9 ? ? ? ? E8 ? ? ? ? A1 ? ? ? ? 3B 44 24 10 7F 06 89 44 24 10 8B EE 83 C6 01 81 C7 F4 39 00 00 83 FE 09 7C A3 85 ED 74 0C 89 AB ? ? ? ? 89 AB ? ? ? ? 5F 5E 5D 5B 83 C4 20 C2 04 00 CC',
   nervousness = '53 55 56 57 8B 7C 24 14 8B 14 BD ? ? ? ? 8B F7 69 F6 F4 39 00 00 8B 86 ? ? ? ? 83 F8 32 8B E9 BB 01 00 00 00 7D 05 8D 4B EB EB 4B 83 F8 64 7D 04 33 C9 EB 42 3D C8 00 00 00 7D 07 B9 14 00 00 00 EB 34 3D 90 01 00 00 7D 07 B9 64 00 00 00 EB 26 3D 58 02 00 00 7D 07 B9 C8 00 00 00 EB 18 33 C9 3D 20 03 00 00 0F 9D C1 2B CB 81 E1 38 FF FF FF 81 C1 F4 01 00 00 03 C8 3B D1 7E 0F 5F 33 C0 89 86 ? ? ? ? 5E 5D 5B C2 04 00 83 BE ? ? ? ? 00 75 27 8B C7 69 C0 7D 0E 00 00 03 05 ? ? ? ? 39 14 85 ? ? ? ? 7E 08 57 8B CD E8 ? ? ? ? 57 8B CD E8 ? ? ? ? 5F 89 9E ? ? ? ? 5E 5D 5B C2 04 00',
   attackUpdate = '53 56 8B 74 24 0C 57 8B FE 69 FF F4 39 00 00 8B 87 ? ? ? ? 85 C0 8B D9 0F 84 ? ? ? ? 83 C0 FF 89 44 24 10 8B 87 ? ? ? ? 83 F8 01 74 37 83 F8 02 75 32 8B 87 ? ? ? ? 50 B9 ? ? ? ? E8 ? ? ? ? 85 C0 74 1D 56 8B CB E8 ? ? ? ? 8B 8F ? ? ? ? 51 56 8B CB E8 ? ? ? ? 5F 5E 5B C2 04 00 55 8B AF ? ? ? ? 85 ED 56 8B CB 75 6B E8 ? ? ? ? 85 C0 56 8B CB 74 53 89 AF ? ? ? ? C7 87 ? ? ? ? 01 00 00 00 89 AF ? ? ? ? 89 AF ? ? ? ? E8 ? ? ? ? 56 8B CB E8 ? ? ? ? 56 8B CB E8 ? ? ? ? 8B 87 ? ? ? ? 69 C0 F4 39 00 00 8B D6 C1 E2 05 83 84 10 ? ? ? ? 01 8D 84 10 ? ? ? ? EB 40 E8 ? ? ? ? 5D 5F 5E 5B C2 04 00 E8 ? ? ? ? 85 C0 74 05 83 FD 09 75 1A',
   raidUpdate = '83 EC 14 53 55 8B 6C 24 20 69 ED F4 39 00 00 8B 85 ? ? ? ? 8B D9 33 C9 3B C1 89 5C 24 18 0F 84 ? ? ? ? 83 85 ? ? ? ? 01 8D 50 FF 8B 85 ? ? ? ? 89 54 24 14 69 D2 A4 02 00 00 3B 84 1A F0 01 00 00 89 4C 24 08 7C 06 89 8D ? ? ? ? 39 8D ? ? ? ? 75 08 89 8D ? ? ? ? EB 13 8B 85 ? ? ? ? 3B C1 7E 09 83 C0 FF 89 85 ? ? ? ? 8D 85 ? ? ? ?',
@@ -27,21 +27,56 @@ local signatures = {
   returnCall3 = '83 F8 08 75 61 56 8B CB C7 87 ? ? ? ? 09 00 00 00 89 AF ? ? ? ? E8 ? ? ? ? 8B 97 ? ? ? ? 56 52 B9 ? ? ? ? E8 ? ? ? ? 56 8B CB E8 ? ? ? ? 56 8B CB E8 ? ? ? ? 56 8B CB E8 ? ? ? ? 56 8B CB E8 ? ? ? ?',
 }
 
+-- Legacy can replace the target-choice compare and the assault-switch load.
+-- The surrounding routine identifies the same entry with either patch active.
+function M.resolveTargetSelection()
+  return context.find('targetSelection', signatures.targetSelection)
+end
+
+function M.resolveMarket(game)
+  local caller = context.find('marketCaller', signatures.marketCaller)
+  local price = context.call(caller + 27, 'market price')
+  context.verify(price, 'market price', signatures.marketPrice)
+  local state = core.readInteger(caller + 19)
+  assert(state > 0 and state + core.readInteger(price + 7) == game.players + 0x211DC,
+    'AIC Tactics: incompatible native market layout')
+  return {marketPrice = price, gameState = state}
+end
+
 function M.resolve(game)
   local sites={}
-  for _,name in ipairs({'targetSelection','nervousness','attackUpdate','raidUpdate','returnAttack','noTroops',
-      'marketCaller','combatValue','valueCaller','unitDamage','entityDamage','fireDamage',
+  for _,name in ipairs({'nervousness','attackUpdate','raidUpdate','returnAttack','noTroops',
+      'combatValue','valueCaller','unitDamage','entityDamage','fireDamage',
       'unitCensus','censusEnd','buildingCensus','buildingEnd','waveReadiness','tunnelers',
       'attackScheduler','targetScheduler','returnCall1','returnCall2','returnCall3'}) do
     sites[name]=context.find(name,signatures[name])
   end
-  -- Buy/sell price bodies share their arithmetic. The native caller identifies
-  -- the required price; do not select the first matching arithmetic function.
-  sites.marketPrice=context.call(sites.marketCaller+27,'market price')
-  context.verify(sites.marketPrice,'market price',signatures.marketPrice)
+  sites.targetSelection = game.targetSelection or M.resolveTargetSelection()
+  local market = game.gameState and game or M.resolveMarket(game)
   local function operand(name,offset,expected)
     assert(core.readInteger(sites[name]+offset)==expected,
       'AIC Tactics: incompatible native '..name..' operand')
+  end
+  local pick = sites.targetSelection + 306
+  local choice = core.readByte(pick + 1)
+  if core.readByte(pick) == 0xEB then
+    assert((choice == 0x11 or choice == 0x3F or choice == 0x52)
+      and core.readByte(pick + 2) == 0x90, 'AIC Tactics: unknown target choice patch')
+  else
+    context.verify(pick, 'target choice', '83 F8 04')
+  end
+  local assault = sites.targetSelection + 251
+  if core.readByte(assault) == 0xE9 then
+    context.verify(assault + 5, 'assault switch branch padding', '90 90 90')
+    local legacy = assault + 5 + core.readInteger(assault + 1)
+    assert(legacy > 0, 'AIC Tactics: invalid Legacy assault switch target')
+    context.verify(legacy, 'Legacy assault switch',
+      '83 BB ? ? ? ? 03 7C 12 39 BB ? ? ? ? 75 0A 5F 5E 5D 5B 83 C4 20 C2 04 00 ' ..
+      '8B 44 24 1C 8B 4C 24 20 E9 ? ? ? ?')
+    assert(legacy + 40 + core.readInteger(legacy + 36) == assault + 8,
+      'AIC Tactics: invalid Legacy assault switch continuation')
+  else
+    context.verify(assault, 'assault switch', '8B 44 24 1C 8B 4C 24 20')
   end
   operand('targetSelection',18,game.players+0x2300)
   operand('targetSelection',46,game.players+0x1D8)
@@ -154,9 +189,6 @@ function M.resolve(game)
   assert(buildingID>0 and sites.buildingCensus+37+core.readInteger(sites.buildingCensus+33)==sites.buildingEnd+24
       and sites.buildingEnd+23+core.readInteger(sites.buildingEnd+19)==sites.buildingCensus+47,
     'AIC Tactics: inconsistent building census lifecycle')
-  local gameState=core.readInteger(sites.marketCaller+19)
-  assert(gameState>0 and gameState+core.readInteger(sites.marketPrice+7)==game.players+0x211DC,
-    'AIC Tactics: incompatible native market layout')
   assert(context.call(sites.valueCaller+27,'unit combat value')==sites.combatValue
       and context.call(sites.targetSelection+85,'nervousness')==sites.nervousness
       and context.call(sites.attackUpdate+118,'wave readiness')==sites.waveReadiness
@@ -223,7 +255,7 @@ function M.resolve(game)
     updateAIPlayerState=sites.attackUpdate,returnAttack=sites.returnAttack,
     hasNoTroopsOrAllDiggers=sites.noTroops,updateRaids=sites.raidUpdate,
     combatValue=sites.combatValue,troopValues=core.readInteger(sites.valueCaller+23),
-    marketPrice=sites.marketPrice,gameState=gameState,
+    marketPrice=market.marketPrice,gameState=market.gameState,
     combatSites=hooks,combatOriginals=original,combatCalls=calls}
 end
 return M

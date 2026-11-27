@@ -187,8 +187,8 @@ handled:
     popfd
     ret
   ]], {commandHandler = command, resumeHandler = handler + 6})
-  core.writeCode(test, {0xE9, testHook - test - 5})
-  core.writeCode(handler, {0xE9, commandHook - handler - 5, 0x90})
+  core.writeCode(test, {core.jmpTo(testHook)})
+  core.writeCode(handler, {core.jmpTo(commandHook), 0x90})
   return {test = testHook, command = commandHook}
 end
 

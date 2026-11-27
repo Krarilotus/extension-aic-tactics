@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: UnofficialCrusaderPatch/extension-aicloader
-          ref: aef126a599a4bc68bbccbd1b3391d975ea7e2e46
+          ref: 27c184851006e08733d3aa19cf245b6998687496
           path: tests/deps/aicloader
           persist-credentials: false
       - uses: actions/setup-python@v5

@@ -14,7 +14,8 @@ end
 
 function M.defaults() return {} end
 
-function M.prepare(previous, spec, resetting)
+function M.prepare(previous, spec, resetting, check)
+  check = check or assert
   local result = {}
   if not resetting then
     for _, field in ipairs(M.fields) do
@@ -24,9 +25,12 @@ function M.prepare(previous, spec, resetting)
   end
   local retarget, siege = result.AICTactics_LordHuntRetarget, result.AICTactics_LordHuntSiege
   assert(retarget == nil or type(retarget) == 'boolean', 'AICTactics_LordHuntRetarget must be boolean')
-  assert(siege == nil or sieges[siege] ~= nil, 'AICTactics_LordHuntSiege must be HidingCastle or HomeCastle')
+  assert(siege == nil or type(siege) == 'string', 'AICTactics_LordHuntSiege must be a string')
+  check(siege == nil or sieges[siege] ~= nil, 'AICTactics_LordHuntSiege must be HidingCastle or HomeCastle')
   for _, field in ipairs(percents) do
-    assert(result[field] == nil or percent(result[field]), field .. ' must be an integer from 0 to 100')
+    local value = result[field]
+    assert(value == nil or type(value) == 'number', field .. ' must be a number')
+    check(value == nil or percent(value), field .. ' must be an integer from 0 to 100')
   end
   local function stored(value) return value == nil and 0 or value + 1 end
   return result, {retarget == nil and 0 or retarget and 2 or 1, siege == nil and 0 or sieges[siege] + 1,

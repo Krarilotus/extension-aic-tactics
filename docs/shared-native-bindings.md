@@ -318,7 +318,7 @@ are single startup observations, not simulation benchmarks. The twelve signed
 module ZIPs, signatures, native DLL architecture and nine GUI descriptions verify.
 
 The same bundle ran an eight-AI Extreme Ascension Green Haven spectator match.
-Read-only memory verified four neighboring allied pairs (91–92 tiles apart),
+Read-only memory verified four neighboring allied pairs (91â€“92 tiles apart),
 independent player state and custom recruitment by both Saladins. A native save
 loaded and continued; captures were 751 ticks apart, so exact save-boundary state
 equality was not measured. A 3,828-tick offline replay finished, then backward
@@ -330,6 +330,20 @@ This short segment contained no active attacks or player commands. It does not
 prove active-combat or cached-snapshot restoration, complete-world equality,
 Native baseline equivalence, physical multiplayer or simulation performance.
 Those remain release gates in [PR17](https://github.com/UnofficialCrusaderPatch/extension-aic-tactics/pull/17).
+
+## UCP 3.0.8 scanner (0.0.21)
+
+Requiring AIC Tactics performs no game-code scans. Enable resolves the layout
+and Legacy settings used in save, replay and match identity. Feature preflight
+resolves additional bindings through the framework's executable-section
+\`core.AOBScanUnique\` API. A missing or ambiguous binding is retained as a
+failure for the process. When requested, the affected feature stays off and
+logs one error that names it.
+
+Legacy keeps its defense, recruitment interval, initial timer, target choice
+and assault-switch patches. The recruitment interval and target selector use
+the surviving instruction context. AIC Tactics checks the modified bytes and
+the assault-switch trampoline before hooking dependent features.
 
 ## Siege harassment owner review (current dependent draft)
 
@@ -358,7 +372,7 @@ construction; the native tribe allocator partition bounds free crew slots. A
 source-group snapshot returns surviving engineers left detached by a partial
 batch through native membership calls. The policy stops after no successful
 construction, depleted crew or tribe capacity. Its building scan happens once
-per attack transition; subsequent work is bounded by the configured 0–20 cap.
+per attack transition; subsequent work is bounded by the configured 0â€“20 cap.
 No new frame, map or complete unit census was introduced. Existing movement,
 harassment, payment and role-counting owners remain separate.
 

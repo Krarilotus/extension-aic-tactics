@@ -16,41 +16,46 @@ function M.defaults()
     ProvocationRules = {ThreatPower = 100, CombatTicks = 200, LossPower = 100, WindowTicks = 800}}
 end
 
-local function rules(value)
+local function rules(value, check)
+  check = check or assert
   assert(type(value) == 'table' and getmetatable(value) == nil, 'ProvocationRules must be a plain record')
-  for key in pairs(value) do assert(ruleBounds[key], 'Unknown ProvocationRules field: ' .. tostring(key)) end
+  for key in pairs(value) do check(ruleBounds[key], 'Unknown ProvocationRules field: ' .. tostring(key)) end
   local result = {}
   for key, bound in pairs(ruleBounds) do
     local number = value[key]
-    assert(type(number) == 'number' and number == math.floor(number)
+    assert(type(number) == 'number', 'ProvocationRules.' .. key .. ' must be a number')
+    check(number == math.floor(number)
       and number >= bound[1] and number <= bound[2],
       'ProvocationRules.' .. key .. ' must be an integer from ' .. bound[1] .. ' to ' .. bound[2])
     result[key] = number
   end
-  assert(result.WindowTicks % 32 == 0, 'ProvocationRules.WindowTicks must be a multiple of 32')
-  assert(result.CombatTicks <= result.WindowTicks, 'ProvocationRules.CombatTicks must not exceed WindowTicks')
+  check(result.WindowTicks % 32 == 0, 'ProvocationRules.WindowTicks must be a multiple of 32')
+  check(result.CombatTicks <= result.WindowTicks, 'ProvocationRules.CombatTicks must not exceed WindowTicks')
   return result
 end
 
-local function targetChoice(value)
-  if type(value) ~= 'table' then return value, nil, nil end
-  assert(getmetatable(value) == nil, 'AttackTargetPolicy must be a plain record')
+local function targetChoice(value, check)
+  check = check or assert
+  if type(value) == 'string' then return value, nil, nil end
+  assert(type(value) == 'table' and getmetatable(value) == nil, 'AttackTargetPolicy must be a choice or plain record')
   for key in pairs(value) do
-    assert(key == 'Choice' or key == 'UntilDefeated' or key == 'Provocation',
+    check(key == 'Choice' or key == 'UntilDefeated' or key == 'Provocation',
       'Unknown AttackTargetPolicy field: ' .. tostring(key))
   end
-  assert(policies[value.Choice] ~= nil, 'AttackTargetPolicy.Choice must name a target selection rule')
+  assert(type(value.Choice) == 'string', 'AttackTargetPolicy.Choice must be a string')
+  check(policies[value.Choice] ~= nil, 'AttackTargetPolicy.Choice must name a target selection rule')
   assert(value.UntilDefeated == nil or type(value.UntilDefeated) == 'boolean',
     'AttackTargetPolicy.UntilDefeated must be boolean')
   if value.Provocation ~= nil then
-    assert(value.Choice == 'LastAggressor', 'AttackTargetPolicy.Provocation requires LastAggressor')
     assert(type(value.Provocation) == 'table' and getmetatable(value.Provocation) == nil,
       'AttackTargetPolicy.Provocation must be a plain record')
+    check(value.Choice == 'LastAggressor', 'AttackTargetPolicy.Provocation requires LastAggressor')
   end
   return value.Choice, value.Provocation, value.UntilDefeated
 end
 
-function M.prepare(previous, spec, resetting)
+function M.prepare(previous, spec, resetting, check)
+  check = check or assert
   local candidate = M.defaults()
   for _, field in ipairs(M.fields) do
     if not resetting then
@@ -58,18 +63,18 @@ function M.prepare(previous, spec, resetting)
       if spec[field] ~= nil then candidate[field] = spec[field] end
     end
   end
-  local choice, nested, untilDefeated = targetChoice(candidate.AttackTargetPolicy)
+  local choice, nested, untilDefeated = targetChoice(candidate.AttackTargetPolicy, check)
   if not resetting and spec.AttackTargetPolicy ~= nil and nested ~= nil then
-    assert(spec.ProvocationRules == nil,
+    check(spec.ProvocationRules == nil,
       'Set provocation rules inside AttackTargetPolicy or in ProvocationRules, not both')
     local merged = rules(previous and previous.ProvocationRules or M.defaults().ProvocationRules)
     for key, value in pairs(nested) do
-      assert(ruleBounds[key], 'Unknown AttackTargetPolicy.Provocation field: ' .. tostring(key))
+      check(ruleBounds[key], 'Unknown AttackTargetPolicy.Provocation field: ' .. tostring(key))
       merged[key] = value
     end
-    candidate.ProvocationRules = rules(merged)
+    candidate.ProvocationRules = rules(merged, check)
   else
-    candidate.ProvocationRules = rules(candidate.ProvocationRules)
+    candidate.ProvocationRules = rules(candidate.ProvocationRules, check)
   end
   if type(candidate.AttackTargetPolicy) == 'table' then
     candidate.AttackTargetPolicy = {Choice = choice, UntilDefeated = untilDefeated,
@@ -82,22 +87,24 @@ function M.prepare(previous, spec, resetting)
   end
   local policy, embeddedCommitment, base = decodePolicy(choice)
   if untilDefeated then embeddedCommitment = 2 end
-  assert(policy ~= nil, 'AttackTargetPolicy must be Inherit, InheritPerAttack or a supported selection policy')
+  check(policy ~= nil, 'AttackTargetPolicy must be Inherit, InheritPerAttack or a supported selection policy')
   if not resetting and spec.AttackTargetCommitment ~= nil and embeddedCommitment ~= nil then
     if spec.AttackTargetPolicy ~= nil then
-      error('Set commitment in AttackTargetPolicy or AttackTargetCommitment, not both')
+      check(false, 'Set commitment in AttackTargetPolicy or AttackTargetCommitment, not both')
     end
     -- An old setter can replace the lifetime of a previously combined policy.
     candidate.AttackTargetPolicy = base
     embeddedCommitment = nil
   end
+  assert(type(candidate.AttackTargetCommitment) == 'string', 'AttackTargetCommitment must be a string')
   local commitment = commitments[candidate.AttackTargetCommitment]
-  assert(commitment ~= nil, 'AttackTargetCommitment must be Default, PerAttack or UntilDefeated')
+  check(commitment ~= nil, 'AttackTargetCommitment must be Default, PerAttack or UntilDefeated')
   if embeddedCommitment ~= nil then
-    assert(commitment == 0, 'Combined AttackTargetPolicy conflicts with AttackTargetCommitment')
+    check(commitment == 0, 'Combined AttackTargetPolicy conflicts with AttackTargetCommitment')
     commitment = embeddedCommitment
   end
-  assert(candidate.AttackActivation == 'Immediate' or candidate.AttackActivation == 'AfterProvocation',
+  assert(type(candidate.AttackActivation) == 'string', 'AttackActivation must be a string')
+  check(candidate.AttackActivation == 'Immediate' or candidate.AttackActivation == 'AfterProvocation',
     'AttackActivation must be Immediate or AfterProvocation')
   return candidate, {schemaVersion = 2, policy = policy, commitment = commitment,
     activation = candidate.AttackActivation == 'AfterProvocation' and 1 or 0,

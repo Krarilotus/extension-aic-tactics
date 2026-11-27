@@ -6,7 +6,7 @@ from lupa import LuaRuntime
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_entry_point_resolves_on_load_and_passes_bindings_on_enable():
+def test_entry_point_resolves_only_during_enable():
     lua = LuaRuntime()
     lua.globals().root = ROOT.as_posix()
     lua.execute('''
@@ -15,7 +15,7 @@ def test_entry_point_resolves_on_load_and_passes_bindings_on_enable():
       local phase='load'
       local resolves=0
       package.loaded['native-bindings']={resolve=function()
-        assert(phase=='load')
+        assert(phase=='enable')
         resolves=resolves+1
         return game
       end}
@@ -27,7 +27,7 @@ def test_entry_point_resolves_on_load_and_passes_bindings_on_enable():
         ['map-extensions']={requiredStateVersion=function()return 1 end,
           getNativeSaveInterface=function()return {failureHandling=1,readContext=1} end}}
       local module=assert(loadfile(root..'/init.lua'))()
-      assert(resolves==1)
+      assert(resolves==0)
       phase='enable'
       local owner=modules['map-extensions']
       local supported=owner.getNativeSaveInterface
@@ -41,7 +41,7 @@ def test_entry_point_resolves_on_load_and_passes_bindings_on_enable():
       assert(not pcall(module.enable,module,{}))
       owner.getNativeSaveInterface=supported
       local ok,why=pcall(module.enable,module,{})
-      assert(not ok and why=='native enable reached')
+      assert(not ok and why=='native enable reached' and resolves==1)
     ''')
 
 
@@ -53,7 +53,7 @@ def test_binding_contract_failure_does_not_write_native_memory(invalid):
     lua.execute('''
       package.path=root..'/?.lua;'..package.path
       local layout={version=1,address=10000,characters=16,stride=676}
-      local native={nativeBindingsSize=300,nativeBindings=20000}
+      local native={nativeBindingsSize=364,nativeBindings=20000,allyBindingsSize=56}
       local game={gameTick=30000,rngState=40000,rngValue=40002,rngNext=50000,initialDefenseTicks=60000}
       package.loaded['config.grace']={resolveNative=function()return game end}
       modules={aicloader={getNativeAICLayout=function()return layout end}}
@@ -64,8 +64,16 @@ def test_binding_contract_failure_does_not_write_native_memory(invalid):
       elseif invalid=='count' then layout.characters=15
       elseif invalid=='stride' then layout.stride=672
       else layout.address=0 end
-      assert(not pcall(require('native-bindings').initialize,native))
-      assert(writes==0 and native.game==nil)
+      local bindings=require('native-bindings')
+      local game=bindings.resolve()
+      if invalid=='abi' then
+        assert(not pcall(bindings.initialize,native,game) and native.game==nil)
+      else
+        bindings.initialize(native,game)
+        local ok,reason=pcall(bindings.requireBindings,game,{'AICLayout'})
+        assert(not ok and type(reason)=='string')
+      end
+      assert(writes==0)
     ''')
 
 
@@ -76,8 +84,8 @@ def test_native_context_failure_has_no_pointer_fallback(invalid):
     lua.globals().invalid = invalid
     lua.execute('''
       package.path=root..'/?.lua;'..package.path
-      core={AOBScan=function()
-          if invalid=='error' then error('framework discovery failed') end
+      core={AOBScanUnique=function()
+          if invalid=='error' then return nil,'not searched completely' end
           if invalid=='absent' then return nil end
           return invalid=='zero' and 0 or 10000
         end,

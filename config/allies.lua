@@ -21,12 +21,13 @@ local settings = {
 }
 M.settings = settings
 
-local function check(value, setting, name)
+local function validate(value, setting, name, check)
   if setting[3] == 'boolean' then
     assert(type(value) == 'boolean', name .. ' must be boolean')
     return value and 1 or 0
   end
-  assert(type(value) == 'number' and value == math.floor(value) and value >= setting[4]
+  assert(type(value) == 'number', name .. ' must be a number')
+  check(value == math.floor(value) and value >= setting[4]
       and value <= setting[5],
     string.format('%s must be an integer from %d to %d', name, setting[4], setting[5]))
   return value
@@ -34,7 +35,8 @@ end
 
 function M.defaults() return {} end
 
-function M.prepare(previous, spec, resetting)
+function M.prepare(previous, spec, resetting, check)
+  check = check or assert
   local result, words = {}, {}
   for index, setting in ipairs(settings) do
     local field = setting[1]
@@ -44,7 +46,7 @@ function M.prepare(previous, spec, resetting)
       if spec[field] ~= nil then value = spec[field] end
     end
     result[field] = value
-    words[index] = value == nil and 0 or check(value, setting, field) + 1
+    words[index] = value == nil and 0 or validate(value, setting, field, check) + 1
   end
   return result, words
 end
@@ -66,7 +68,7 @@ function M.fallbacks(config)
   for index, setting in ipairs(settings) do
     local value = config and config[setting[2]]
     if value == nil then value = setting[6] end
-    words[index] = check(value, setting, 'AIC Tactics: ' .. setting[2])
+    words[index] = validate(value, setting, 'AIC Tactics: ' .. setting[2], assert)
   end
   return words
 end

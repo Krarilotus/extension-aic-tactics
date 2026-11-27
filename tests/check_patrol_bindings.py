@@ -49,10 +49,13 @@ def runtime(image, base):
     lua.globals().group_move = GROUP_MOVE
     lua.execute('''
       package.path=root..'/?.lua;'..package.path
-      core={AOBScan=aob,readByte=read_byte,readInteger=read_integer,
-        writeCode=function(address, values) write_code(address, values) end}
+      core={AOBScanUnique=function(pattern) return aob(pattern) end,readByte=read_byte,readInteger=read_integer,
+        callTo=function(target)return target end,
+        writeCode=function(address, values) write_code(address, {0xE8, values[1]-address-5}) end}
       context=require('native-context')
-      game=require('native-layout').resolve()
+      local layout=require('native-layout')
+      game=layout.resolve()
+      for key,value in pairs(layout.resolveArmy(game)) do game[key]=value end
       for key,value in pairs(require('native-group-actions').resolve(game)) do game[key]=value end
       game.updateAIPlayerState=context.find('AI state update',state_update)
       game.siegeGroupMove=context.find('group move',group_move)

@@ -44,18 +44,19 @@ function M.active(candidate)
   return M.recordActive(candidate) or attacks.active(candidate) or lordHunt.active(candidate) or allies.active(candidate)
 end
 
-function M.prepare(previous, spec, readNative, resetting)
-  local authored, compiled = recruitment.prepare(previous, spec, readNative, resetting)
-  local targetAuthored, targetCompiled = targets.prepare(previous, spec, resetting)
-  local armyAuthored, armyCompiled = army.prepare(previous, spec, readNative, resetting)
+function M.prepare(previous, spec, readNative, resetting, check)
+  check = check or assert
+  local authored, compiled = recruitment.prepare(previous, spec, readNative, resetting, check)
+  local targetAuthored, targetCompiled = targets.prepare(previous, spec, resetting, check)
+  local armyAuthored, armyCompiled = army.prepare(previous, spec, readNative, resetting, check)
   -- Preparing a second wave requires the deployed army's target to stay fixed.
   -- Preserve the authored Default so switching preparation back restores Native.
   if armyCompiled == 1 and targetCompiled.commitment == 0 then targetCompiled.commitment = 1 end
-  local raidAuthored, raidCompiled = raids.prepare(previous, spec, resetting)
-  local siegeAuthored, siegeCompiled = siege.prepare(previous, spec, resetting)
-  local attackAuthored, attackCompiled = attacks.prepare(previous, spec, resetting)
-  local huntAuthored, huntCompiled = lordHunt.prepare(previous, spec, resetting)
-  local allyAuthored, allyCompiled = allies.prepare(previous, spec, resetting)
+  local raidAuthored, raidCompiled = raids.prepare(previous, spec, resetting, check)
+  local siegeAuthored, siegeCompiled = siege.prepare(previous, spec, resetting, check)
+  local attackAuthored, attackCompiled = attacks.prepare(previous, spec, resetting, check)
+  local huntAuthored, huntCompiled = lordHunt.prepare(previous, spec, resetting, check)
+  local allyAuthored, allyCompiled = allies.prepare(previous, spec, resetting, check)
   for field, value in pairs(attackAuthored) do authored[field] = value end
   for field, value in pairs(huntAuthored) do authored[field] = value end
   for field, value in pairs(allyAuthored) do authored[field] = value end
@@ -75,7 +76,7 @@ function M.prepare(previous, spec, readNative, resetting)
         used = used or row.requiredFacts % 2 == 1 or row.forbiddenFacts % 2 == 1
       end
     end
-    assert(used, 'ProvocationRules requires AfterProvocation, LastAggressor or a HomeUnderThreat condition')
+    check(used, 'ProvocationRules requires AfterProvocation, LastAggressor or a HomeUnderThreat condition')
   end
   return combine(authored, targetAuthored),
     {schemaVersion = 10, recruitment = compiled, targeting = targetCompiled, preparation = armyCompiled,

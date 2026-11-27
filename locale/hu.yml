@@ -16,10 +16,10 @@ siegeScreen_engineApproach: Ostromgépek kísérése
 siegeScreen_native: Játék alapértelmezése
 siegeTowerCrew: MI-csapatok ültetése ostromtornyokba
 siegeTowerCrew_descr: A fedezőcsapatokat a falak felé tartó ostromtornyokra küldi, ha a beszállás engedélyezve van az Improved Siegeengines modulban.
-allyRelief: Csapatok küldése támadás alatt álló szövetségeseknek
-allyRelief_descr: Kérj csapatokat a szövetségesek képernyőjén, vagy kapj automatikus segítséget, ha megtámadják a váradat.
-allyGoods: Az MI-szövetségesek osszanak meg nyersanyagot és aranyat
-allyGoods_descr: Kérj aranyat a szövetségesek képernyőjén, miközben az MI-szövetségesek szükség szerint nyersanyagot és aranyat is megosztanak.
+allyRelief: "Csapatok küldése támadás alatt álló szövetségeseknek"
+allyRelief_descr: "Kérj csapatokat a szövetségesek képernyőjén, vagy kapj automatikus segítséget, ha megtámadják a váradat."
+allyGoods: "Az MI-szövetségesek osszanak meg nyersanyagot és aranyat"
+allyGoods_descr: "Kérj aranyat a szövetségesek képernyőjén, miközben az MI-szövetségesek szükség szerint nyersanyagot és aranyat is megosztanak."
 ai: MI
 improvements: Fejlesztések
 attack_patrols: Támadó járőrök

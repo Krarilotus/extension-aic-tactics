@@ -15,7 +15,7 @@ def runtime():
       memory={}
       writes=0
       core={readInteger=function(a)return memory[a] end,readByte=function(a)return memory[a] end,
-        AOBScan=function() return site end,scanForAOB=function() return nil end,
+        AOBScanUnique=function() return site end,scanForAOB=function() return nil end,
         writeCodeInteger=function(a,v)assert(a==site+36);memory[a]=v;writes=writes+1 end}
       for i=0,49 do memory[site+i]=i end
       memory[site+9]=0x19000002;memory[site+17]=0x19000000

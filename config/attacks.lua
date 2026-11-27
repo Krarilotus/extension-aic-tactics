@@ -31,7 +31,8 @@ end
 
 function M.defaults() return {} end
 
-function M.prepare(previous, spec, resetting)
+function M.prepare(previous, spec, resetting, check)
+  check = check or assert
   local result = {}
   if not resetting then
     for _, field in ipairs(M.fields) do
@@ -42,17 +43,22 @@ function M.prepare(previous, spec, resetting)
   local order, formation, spacing = result.AICTactics_PatrolOrders, result.AICTactics_PatrolFormation,
     result.AICTactics_PatrolSpacing
   local screen = result.AICTactics_SiegeScreen
-  assert(order == nil or orders[order] ~= nil, 'AICTactics_PatrolOrders must be Native or AllGroups')
-  assert(formation == nil or formations[formation] ~= nil,
+  assert(order == nil or type(order) == 'string', 'AICTactics_PatrolOrders must be a string')
+  check(order == nil or orders[order] ~= nil, 'AICTactics_PatrolOrders must be Native or AllGroups')
+  assert(formation == nil or type(formation) == 'string', 'AICTactics_PatrolFormation must be a string')
+  check(formation == nil or formations[formation] ~= nil,
     'AICTactics_PatrolFormation must be Native, Wing, Mirror or Routes')
-  assert(spacing == nil or integer(spacing, 4, 40), 'AICTactics_PatrolSpacing must be an integer from 4 to 40')
-  assert(screen == nil or screens[screen] ~= nil, 'AICTactics_SiegeScreen must be Native or EngineApproach')
+  assert(spacing == nil or type(spacing) == 'number', 'AICTactics_PatrolSpacing must be a number')
+  check(spacing == nil or integer(spacing, 4, 40), 'AICTactics_PatrolSpacing must be an integer from 4 to 40')
+  assert(screen == nil or type(screen) == 'string', 'AICTactics_SiegeScreen must be a string')
+  check(screen == nil or screens[screen] ~= nil, 'AICTactics_SiegeScreen must be Native or EngineApproach')
   local crew = result.AICTactics_SiegeTowerCrew
   assert(crew == nil or type(crew) == 'boolean', 'AICTactics_SiegeTowerCrew must be a boolean')
   local stored = {}
   for _, number in ipairs(numbers) do
     local value = result[number[1]]
-    assert(value == nil or integer(value, number[3], number[4]),
+    assert(value == nil or type(value) == 'number', number[1] .. ' must be a number')
+    check(value == nil or integer(value, number[3], number[4]),
       string.format('%s must be an integer from %d to %d', number[1], number[3], number[4]))
     stored[number[1]] = value == nil and 0 or value + 1
   end

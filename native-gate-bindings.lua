@@ -58,7 +58,7 @@ opened:
     jmp exit
   ]], {gateHeld = held, timer = game.allyGateTimer, resume = site + gateLength,
     exit = game.allyGateExit})
-  core.writeCode(site, {0xE9, hook - site - 5, 0x90, 0x90})
+  core.writeCode(site, {core.jmpTo(hook), 0x90, 0x90})
   return hook
 end
 

@@ -1,4 +1,5 @@
 local M = {}
+local allyNames = require('native-ally-bindings').names
 local names = {'gameTick','rngState','rngValue','rngNext','initialDefenseTicks','aicRecords',
     'units','unitRecords','unitCapacity','tribes','tribeStride','tribeMemberWords',
     'tribeStance','tribeTargetBuilding','tribeTargetBuildingUID','buildings','buildingCapacity',
@@ -15,55 +16,75 @@ local names = {'gameTick','rngState','rngValue','rngNext','initialDefenseTicks',
     'attackPatrolDispatch','attackPatrolDestination','troopValueState','playableTiles',
     'areaMap','areaRoute','areaPathFinder','tileLogic','tileWallOwner',
     'distanceLayers','distanceLayerIndex','tribeRallyPoints','tribeRallyCount'}
--- Framework loads every module before enabling Legacy's native patches.
--- Resolve identifying contexts here; hook preflights still check current bytes
--- when a feature is activated after all dependencies have enabled.
-function M.resolve()
-  local game = require('config.grace').resolveNative()
-  assert(type(modules.aicloader.getNativeAICLayout) == 'function',
-    'AIC Tactics requires AIC Loader 1.1.4 native storage metadata')
+local function ownerLayout()
   local layout = modules.aicloader:getNativeAICLayout()
-  assert(layout.version == 1 and layout.characters == 16 and layout.stride == 676
+  assert(type(layout) == 'table' and layout.version == 1 and layout.characters == 16 and layout.stride == 676
       and type(layout.address) == 'number' and layout.address > 0,
     'AIC Tactics: unsupported AIC Loader native layout')
-  game.aicRecords = layout.address
-  for key, value in pairs(require('native-layout').resolve()) do game[key] = value end
-  for key, value in pairs(require('native-group-actions').resolve(game)) do game[key] = value end
-  for key, value in pairs(require('native-recruitment').resolve(game)) do game[key] = value end
-  for key, value in pairs(require('native-aic-queries').resolve(game)) do game[key] = value end
-  -- Bindings used only by the listed features; when they do not resolve, those features stay off.
-  -- The siege bindings include the native group move that patrols, lord hunt and relief call.
-  game.missingFeatures = {}
-  for _, binding in ipairs({
-      {'native-combat-bindings', 'Combat', 'Raids'},
-      {'native-siege-bindings', 'SafePlacement', 'AttackPatrols', 'SiegeScreen', 'LordHunt', 'AllyRelief'},
-      {'native-role-bindings', 'EngineerRoles'},
-      {'native-patrol-bindings', 'AttackPatrols', 'SiegeScreen'},
-      {'native-lord-hunt-bindings', 'LordHunt', 'AllyGates'},
-      {'native-ally-bindings', 'AllyRelief', 'AllyGoods', 'AllyGates'},
-      {'native-ally-bindings', 'AllyReliefKeep', resolver = 'resolveKeep'},
-      {'native-gate-bindings', 'AllyGates'}}) do
-    local ok, result = pcall(require(binding[1])[binding.resolver or 'resolve'], game)
-    if ok then
-      for key, value in pairs(result) do game[key] = value end
-    else
-      for index = 2, #binding do game.missingFeatures[binding[index]] = tostring(result) end
-    end
+  return {aicRecords = layout.address}
+end
+
+local function legacySites()
+  return {recruitmentInterval = require('native-recruitment').resolveInterval(),
+    targetSelection = require('native-combat-bindings').resolveTargetSelection()}
+end
+
+local function bind(game, key, resolver)
+  if game.resolved[key] then return end
+  local ok, result = pcall(resolver, game)
+  game.resolved[key] = ok and true or tostring(result)
+  if ok then
+    for name, value in pairs(result) do game[name] = value end
   end
+end
+
+function M.resolve()
+  local game = {resolved = {}}
+  bind(game, 'AICLayout', ownerLayout)
+  bind(game, 'Grace', require('config.grace').resolveNative)
+  bind(game, 'Layout', require('native-layout').resolve)
+  bind(game, 'Legacy', legacySites)
   return game
+end
+
+local owners = {
+  Army = {'native-layout', 'resolveArmy'},
+  Projectiles = {'native-layout', 'resolveProjectiles'},
+  Groups = {'native-group-actions'},
+  Recruitment = {'native-recruitment'},
+  Queries = {'native-aic-queries'},
+  Market = {'native-combat-bindings', 'resolveMarket'},
+  Combat = {'native-combat-bindings'},
+  Siege = {'native-siege-bindings'},
+  Engineer = {'native-role-bindings'},
+  Patrol = {'native-patrol-bindings'},
+  Hunt = {'native-lord-hunt-bindings'},
+  Allies = {'native-ally-bindings'},
+  Keep = {'native-ally-bindings', 'resolveKeep'},
+  Gate = {'native-gate-bindings'},
+}
+
+function M.requireBindings(game, keys)
+  for _, key in ipairs(keys) do
+    local owner = owners[key]
+    if owner then bind(game, key, require(owner[1])[owner[2] or 'resolve']) end
+    assert(game.resolved[key] == true, game.resolved[key])
+  end
 end
 
 function M.initialize(native, game)
   assert(native.nativeBindingsSize == #names * 4, 'AIC Tactics: incompatible native binding ABI')
-  game = game or M.resolve()
-  local allies = require('native-ally-bindings').names
-  assert(native.allyBindingsSize == #allies * 4, 'AIC Tactics: incompatible ally binding ABI')
+  assert(native.allyBindingsSize == #allyNames * 4, 'AIC Tactics: incompatible ally binding ABI')
+  native.game = game
+end
+
+function M.publish(native)
+  local game = native.game
   for index, name in ipairs(names) do
     core.writeInteger(native.nativeBindings + (index - 1) * 4, game[name] or 0)
   end
-  for index, name in ipairs(allies) do
+  for index, name in ipairs(allyNames) do
     core.writeInteger(native.allyBindings + (index - 1) * 4, game[name] or 0)
   end
-  native.game = game
 end
 return M

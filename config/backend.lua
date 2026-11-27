@@ -20,7 +20,7 @@ function M.new(native)
     for index = 1, #words do core.writeInteger(address + (index - 1) * 4, words[index]) end
   end
   local function admission()
-    assert(not multiplayerLocked and core.readInteger(native.configurationLocked) == 0 and core.readInteger(native.game.gameTick) == 0,
+    assert(not multiplayerLocked and core.readInteger(native.configurationLocked) == 0 and (not native.game.gameTick or core.readInteger(native.game.gameTick) == 0),
       'AIC Tactics: personality changes require a fresh game process')
   end
   local function anyPolicyActive()
@@ -129,9 +129,17 @@ function M.new(native)
     if allies[2] == 2 then native.preflightAllyGoods() end
     if allies[8] == 2 then native.preflightAllyGates() end
     if allies[9] == 2 then native.preflightAllyReliefKeep() end
+    if attacks[10] == 2 then native.preflightTowerCrew() end
     -- Per-AI values of a feature that is off are stored as unset.
     local off = native.unavailableFeatures
+    if off.Recruitment then compiled.mode = 0 end
+    if off.Recruitment or off.Composition then compiled.defenseComposition = 0 end
+    if off.TowerCrew then attacks[10] = 0 end
     if off.Combat then
+      for _, row in ipairs(compiled.conditions) do
+        -- A recruitment rule using threat observation requires the combat census.
+        if row.requiredFacts % 2 == 1 or row.forbiddenFacts % 2 == 1 then compiled.mode = 0 end
+      end
       targeting.policy, targeting.commitment, targeting.activation, envelope.preparation = 0, 0, 0, 0
     end
     if off.Raids then envelope.raids[1] = 0 end
@@ -160,7 +168,7 @@ function M.new(native)
       end
     end
     words[#words + 1] = compiled.defenseComposition
-    words[#words + 1] = compiled.initialDefenseTicks or core.readInteger(native.game.initialDefenseTicks)
+    words[#words + 1] = compiled.initialDefenseTicks or (native.game.initialDefenseTicks and core.readInteger(native.game.initialDefenseTicks) or 0)
     words[#words + 1] = targeting.policy
     words[#words + 1] = targeting.commitment
     words[#words + 1] = targeting.activation
@@ -192,6 +200,7 @@ function M.new(native)
       if allies[1] == 2 then native.activateAllyRelief() end
       if allies[2] == 2 then native.activateAllyGoods() end
       if allies[8] == 2 then native.activateAllyGates() end
+      if attacks[10] == 2 then native.activateTowerCrew() end
       writeRecord(ai, words)
       core.writeInteger(native.siegePaymentPolicy + ai * 4, envelope.siege[2])
       core.writeInteger(native.siegeHarassPolicy + ai * 4, envelope.siege[3])

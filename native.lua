@@ -4,9 +4,14 @@ function M.new(game)
   local native = require('aicTactics.dll')
   assert(type(native) == 'table' and native.configurationSize == 352,
     'AIC Tactics: incompatible native library')
-  require('native-bindings').initialize(native, game)
+  local bindings = require('native-bindings')
+  bindings.initialize(native, game)
   game = native.game
   local sites = game.recruitmentSites
+  local base = {'AICLayout', 'Grace', 'Layout', 'Legacy'}
+  function native.hasStateBindings()
+    return pcall(bindings.requireBindings, game, base)
+  end
   local installed = false
   local wallCounter
   local intervalHook
@@ -34,7 +39,7 @@ function M.new(game)
     if siegeRecoveryInstalled then return end
     native.preflightAssaultCrewRecovery()
     local site = game.siegeAssaultPlacementCall
-    core.writeCode(site, {0xE8, native.placeSiegeTentAndRecoverEngineers-site-5})
+    core.writeCode(site, {core.callTo(native.placeSiegeTentAndRecoverEngineers)})
     siegeRecoveryInstalled = true
   end
   function native.preflightLargerSiegeForce()
@@ -50,7 +55,7 @@ function M.new(game)
     native.preflightLargerSiegeForce()
     native.activateAssaultCrewRecovery()
     local site = game.siegeAssaultBatchCall
-    core.writeCode(site, {0xE8, native.buildLargerSiegeForce-site-5})
+    core.writeCode(site, {core.callTo(native.buildLargerSiegeForce)})
     largerSiegeInstalled = true
   end
   function native.configureLargerSiegeForce(fallback, maximum)
@@ -153,16 +158,14 @@ failed:
       placedBuilding=game.siegeAnglePlacedBuilding,
       resume=game.siegeAnglePostPlace+6,
       failedReturn=game.siegeAngleFailureReturn})
-    core.writeCode(game.siegePlacementCall,
-      {0xE8, native.checkedSiegeTile - game.siegePlacementCall - 5})
+    core.writeCode(game.siegePlacementCall, {core.callTo(native.checkedSiegeTile)})
     core.writeCode(game.siegeNoSpotBranch,
       {0x0F,0x84,backoff-game.siegeNoSpotBranch-6})
     core.writeCode(game.siegeFailedBranch,
       {0x0F,0x85,backoff-game.siegeFailedBranch-6})
     core.writeCode(game.siegeAngleCandidateBranch,
       {0x0F,0x84,candidate-game.siegeAngleCandidateBranch-6})
-    core.writeCode(game.siegeAnglePostPlace,
-      {0xE9,failure-game.siegeAnglePostPlace-5,0x90})
+    core.writeCode(game.siegeAnglePostPlace, {core.jmpTo(failure),0x90})
     safePlacementBackoffHook = backoff
     safePlacementCandidateHook = candidate
     safePlacementFailureHook = failure
@@ -288,12 +291,9 @@ defer:
     ]], {checkResources=native.siegeResourceAdmission,
       resume=game.siegeDirectSpawn+8,
       finished=game.siegeDirectExit})
-    core.writeCode(game.siegeBuildingAdmission,
-      {0xE9,admission-game.siegeBuildingAdmission-5,0x90})
-    core.writeCode(game.siegeGoldSub,
-      {0xE9,gold-game.siegeGoldSub-5,0x90})
-    core.writeCode(game.siegeDirectSpawn,
-      {0xE9,direct-game.siegeDirectSpawn-5,0x90,0x90,0x90})
+    core.writeCode(game.siegeBuildingAdmission, {core.jmpTo(admission),0x90})
+    core.writeCode(game.siegeGoldSub, {core.jmpTo(gold),0x90})
+    core.writeCode(game.siegeDirectSpawn, {core.jmpTo(direct),0x90,0x90,0x90})
     siegePaymentHook = admission
     siegeGoldHook = gold
     siegeDirectHook = direct
@@ -367,7 +367,7 @@ coordinated:
         jmp nativeExit
       ]], {suppress=native.suppressNativeSiegeHarassMove,
         harassMode=game.unitRecords+0x3fe, resume=site+7, nativeExit=exit})
-      core.writeCode(site, {0xE9,hook-site-5,0x90,0x90})
+      core.writeCode(site, {core.jmpTo(hook),0x90,0x90})
       hooks[index] = hook
     end
     siegeHarassHooks = hooks
@@ -466,8 +466,7 @@ coordinated:
       jmp skip
     ]], {eligible=native.countableEngineerRole,
       ordinary=game.engineerRoleOrdinary, skip=game.engineerRoleSkip})
-    core.writeCode(game.engineerRoleHook,
-      {0xE9, hook - game.engineerRoleHook - 5, 0x90, 0x90, 0x90, 0x90, 0x90})
+    core.writeCode(game.engineerRoleHook, {core.jmpTo(hook), 0x90, 0x90, 0x90, 0x90, 0x90})
     engineerRoleHook = hook
   end
   function native.configureEngineerRoles(fallback)
@@ -480,8 +479,10 @@ coordinated:
   -- intervals: the hook on the next instructions reloads theirs.
   local legacyInterval = {0xB8,0x01,0x00,0x00,0x00,0x90,0x90}
   local function intervalForced()
+    local site = game.recruitmentInterval or (sites and sites.interval)
+    if not site then return false end
     for index, value in ipairs(legacyInterval) do
-      if core.readByte(sites.interval+index-1) ~= value then return false end
+      if core.readByte(site+index-1) ~= value then return false end
     end
     return true
   end
@@ -523,7 +524,7 @@ finished:
       sbb ebp, ebp
       jmp resume
     ]], {playerCharacter=game.players+0x2300, configuration=native.configuration, configurationSize=native.configurationSize, resume=(sites.interval+13)})
-    core.writeCode(sites.interval+7, {0xE9, intervalHook - (sites.interval+12), 0x90})
+    core.writeCode(sites.interval+7, {core.jmpTo(intervalHook), 0x90})
   end
   -- AIV Troop Behaviour owns the defence row and group count of a unit type,
   -- Improved Tunnelers its raid troop. The WeightedRoles probe reads their
@@ -558,6 +559,7 @@ finished:
     end
   end
   function native.preflight()
+  sites = game.recruitmentSites
   require('config.grace').preflight()
   if installed then return end
   verifyInterval()
@@ -608,8 +610,8 @@ finished:
       popfd
       jmp original
     ]], {unitType=game.unitRecords+0x8E, countDefenseUnit=native.countDefenseUnit, original=count})
-    core.writeCode(sites.wallReset, {0xE9, resetHook - (sites.wallReset+5)})
-    core.writeCode(sites.wallCount, {0xE9, countHook - (sites.wallCount+5), 0x90})
+    core.writeCode(sites.wallReset, {core.jmpTo(resetHook)})
+    core.writeCode(sites.wallCount, {core.jmpTo(countHook), 0x90})
     compositionHooks = {reset=resetHook, count=countHook, originalReset=reset, originalCount=count}
   end
 
@@ -641,9 +643,9 @@ handled:
     popfd
     jmp finished
   ]], {spendingMode=game.players+0x30F8, recruitOpportunity=native.recruitOpportunity, original=(sites.opportunity+6), finished=sites.finished})
-  core.writeCode(sites.opportunity, {0xE9, hook - (sites.opportunity+5), 0x90})
-  core.writeCode(sites.ranged, {0xE8, native.rangedSortie - (sites.ranged+5)})
-  core.writeCode(sites.melee, {0xE8, native.meleeSortie - (sites.melee+5)})
+  core.writeCode(sites.opportunity, {core.jmpTo(hook), 0x90})
+  core.writeCode(sites.ranged, {core.callTo(native.rangedSortie)})
+  core.writeCode(sites.melee, {core.callTo(native.meleeSortie)})
   installed = true
   end
   local allyBindings = require('native-ally-bindings')
@@ -686,72 +688,92 @@ handled:
     if not native.enableOptional('AllyReliefKeep', words[9] ~= 0) then words[9] = 0 end
     for index, value in ipairs(words) do core.writeInteger(native.allyFallback + (index - 1) * 4, value) end
   end
+  local towerFallback, towerRegistered
+  function native.preflightTowerCrew()
+    local riders = modules['improved-siegeengines']
+    assert(riders and type(riders.registerTowerCrewPolicy) == 'function',
+      'AIC Tactics: siege tower crews require a compatible Improved Siege Engines module')
+  end
+  function native.activateTowerCrew()
+    if towerRegistered then return end
+    require('siege-tower-crew').register(modules['improved-siegeengines'], native, game, towerFallback)
+    towerRegistered = true
+  end
+  function native.configureTowerCrew(fallback)
+    towerFallback = fallback
+    native.enableOptional('TowerCrew', fallback)
+  end
   require('combat-native').attach(native)
   -- Another module can own a site that an optional feature patches, or the
   -- startup scan did not find it. That feature and the features that need it
   -- then stay off for this process: its preflight passes, its
   -- activation installs nothing and the match identity lists it. A feature
   -- whose installed hooks were replaced afterwards still fails.
-  local off, names, reported = {}, {}, {}
-  local missing = game.missingFeatures or {}
+  local off, names = {}, {}
   native.unavailableFeatures = off
   local function leaveOff(key, reason)
     off[key] = true
-    if reported[key] then return end
-    reported[key] = true
     log(DEBUG, '[aic-tactics] ' .. (reason or names[key]))
     log(ERROR, string.format('AIC Tactics: %s is off. The required game code could not be verified.', names[key]))
   end
-  local function optional(key, name, ...)
+  local function optional(key, name, groups, ...)
     names[key] = name
+    local suffix = key == 'Recruitment' and '' or key
     local needs = {...}
-    local preflight, activate, installed = native['preflight' .. key], native['activate' .. key], false
+    local preflight, activate, installed = native['preflight' .. suffix], native['activate' .. suffix], false
     local function needOff()
       for _, need in ipairs(needs) do
         if off[need] then return names[need] .. ' is off' end
       end
     end
-    native['preflight' .. key] = function()
-      if off[key] then
-        leaveOff(key, missing[key])
-        return
-      end
+    native['preflight' .. suffix] = function()
+      if off[key] then return end
       local reason = needOff()
       if not reason then
-        local ok, failure = pcall(preflight)
+        local ok, failure = pcall(function()
+          bindings.requireBindings(game, base)
+          bindings.requireBindings(game, groups)
+          preflight()
+        end)
         -- The preflight can run a need's preflight, which leaves that need off.
         reason = needOff()
         if ok and not reason then return end
         if not reason and installed then error(failure, 0) end
-        reason = reason or 'another module changed its game code: '
-          .. (tostring(failure):gsub('; restart with compatible modules$', ''))
+        reason = reason or tostring(failure)
       end
       leaveOff(key, reason)
     end
-    native['activate' .. key] = function()
-      native['preflight' .. key]()
+    native['activate' .. suffix] = function()
+      native['preflight' .. suffix]()
+      if installed then return end
       if off[key] then return end
+      bindings.publish(native)
       activate()
       installed = true
     end
   end
-  optional('Combat', 'attack control')
-  optional('Raids', 'raid targeting', 'Combat')
-  optional('SafePlacement', 'safe siege placement')
-  optional('SiegePayment', 'siege resource payment', 'SafePlacement')
-  optional('SiegeHarassment', 'coordinated siege harassment', 'SafePlacement', 'Combat')
-  optional('LargerSiegeForce', 'larger siege forces', 'SafePlacement')
-  optional('EngineerRoles', 'engineer role counting')
-  optional('AttackPatrols', 'attack patrol orders', 'Combat')
-  optional('SiegeScreen', 'siege escorts')
-  optional('LordHunt', 'lord hunt', 'Combat')
-  optional('AllyRelief', 'ally relief', 'Combat')
-  optional('AllyGoods', 'ally goods', 'Combat', 'Raids')
-  optional('AllyGates', 'relief gate opening', 'AllyRelief')
-  optional('AllyReliefKeep', 'relief on the keep', 'AllyRelief')
-  for key in pairs(missing) do
-    off[key] = true
-  end
+  local recruitment = {'Army', 'Groups', 'Recruitment', 'Queries'}
+  local combat = {'Army', 'Groups', 'Projectiles', 'Recruitment', 'Queries', 'Market', 'Combat'}
+  local siege = {'Army', 'Groups', 'Market', 'Siege'}
+  local patrol = {'Army', 'Groups', 'Projectiles', 'Recruitment', 'Queries', 'Market', 'Combat', 'Siege', 'Patrol'}
+  local hunt = {'Army', 'Groups', 'Projectiles', 'Recruitment', 'Queries', 'Market', 'Combat', 'Siege', 'Hunt'}
+  optional('Recruitment', 'weighted recruitment', recruitment)
+  optional('Composition', 'defender composition', recruitment, 'Recruitment')
+  optional('Combat', 'attack control', combat)
+  optional('Raids', 'raid targeting', combat, 'Combat')
+  optional('SafePlacement', 'safe siege placement', siege)
+  optional('SiegePayment', 'siege resource payment', siege, 'SafePlacement')
+  optional('SiegeHarassment', 'coordinated siege harassment', siege, 'SafePlacement', 'Combat')
+  optional('LargerSiegeForce', 'larger siege forces', siege, 'SafePlacement')
+  optional('EngineerRoles', 'engineer role counting', {'Engineer'})
+  optional('AttackPatrols', 'attack patrol orders', patrol, 'Combat')
+  optional('SiegeScreen', 'siege escorts', patrol)
+  optional('LordHunt', 'lord hunt', hunt, 'Combat')
+  optional('AllyRelief', 'ally relief', {'Army', 'Groups', 'Market', 'Siege', 'Allies'}, 'Combat')
+  optional('AllyGoods', 'ally goods', {'Market', 'Allies'}, 'Combat', 'Raids')
+  optional('AllyGates', 'relief gate opening', {'Gate'}, 'AllyRelief')
+  optional('AllyReliefKeep', 'relief on the keep', {'Keep'}, 'AllyRelief')
+  optional('TowerCrew', 'siege tower crews', siege)
   -- Activates a module switch and returns whether the feature is on.
   function native.enableOptional(key, wanted)
     if wanted then native['activate' .. key]() end

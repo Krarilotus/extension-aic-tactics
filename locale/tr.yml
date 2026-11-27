@@ -16,10 +16,10 @@ siegeScreen_engineApproach: Kuşatma araçlarına eşlik et
 siegeScreen_native: Oyun varsayılanı
 siegeTowerCrew: Yapay zekâ birliklerini kuşatma kulelerine bindir
 siegeTowerCrew_descr: Improved Siegeengines’te kuleye binme açıksa refakat birliklerini sura ilerleyen kuşatma kulelerine bindirir.
-allyRelief: Saldırı altındaki müttefiklere asker gönder
-allyRelief_descr: Müttefik ekranından asker isteyin veya kaleniz saldırı altındayken otomatik yardım alın.
-allyGoods: Yapay zekâ müttefikleri erzak ve altın paylaşsın
-allyGoods_descr: Yapay zekâ müttefikleri gerektiğinde erzak ve altın paylaşırken müttefik ekranından altın isteyin.
+allyRelief: "Saldırı altındaki müttefiklere asker gönder"
+allyRelief_descr: "Müttefik ekranından asker isteyin veya kaleniz saldırı altındayken otomatik yardım alın."
+allyGoods: "Yapay zekâ müttefikleri erzak ve altın paylaşsın"
+allyGoods_descr: "Yapay zekâ müttefikleri gerektiğinde erzak ve altın paylaşırken müttefik ekranından altın isteyin."
 ai: Yapay zekâ
 improvements: İyileştirmeler
 attack_patrols: Saldırı devriyeleri

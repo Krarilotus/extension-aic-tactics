@@ -1,4 +1,3 @@
-local nativeGame = require('native-bindings').resolve()
 local enabled = false
 return {
   enable = function(self, config)
@@ -12,7 +11,8 @@ return {
       and mapState:getNativeSaveInterface()
     assert(saveInterface and saveInterface.failureHandling == 1 and saveInterface.readContext == 1,
       'AIC Tactics requires Map Extensions 1.1.4 for native load context and rejected state handling')
-    local native = require('native').new(nativeGame)
+    local bindings = require('native-bindings')
+    local native = require('native').new(bindings.resolve())
     local safePlacement = config and config.safeSiegePlacement
     if safePlacement == nil then safePlacement = false end
     local siegePayment = config and config.actualSiegeResourcePayment
@@ -41,14 +41,21 @@ return {
     native.configureAllies(require('config.allies').fallbacks(config))
     local diagnostics = config and config.diagnostics
     assert(diagnostics == nil or type(diagnostics) == 'boolean', 'AIC Tactics: diagnostics must be boolean')
-    core.writeInteger(native.diagnostics, diagnostics and 1 or 0)
+    if diagnostics then
+      core.writeInteger(native.diagnosticsLog, utils.createLuaFunctionWrapper(function(registers)
+        log(INFO, core.readString(core.readInteger(registers.ESP + 4)))
+        return registers
+      end))
+    end
     local protocol=assert(modules.protocol,'AIC Tactics requires Protocol 1.1.10')
     assert(type(protocol.multiplayerAdmissionVersion)=='function' and protocol:multiplayerAdmissionVersion()==1,
       'AIC Tactics requires Protocol multiplayer admission')
     local backend=require('config.backend').new(native)
     require('config.provider').register(modules.aicloader, backend)
-    require('siege-tower-crew').register(modules['improved-siegeengines'], native, nativeGame,
-      config and config.siegeTowerCrew == true)
+    native.configureTowerCrew(config and config.siegeTowerCrew == true)
+    enabled = true
+    if not native.hasStateBindings() then return end
+    bindings.publish(native)
     -- Legacy's target choice and recruitment interval feed AIC decisions, so
     -- the match identity includes them.
     core.writeInteger(native.legacyTargetPolicy, native.legacyTargetChoice())
@@ -79,16 +86,6 @@ return {
     end
     mapState:registerSection('aic-tactics', callbacks,
       {required=true, format='aic-tactics-state-14'})
-    log(INFO, string.format('[aic-tactics] configuration=0x%X size=%d observations=0x%X size=%d',
-      native.configuration, native.configurationSize, native.observations, native.observationSize))
-    local addresses = {}
-    for _, name in ipairs({'combatCensus','combatCensusTick','combatCensusValid','incidents',
-        'targetStates','targetLifecycle','reserves','raidStates','raidGroupCensus',
-        'raidUnitPower','raidStaticDefenses','raidBuildingCensusTick','raidBuildingCensusValid'}) do
-      addresses[#addresses + 1] = string.format('%s=0x%X', name, native[name])
-    end
-    log(INFO, '[aic-tactics] state-abi=7 ' .. table.concat(addresses, ' '))
-    enabled = true
   end,
   disable = function() error('AIC Tactics requires a game restart to disable') end,
 }

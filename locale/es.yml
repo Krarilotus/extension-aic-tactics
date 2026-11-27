@@ -16,10 +16,10 @@ siegeScreen_engineApproach: Escoltar las máquinas
 siegeScreen_native: Predeterminado del juego
 siegeTowerCrew: Embarcar tropas de la IA en torres de asedio
 siegeTowerCrew_descr: Embarca a las tropas de escolta en las torres de asedio que avanzan hacia la muralla si está activado el embarque en Improved Siegeengines.
-allyRelief: Enviar tropas a aliados bajo ataque
-allyRelief_descr: Pide tropas en la pantalla de aliados o recibe ayuda automáticamente cuando ataquen tu castillo.
-allyGoods: Permitir que los aliados de la IA compartan suministros y oro
-allyGoods_descr: Pide oro en la pantalla de aliados mientras los aliados de la IA comparten suministros y oro según haga falta.
+allyRelief: "Enviar tropas a aliados bajo ataque"
+allyRelief_descr: "Pide tropas en la pantalla de aliados o recibe ayuda automáticamente cuando ataquen tu castillo."
+allyGoods: "Permitir que los aliados de la IA compartan suministros y oro"
+allyGoods_descr: "Pide oro en la pantalla de aliados mientras los aliados de la IA comparten suministros y oro según haga falta."
 ai: IA
 improvements: Mejoras
 attack_patrols: Patrullas de ataque

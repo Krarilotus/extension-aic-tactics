@@ -42,9 +42,11 @@ def runtime(image, base):
     lua.globals().market_caller = MARKET_CALLER
     lua.execute('''
       package.path=root..'/?.lua;'..package.path
-      core={AOBScan=aob,readByte=read_byte,readInteger=read_integer}
+      core={AOBScanUnique=function(pattern) return aob(pattern) end,readByte=read_byte,readInteger=read_integer}
       context=require('native-context')
-      game=require('native-layout').resolve()
+      local layout=require('native-layout')
+      game=layout.resolve()
+      for key,value in pairs(layout.resolveArmy(game)) do game[key]=value end
       for key,value in pairs(require('native-group-actions').resolve(game)) do game[key]=value end
       game.gameState=core.readInteger(context.find('market caller',market_caller)+19)
       for key,value in pairs(require('native-siege-bindings').resolve(game)) do game[key]=value end

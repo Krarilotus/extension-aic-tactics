@@ -3,13 +3,15 @@ local M = {}
 function M.attach(native)
   local installed, raidsInstalled = false, false
   local game = native.game
-  local sites = game and game.combatSites
-  local originals = game and game.combatOriginals
-  local calls = game and game.combatCalls
+  local sites, originals, calls = game.combatSites, game.combatOriginals, game.combatCalls
+  local function loadSites()
+    sites, originals, calls = game.combatSites, game.combatOriginals, game.combatCalls
+  end
   local context = require('native-context')
 
   function native.preflightCombat()
     if installed then return end
+    loadSites()
     for _, name in ipairs({'unitReset','unitCount','unitComplete','unitDamage','entityDamage','fireDamage',
         'launch','randomWave','tunnelers'}) do
       context.verify(sites[name],name,originals[name])
@@ -21,23 +23,24 @@ function M.attach(native)
 
   function native.preflightRaids()
     if raidsInstalled then return end
+    loadSites()
     for _, name in ipairs({'buildingReset','buildingCount','buildingComplete'}) do
       context.verify(sites[name],name,originals[name])
     end
   end
 
   local function jump(site, target, length)
-    local code = {0xE9, target - site - 5}
+    local code = {core.jmpTo(target)}
     for index = 6, length do code[#code + 1] = 0x90 end
     core.writeCode(site, code)
   end
-  local function call(site, target) core.writeCode(site, {0xE8, target - site - 5}) end
+  local function call(site, target) core.writeCode(site, {core.callTo(target)}) end
   local function detour(site, length, entry, originalAddress)
     local code = {}
     for index = 0, length - 1 do code[#code + 1] = core.readByte(site + index) end
     local trampoline = core.allocateCode(length + 5)
     core.writeCode(trampoline, code)
-    core.writeCode(trampoline + length, {0xE9, site - trampoline - 5})
+    core.writeCode(trampoline + length, {core.jmpTo(site + length)})
     core.writeInteger(originalAddress, trampoline)
     jump(site, entry, length)
   end
@@ -85,7 +88,7 @@ function M.attach(native)
   -- Legacy ai_attacktarget's short jump at the native target choice. Its
   -- choice is the native selection that Inherit policies and fallbacks use.
   function native.legacyTargetChoice()
-    local site = sites and sites.targetChoice
+    local site = game.targetSelection and game.targetSelection + 306 or sites and sites.targetChoice
     if not site or core.readByte(site) ~= 0xEB or core.readByte(site + 2) ~= 0x90 then return 0 end
     return ({[0x11] = 1, [0x3F] = 2, [0x52] = 3})[core.readByte(site + 1)] or 0
   end

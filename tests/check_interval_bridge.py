@@ -30,11 +30,12 @@ package.loaded['aicTactics.dll']={configurationSize=352,configuration=0x3100000,
 local interval={0xB8,1,0,0,0,0x90,0x90,0x8B,0xE8,0xF7,0xDD,0x1B,0xED,0x83,0xC5,2}
 core={readByte=function(a)return interval[a-0x4D3B41+1] end,
  allocateAssembly=function(text,symbols) assembly=text;bindings=symbols;return 0x3000000 end,
+ jmpTo=function(target)return function(address)return target-address-5 end end,
  writeCode=function(address,code)site=address;patch=code end}
 native=require('native').new()
 assert(site==nil and assembly==nil)
 native.activateInterval()
-assert(site==0x4D3B48 and patch[1]==0xE9 and patch[3]==0x90)
+assert(site==0x4D3B48 and patch[1](site)==0x3000000-site-5 and patch[2]==0x90)
 ''')
 g=lua.globals()
 source='use32\norg 0x3000000\n'

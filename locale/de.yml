@@ -16,10 +16,10 @@ siegeScreen_engineApproach: Belagerungsgeräte eskortieren
 siegeScreen_native: Spielstandard
 siegeTowerCrew: KI-Truppen auf Belagerungstürme schicken
 siegeTowerCrew_descr: Schickt die Begleittruppen auf Belagerungstürme, die zur Mauer fahren, wenn das Einsteigen in Improved Siegeengines erlaubt ist.
-allyRelief: Truppen an angegriffene Verbündete senden
-allyRelief_descr: Fordere im Verbündetenmenü Truppen an oder erhalte automatisch Hilfe, wenn deine Burg angegriffen wird.
-allyGoods: KI-Verbündete Vorräte und Gold teilen lassen
-allyGoods_descr: Fordere im Verbündetenmenü Gold an, während KI-Verbündete bei Bedarf Vorräte und Gold teilen.
+allyRelief: "Truppen an angegriffene Verbündete senden"
+allyRelief_descr: "Fordere im Verbündetenmenü Truppen an oder erhalte automatisch Hilfe, wenn deine Burg angegriffen wird."
+allyGoods: "KI-Verbündete Vorräte und Gold teilen lassen"
+allyGoods_descr: "Fordere im Verbündetenmenü Gold an, während KI-Verbündete bei Bedarf Vorräte und Gold teilen."
 ai: KI
 improvements: Verbesserungen
 attack_patrols: Angriffspatrouillen
