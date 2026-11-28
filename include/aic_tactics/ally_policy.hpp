@@ -65,7 +65,8 @@ enum AllyReliefEnd {
     ReliefAttack = 3,
     ReliefExpired = 4,
     ReliefThreatOver = 5,
-    ReliefCancelled = 6
+    ReliefCancelled = 6,
+    ReliefNoRoute = 7
 };
 
 // Hostile combat value at an ally's home that calls for relief; the same

@@ -641,9 +641,9 @@ void endRelief(void* aic, int helper, int index, int reason)
     DetachedGroup& group = detachedGroups[helper][index];
     AllyState& state = allyStates[helper];
     static const char* const reasons[] = {"", "ally gone", "own danger", "own attack", "time up", "threat over",
-        "switched off"};
+        "switched off", "no route"};
     diagnostic("player %d stops helping player %d (%s)", helper, group.target,
-        reason > 0 && reason <= ReliefCancelled ? reasons[reason] : "");
+        reason > 0 && reason <= ReliefNoRoute ? reasons[reason] : "");
     if (state.reliefRequested && requestStands(helper, group.target)) field(helper, HelpRequest) = 0;
     state.reliefRequested = 0;
     state.reliefPauseUntil = reason == ReliefAttack ? 0 : now() + ReliefPauseTicks;
@@ -704,7 +704,7 @@ void openRelief(void* aic, int helper)
     state.reliefCalmSince = now();
     diagnostic("player %d helps player %d with %d troops%s", helper, ally, detachedGroupSize(helper, index),
         requested ? " on request" : "");
-    if (!orderRelief(aic, helper, group, true)) endRelief(aic, helper, index, ReliefAllyGone);
+    if (!orderRelief(aic, helper, group, true)) endRelief(aic, helper, index, ReliefNoRoute);
 }
 
 void updateRelief(void* aic, int helper)
@@ -766,7 +766,7 @@ void updateRelief(void* aic, int helper)
         const int size = detachedGroupSize(helper, index);
         const int wanted = allyReliefSize(idleArmy(helper) + size, setting(helper, AllyArmyShare)) - size;
         const bool joined = wanted > 0 && fillRelief(helper, index, wanted) > 0;
-        if (!orderRelief(aic, helper, group, joined)) reason = ReliefAllyGone;
+        if (!orderRelief(aic, helper, group, joined)) reason = ReliefNoRoute;
     }
     if (reason != ReliefContinues) endRelief(aic, helper, index, reason);
 }
