@@ -442,7 +442,7 @@ void organizeDetachedGroups(void* aic, int player, int ai, int duty, int firstSl
         total += entry.size;
         ++live;
     }
-    int desired = 0;
+    int desired = 0, opened = -1;
     if (extra > 0 && slots > 0) {
         int wanted = slots + extra;
         const int fit = total / minimum > 1 ? total / minimum : 1;
@@ -460,7 +460,7 @@ void organizeDetachedGroups(void* aic, int player, int ai, int duty, int firstSl
     } else if (live < desired) {
         const int index = openDetachedGroup(player, duty);
         if (index >= 0) {
-            diagnostic("player %d: extra %s group %d opens (%d troops)", player, dutyName(duty), index + 1, total);
+            opened = index;
             detachedGroups[player][index].target = at<int>(playerAddress(player) + 0x2BD8);
             const Pool entry = {detachedGroups[player][index].tribe, index, 0, words - 1, 15};
             pool[count++] = entry;
@@ -485,6 +485,9 @@ void organizeDetachedGroups(void* aic, int player, int ai, int duty, int firstSl
         --pool[big].size;
         ++pool[small].size;
     }
+    if (opened >= 0)
+        diagnostic("player %d: extra %s group %d opens (%d troops)", player, dutyName(duty), opened + 1,
+            detachedGroupSize(player, opened));
 }
 
 bool recordsExist(int player, int duty)
