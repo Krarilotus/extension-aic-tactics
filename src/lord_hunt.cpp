@@ -347,9 +347,8 @@ void checkHiding(int player, int ch, int phase, LordHuntState& state, const Lord
     }
     state.phase |= LordHuntHidingDecided;
     if (share > 0) openSplit(player, state, census, splitTo, share);
-    // The UCP log reads its message as a format string, so the text holds no percent sign.
     diagnostic("player %d: the lord of player %d hides in the castle of player %d; siege on player %d, "
-        "%d percent of the main army to player %d", player, origin, host, state.host ? host : origin, share, splitTo);
+        "%d%% of the main army to player %d", player, origin, host, state.host ? host : origin, share, splitTo);
 }
 
 // The lord left the castle the attack turned to: the split troops rejoin

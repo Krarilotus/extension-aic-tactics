@@ -55,6 +55,7 @@ local helpSendKeep = 0x142
 -- building x + 3, y + 4.
 local sendToKeepSignature = '8B 44 24 08 69 C0 F4 39 00 00 8B 80 ? ? ? ? 85 C0 7E 2D 69 C0 2C 03 00 00 '..
   '0F BF 88 ? ? ? ? 0F BF 90 ? ? ? ? 8B 44 24 04 6A 00 83 C1 04 51 83 C2 03 52 50 B9'
+
 function M.resolve(game)
   local read = core.readInteger
   local players = game.players

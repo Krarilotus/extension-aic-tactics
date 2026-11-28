@@ -255,9 +255,6 @@ function M.resolve(game)
     siegeFirePathExit = fireExit}
 end
 
--- The selection computes add + (selector - 3 ~= 0 and mask or 0): 83 for the
--- trebuchet (3) and 73 for the catapult (2) in the unmodified game.
--- Returns nil when another module changed that code.
 function M.resolveGroupMove(game)
   -- TribesState clear(tribe): resets unit +0x42C of each living member. The
   -- group move skips members with it set; the AI calls this before its own
@@ -274,6 +271,9 @@ function M.resolveGroupMove(game)
   return {clearGroupMoveFlags = clearMove}
 end
 
+-- The selection computes add + (selector - 3 ~= 0 and mask or 0): 83 for the
+-- trebuchet (3) and 73 for the catapult (2) in the unmodified game.
+-- Returns nil when another module changed that code.
 function M.catapultRange(game)
   local site = game.siegeRangeSelection
   if not pcall(context.verify, site, 'catapult target range', '83 E9 03 F7 D9 1B C9 83 E1 ? 83 C1 ?') then
