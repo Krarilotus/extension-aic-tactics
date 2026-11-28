@@ -26,3 +26,6 @@ attack_patrols: گشت‌های حمله
 siege_tactics: همراهی و خدمهٔ محاصره
 ally_help: کمک متحدان
 tactics_defaults: این گزینه‌ها پیش‌فرض‌هایی تعیین می‌کنند که شخصیت هر هوش مصنوعی می‌تواند آن‌ها را بازنویسی کند.
+cat_allies_outposts: متحدان و پایگاه‌های مرزی
+cat_attacks_raids: حمله‌ها و یورش‌ها
+cat_siege_crews: خدمه و تجهیزات محاصره

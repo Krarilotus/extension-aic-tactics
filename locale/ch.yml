@@ -26,3 +26,6 @@ attack_patrols: 进攻巡逻队
 siege_tactics: 攻城护卫与乘员
 ally_help: 盟友援助
 tactics_defaults: 这些选项为默认设置，各 AI 性格可单独覆盖。
+cat_allies_outposts: 盟友与前哨站
+cat_attacks_raids: 进攻与突袭
+cat_siege_crews: 攻城人员与器械

@@ -26,3 +26,6 @@ attack_patrols: "Attack patrols"
 siege_tactics: "Siege escort and crews"
 ally_help: "Ally help"
 tactics_defaults: "These choices set defaults that individual AI personalities can override."
+cat_allies_outposts: Allies and outposts
+cat_attacks_raids: Attacks and raids
+cat_siege_crews: Siege crews and equipment

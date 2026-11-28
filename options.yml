@@ -1,7 +1,7 @@
 meta:
   version: 1.0.0
 options:
-- category: ['{{ai}}', '{{improvements}}']
+- category: ['{{ai}}', '{{improvements}}', '{{cat_attacks_raids}}']
   name: attack_patrols
   display: GroupBox
   header: '{{attack_patrols}}'
@@ -35,7 +35,7 @@ options:
       - name: Native
         text: '{{patrolFormation_native}}'
       value: Native
-- category: ['{{ai}}', '{{improvements}}']
+- category: ['{{ai}}', '{{improvements}}', '{{cat_siege_crews}}']
   name: siege_tactics
   display: GroupBox
   header: '{{siege_tactics}}'
@@ -60,7 +60,7 @@ options:
     contents:
       type: boolean
       value: false
-- category: ['{{ai}}', '{{improvements}}']
+- category: ['{{ai}}', '{{improvements}}', '{{cat_attacks_raids}}']
   name: lordHuntRetarget
   header: '{{lordHuntRetarget}}'
   text: '{{lordHuntRetarget_descr}}'
@@ -69,7 +69,7 @@ options:
   contents:
     type: boolean
     value: false
-- category: ['{{ai}}', '{{improvements}}']
+- category: ['{{ai}}', '{{improvements}}', '{{cat_allies_outposts}}']
   name: ally_help
   display: GroupBox
   header: '{{ally_help}}'

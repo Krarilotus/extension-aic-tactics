@@ -26,3 +26,6 @@ attack_patrols: Támadó járőrök
 siege_tactics: Ostromkíséret és személyzet
 ally_help: Szövetségesi segítség
 tactics_defaults: Ezek alapértelmezéseket állítanak be, amelyeket az egyes MI-személyiségek felülírhatnak.
+cat_allies_outposts: Szövetségesek és előőrsök
+cat_attacks_raids: Támadások és portyák
+cat_siege_crews: Ostromlegénység és -felszerelés

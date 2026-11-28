@@ -26,3 +26,6 @@ attack_patrols: Saldırı devriyeleri
 siege_tactics: Kuşatma koruması ve mürettebatı
 ally_help: Müttefik yardımı
 tactics_defaults: Bu seçimler varsayılanları belirler; tekil yapay zekâ kişilikleri bunları geçersiz kılabilir.
+cat_allies_outposts: Müttefikler ve karakollar
+cat_attacks_raids: Saldırılar ve akınlar
+cat_siege_crews: Kuşatma ekipleri ve donanımı

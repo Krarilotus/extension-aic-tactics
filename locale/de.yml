@@ -26,3 +26,6 @@ attack_patrols: Angriffspatrouillen
 siege_tactics: Belagerungsschutz und Besatzung
 ally_help: Verbündetenhilfe
 tactics_defaults: Diese Einstellungen legen Standardwerte fest, die einzelne KI-Persönlichkeiten überschreiben können.
+cat_allies_outposts: Verbündete und Außenposten
+cat_attacks_raids: Angriffe und Überfälle
+cat_siege_crews: Belagerungstrupps und Gerät
