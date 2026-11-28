@@ -675,8 +675,13 @@ SiegeRetarget updateLordHunt(void* aic, int player)
     const int target = field(player, 0x2BD8);
     Lord lord = {0, 0, 0, 0, 0};
     if (!state.origin) {
-        // An attack on a human player is followed once the native plan exists.
-        if (!ch || !enabled(ch) || phase < 2 || phase > 6 || !human(target) || !liveLord(target, lord)) return change;
+        // An attack on a human player is followed once the native plan exists
+        // and the census has counted its army. The native update starts an
+        // attack in state 0 and plans it to state 2 in one call, so the census
+        // before that call holds no attack troops.
+        if (!ch || !enabled(ch) || phase < 2 || phase > 6 || !human(target) || !liveLord(target, lord)
+            || !combatCensusFresh(at<unsigned int>(nativeBindings.gameTick)) || !lordHuntCensus[player].attackTroops)
+            return change;
         state.origin = target;
         state.originLordUID = static_cast<int>(lord.uid);
     }
