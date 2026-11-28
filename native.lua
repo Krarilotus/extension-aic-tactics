@@ -804,7 +804,7 @@ handled:
   optional('AttackPatrols', 'attack patrol orders', patrol, 'Combat')
   optional('SiegeScreen', 'siege escorts', patrol)
   optional('LordHunt', 'lord hunt', plus(combat, 'Siege', 'Hunt', 'GroupMove'), 'Combat')
-  optional('AllyRelief', 'ally relief', {'AICLayout', 'Layout', 'Army', 'Groups', 'Market', 'Siege', 'GroupMove', 'Allies'},
+  optional('AllyRelief', 'ally relief', {'AICLayout', 'Layout', 'Army', 'Groups', 'Market', 'Siege', 'Allies', 'GroupMove'},
     'Combat')
   optional('AllyGoods', 'ally goods', {'AICLayout', 'Layout', 'Market', 'Allies'}, 'Combat', 'Raids')
   optional('AllyGates', 'relief gate opening', {'Layout', 'Gate'}, 'AllyRelief')

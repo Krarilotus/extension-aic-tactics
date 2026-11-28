@@ -27,11 +27,13 @@ inline int aicValue(void* aic, int character, int offset)
 
 // The native group move of a tribe to tile x, y. Members keep the flag an
 // earlier native order left, and the group move skips flagged members, so it
-// is cleared first, as the AI does before its own group moves.
+// is cleared first, as the AI does before its own group moves. Without the
+// clear routine (its features off) the move runs without it.
 inline bool moveGroup(int tribe, int x, int y)
 {
     void* tribes = reinterpret_cast<void*>(nativeBindings.tribes);
-    reinterpret_cast<void (__thiscall*)(void*, int)>(nativeBindings.clearGroupMoveFlags)(tribes, tribe);
+    if (nativeBindings.clearGroupMoveFlags)
+        reinterpret_cast<void (__thiscall*)(void*, int)>(nativeBindings.clearGroupMoveFlags)(tribes, tribe);
     return reinterpret_cast<int (__thiscall*)(void*, int, int, int, int, int, int)>(nativeBindings.siegeGroupMove)(
         tribes, tribe, x, y, 0, 0, 0) != 0;
 }
