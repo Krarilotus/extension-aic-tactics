@@ -785,25 +785,27 @@ handled:
   local combat = {'AICLayout', 'Grace', 'Layout', 'Interval', 'Target', 'Army', 'Groups', 'Projectiles',
     'Recruitment', 'Queries', 'Market', 'Combat'}
   local siege = {'Layout', 'Army', 'Groups', 'Market', 'Siege'}
-  local function withSiegeCombat(extra)
-    local groups = {table.unpack(combat)}
-    groups[#groups + 1], groups[#groups + 2] = 'Siege', extra
+  local function plus(list, ...)
+    local groups = {table.unpack(list)}
+    for _, key in ipairs({...}) do groups[#groups + 1] = key end
     return groups
   end
-  local patrol = withSiegeCombat('Patrol')
+  local patrol = plus(combat, 'Siege', 'Patrol', 'GroupMove')
   optional('Recruitment', 'weighted recruitment', recruitment)
   optional('Composition', 'defender composition', recruitment, 'Recruitment')
   optional('Combat', 'attack control', combat)
   optional('Raids', 'raid targeting', combat, 'Combat')
   optional('SafePlacement', 'safe siege placement', siege)
   optional('SiegePayment', 'siege resource payment', siege, 'SafePlacement')
-  optional('SiegeHarassment', 'coordinated siege harassment', siege, 'SafePlacement', 'Combat')
+  optional('SiegeHarassment', 'coordinated siege harassment', plus(siege, 'GroupMove'), 'SafePlacement',
+    'Combat')
   optional('LargerSiegeForce', 'larger siege forces', {'AICLayout', table.unpack(siege)}, 'SafePlacement')
   optional('EngineerRoles', 'engineer role counting', {'Layout', 'Engineer'})
   optional('AttackPatrols', 'attack patrol orders', patrol, 'Combat')
   optional('SiegeScreen', 'siege escorts', patrol)
-  optional('LordHunt', 'lord hunt', withSiegeCombat('Hunt'), 'Combat')
-  optional('AllyRelief', 'ally relief', {'AICLayout', 'Layout', 'Army', 'Groups', 'Market', 'Siege', 'Allies'}, 'Combat')
+  optional('LordHunt', 'lord hunt', plus(combat, 'Siege', 'Hunt', 'GroupMove'), 'Combat')
+  optional('AllyRelief', 'ally relief', {'AICLayout', 'Layout', 'Army', 'Groups', 'Market', 'Siege', 'GroupMove', 'Allies'},
+    'Combat')
   optional('AllyGoods', 'ally goods', {'AICLayout', 'Layout', 'Market', 'Allies'}, 'Combat', 'Raids')
   optional('AllyGates', 'relief gate opening', {'Layout', 'Gate'}, 'AllyRelief')
   optional('AllyReliefKeep', 'relief on the keep', {'Layout', 'Keep'}, 'AllyRelief')

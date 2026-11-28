@@ -55,6 +55,7 @@ local owners = {
   Market = {'native-combat-bindings', 'resolveMarket'},
   Combat = {'native-combat-bindings'},
   Siege = {'native-siege-bindings'},
+  GroupMove = {'native-siege-bindings', 'resolveGroupMove'},
   Engineer = {'native-role-bindings'},
   Patrol = {'native-patrol-bindings'},
   Hunt = {'native-lord-hunt-bindings'},
