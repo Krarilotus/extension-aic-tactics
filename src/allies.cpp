@@ -40,6 +40,8 @@ const int GateReach = 5;
 // Doors tried per order: the nearest first, each with one path query.
 const int DoorAttempts = 3;
 const int TileCapacity = 80400;
+// Unit state (unit +0x2C0) while walking to its ordered destination.
+const short WalkingState = 101;
 // AIC record fields (AIC Loader field index * 4).
 const int AicRequestDelay = 0xA0, AicMinimumGoods = 0xA4, AicVariance = 0xC0, AicRecruitGold = 0xC4;
 const int AicAttackForce = 0x1F4, AicSupportThreshold = 0x1FC;
@@ -571,20 +573,26 @@ bool orderToGate(void* aic, DetachedGroup& group, TilePoint leader, bool inside)
 }
 
 // The relief's place inside: on the helped keep with the native help's order,
-// or at the keep's entrance. False when the entrance cannot be reached.
-bool orderInside(void* aic, int helper, DetachedGroup& group)
+// or at the keep's entrance. False when the entrance cannot be reached. A
+// group walking to the same tile is not ordered again unless `resend`: each
+// native order searches formation tiles and paths every member again.
+bool orderInside(void* aic, int helper, DetachedGroup& group, bool resend)
 {
     const TilePoint entrance = {field(group.target, KeyX), field(group.target, KeyY)};
     const int keep = field(group.target, Keep);
     if (setting(helper, AllyReliefKeep) && building(keep)) {
         if (!reachable(aic, group.tribe, entrance)) return false;
-        reinterpret_cast<TwoAction>(allyBindings.sendToKeep)(aic, group.tribe, group.target);
         // The tile the native order sends the group to.
-        group.x = at<short>(buildingAddress(keep) + BuildingX) + 3;
-        group.y = at<short>(buildingAddress(keep) + BuildingY) + 4;
+        const int x = at<short>(buildingAddress(keep) + BuildingX) + 3;
+        const int y = at<short>(buildingAddress(keep) + BuildingY) + 4;
+        if (resend || group.x != x || group.y != y)
+            reinterpret_cast<TwoAction>(allyBindings.sendToKeep)(aic, group.tribe, group.target);
+        group.x = x;
+        group.y = y;
         return true;
     }
-    if (!move(aic, group.tribe, entrance.x, entrance.y)) return false;
+    const bool same = !resend && group.x == entrance.x && group.y == entrance.y;
+    if (same ? !reachable(aic, group.tribe, entrance) : !move(aic, group.tribe, entrance.x, entrance.y)) return false;
     group.x = entrance.x;
     group.y = entrance.y;
     return true;
@@ -605,7 +613,8 @@ bool orderRelief(void* aic, int helper, DetachedGroup& group, bool joined)
     if (there && (!gates || memberAt(helper, group, true, 0, 0, -1))) return true;
     // The native help order sets this stance on the tribes it sends.
     at<short>(tribeAddress(group.tribe) + nativeBindings.tribeStance) = 2;
-    if (orderInside(aic, helper, group)) return true;
+    const int head = at<short>(tribeAddress(group.tribe) + 0x5A);
+    if (orderInside(aic, helper, group, joined || at<short>(unitAddress(head) + 0x2C0) != WalkingState)) return true;
     if (gates) {
         // Waiting at a door until the gate opens.
         if (there && (group.x != field(group.target, CampX) || group.y != field(group.target, CampY))) return true;
