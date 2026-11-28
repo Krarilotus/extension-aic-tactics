@@ -775,6 +775,8 @@ void updateRelief(void* aic, int helper)
 
 void updateAllies(void* aic, int player)
 {
+    // The ally bindings are published only when an ally feature is on.
+    if (!allyBindings.lordAlive) return;
     if (!isAI(player) || !character(player) || !lordAlive(player)) return;
     if (setting(player, AllyGoods) && team(player) != 0) {
         askAllies(aic, player);
