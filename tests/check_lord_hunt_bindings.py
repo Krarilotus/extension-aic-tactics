@@ -42,7 +42,7 @@ def runtime(image, base):
     lua.globals().market_caller = MARKET_CALLER
     lua.execute('''
       package.path=root..'/?.lua;'..package.path
-      core={AOBScanUnique=function(pattern) return aob(pattern) end,readByte=read_byte,readInteger=read_integer}
+      core={AOBScan=function(pattern) return aob(pattern) or error('AOB not found') end,readByte=read_byte,readInteger=read_integer}
       context=require('native-context')
       local layout=require('native-layout')
       game=layout.resolve()

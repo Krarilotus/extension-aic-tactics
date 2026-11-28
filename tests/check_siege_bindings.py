@@ -44,7 +44,7 @@ def check(identity):
     lua.globals().tribes = 0x1F9AFC0 if 'Extreme' in path.name else 0x1667F78
     lua.execute('''
       package.path=root..'/?.lua;'..package.path
-      core={AOBScanUnique=function(pattern) return aob(pattern) end,readByte=read_byte,readInteger=read_integer}
+      core={AOBScan=function(pattern) return aob(pattern) or error('AOB not found') end,readByte=read_byte,readInteger=read_integer}
       local game=require('native-layout').resolve()
       game.mapRows=1;game.gameState=1
       sites=require('native-siege-bindings').resolve(game)

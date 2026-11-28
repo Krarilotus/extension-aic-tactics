@@ -86,14 +86,13 @@ local function branch(opcode,target)
 end
 core.callTo=function(target) return branch(0xE8,target) end
 core.jmpTo=function(target) return branch(0xE9,target) end
-core.AOBScanUnique=function(pattern) return core.uniqueScan(pattern) end
+core.AOBScan=function(pattern) return core.uniqueScan(pattern) or error("AOB not found") end
 ERROR=1; warnings={}
 function log(level,message) if level==ERROR then warnings[#warnings+1]=message end end
 ''')
 def unique_scan(pattern):
     found=scan(pattern)
     if found is None: return None,'not found'
-    if scan(pattern,found+1) is not None: return None,'found more than once'
     return found
 g.core.uniqueScan=unique_scan
 assembly_count=0

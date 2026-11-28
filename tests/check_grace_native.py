@@ -68,8 +68,7 @@ def flatten(code):
 
 
 g.core.writeCode = lambda address, code: uc.mem_write(address, flatten(code))
-lua.execute("package.path=root..'/?.lua;'..package.path;configFinal={};"
-            "core.AOBScanUnique=function(pattern) return core.AOBScan(pattern) end")
+lua.execute("package.path=root..'/?.lua;'..package.path;configFinal={}")
 port = lua.execute(a.legacy.read_text())
 context = scan('03 CB 03 CD 74 4D')
 # AIC resolves after Legacy writes the timer and preserves the owner's value.

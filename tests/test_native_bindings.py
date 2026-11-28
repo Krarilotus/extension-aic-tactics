@@ -85,8 +85,8 @@ def test_native_context_failure_has_no_pointer_fallback(invalid):
     lua.globals().invalid = invalid
     lua.execute('''
       package.path=root..'/?.lua;'..package.path
-      core={AOBScanUnique=function()
-          if invalid=='error' then return nil,'not searched completely' end
+      core={AOBScan=function()
+          if invalid=='error' then error('AOB not found') end
           if invalid=='absent' then return nil end
           return invalid=='zero' and 0 or 10000
         end,

@@ -335,8 +335,8 @@ Those remain release gates in [PR17](https://github.com/UnofficialCrusaderPatch/
 
 Requiring AIC Tactics performs no game-code scans. Enable resolves the layout
 and Legacy settings used in save, replay and match identity. Feature preflight
-resolves additional bindings through the framework's executable-section
-\`core.AOBScanUnique\` API. A missing or ambiguous binding is retained as a
+resolves additional bindings through the framework's cached \`core.AOBScan\`.
+A missing binding is retained as a
 failure for the process. When requested, the affected feature stays off and
 logs one error that names it.
 

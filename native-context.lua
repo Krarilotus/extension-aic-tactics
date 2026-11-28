@@ -2,11 +2,9 @@ local M = {}
 
 -- Bind during module enable or personality admission, before installing hooks.
 function M.find(name, signature)
-  assert(type(core.AOBScanUnique) == 'function',
-    'AIC Tactics: unique game code scanning is unavailable')
-  local site, reason = core.AOBScanUnique(signature)
-  assert(type(site) == 'number' and site > 0 and site % 1 == 0,
-    'AIC Tactics: native ' .. name .. ' ' .. (reason or 'has an invalid address'))
+  local found, site = pcall(core.AOBScan, signature)
+  assert(found and type(site) == 'number' and site > 0 and site % 1 == 0,
+    'AIC Tactics: native ' .. name .. ' ' .. (found and 'has an invalid address' or 'not found'))
   return site
 end
 

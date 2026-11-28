@@ -18,7 +18,7 @@ def lua(request):
       memory,writes,messages={},{},{}
       core={readInteger=function(a)return memory[a] or 0 end,
         writeInteger=function(a,v)memory[a]=v; writes[#writes+1]={a,v} end}
-      core.AOBScanUnique=function() return 5000 end
+      core.AOBScan=function() return 5000 end
       memory[5004], memory[5031]=10000,10000
       log=function(level,message)messages[#messages+1]=message end
       hooks={registerHookCallback=function(_,callback)afterInit=callback end}

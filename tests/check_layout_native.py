@@ -70,7 +70,7 @@ def resolve(read=get, find=scan, second=scan):
     lua.globals().root = root.as_posix()
     lua.execute("package.path=root..'/?.lua;'..package.path")
     lua.globals().core = lua.table_from({'readInteger': read, 'uniqueScan': find, 'scanForAOB': second})
-    lua.execute('core.AOBScanUnique=function(pattern) return core.uniqueScan(pattern) end')
+    lua.execute('core.AOBScan=function(pattern) return core.uniqueScan(pattern) or error("AOB not found") end')
     return dict(lua.execute('''
       local layout=require('native-layout')
       local game=layout.resolve()
@@ -96,7 +96,7 @@ def resolve_actions(read=get, find=scan, second=scan, byte=None):
     lua.execute("package.path=root..'/?.lua;'..package.path")
     lua.globals().core = lua.table_from({'readInteger': read, 'uniqueScan': find, 'scanForAOB': second,
         'readByte': byte or (lambda address: uc.mem_read(address, 1)[0])})
-    lua.execute('core.AOBScanUnique=function(pattern) return core.uniqueScan(pattern) end')
+    lua.execute('core.AOBScan=function(pattern) return core.uniqueScan(pattern) or error("AOB not found") end')
     return dict(lua.execute((root / 'native-group-actions.lua').read_text()).resolve(lua.table_from(bound)).items())
 
 

@@ -49,7 +49,7 @@ def runtime(image, base):
     lua.globals().group_move = GROUP_MOVE
     lua.execute('''
       package.path=root..'/?.lua;'..package.path
-      core={AOBScanUnique=function(pattern) return aob(pattern) end,readByte=read_byte,readInteger=read_integer,
+      core={AOBScan=function(pattern) return aob(pattern) or error('AOB not found') end,readByte=read_byte,readInteger=read_integer,
         callTo=function(target)return target end,
         writeCode=function(address, values) write_code(address, {0xE8, values[1]-address-5}) end}
       context=require('native-context')

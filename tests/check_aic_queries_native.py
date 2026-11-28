@@ -72,7 +72,7 @@ g=lua.globals();g.root=root.as_posix()
 lua.execute("package.path=root..'/?.lua;'..package.path")
 g.core=lua.table_from({'readInteger':get,'readByte':lambda address:uc.mem_read(address,1)[0],
     'uniqueScan':scan,'scanForAOB':scan})
-lua.execute('core.AOBScanUnique=function(pattern) return core.uniqueScan(pattern) end')
+lua.execute('core.AOBScan=function(pattern) return core.uniqueScan(pattern) or error("AOB not found") end')
 lua.execute("""
 local layout=require('native-layout')
       game=layout.resolve()
