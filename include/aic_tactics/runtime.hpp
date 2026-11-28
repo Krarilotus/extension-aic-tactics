@@ -25,6 +25,17 @@ inline int aicValue(void* aic, int character, int offset)
     return *reinterpret_cast<int*>(static_cast<unsigned char*>(aic) + (character - 1) * 0x2A4 + offset);
 }
 
+// The native group move of a tribe to tile x, y. Members keep the flag an
+// earlier native order left, and the group move skips flagged members, so it
+// is cleared first, as the AI does before its own group moves.
+inline bool moveGroup(int tribe, int x, int y)
+{
+    void* tribes = reinterpret_cast<void*>(nativeBindings.tribes);
+    reinterpret_cast<void (__thiscall*)(void*, int)>(nativeBindings.clearGroupMoveFlags)(tribes, tribe);
+    return reinterpret_cast<int (__thiscall*)(void*, int, int, int, int, int, int)>(nativeBindings.siegeGroupMove)(
+        tribes, tribe, x, y, 0, 0, 0) != 0;
+}
+
 struct CharacterConfiguration {
     RecruitmentPolicy recruitment;
     RoleWeights baseRows[3];

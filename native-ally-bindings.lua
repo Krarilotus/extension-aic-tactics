@@ -55,13 +55,6 @@ local helpSendKeep = 0x142
 -- building x + 3, y + 4.
 local sendToKeepSignature = '8B 44 24 08 69 C0 F4 39 00 00 8B 80 ? ? ? ? 85 C0 7E 2D 69 C0 2C 03 00 00 '..
   '0F BF 88 ? ? ? ? 0F BF 90 ? ? ? ? 8B 44 24 04 6A 00 83 C1 04 51 83 C2 03 52 50 B9'
--- TribesState clear(tribe): resets unit +0x42C of each living member. The
--- group move skips members with it set; the AI calls this before its own
--- group moves.
-local clearMoveSignature = '53 8B 5C 24 08 8B C3 69 C0 ? ? ? ? 55 56 57 8B F9 33 F6 66 39 74 38 5C 8D 6C 38 5C '..
-  '7E 38 90 56 53 8B CF E8 ? ? ? ? 69 C0 90 04 00 00 83 C6 01 66 83 B8 ? ? ? ? 02 75 13 66 83 B8 ? ? ? ? 00 '..
-  '75 09 66 C7 80 ? ? ? ? 00 00 0F BF 4D 00 3B F1 7C C9 5F 5E 5D 5B C2 04 00'
-
 function M.resolve(game)
   local read = core.readInteger
   local players = game.players
@@ -103,11 +96,7 @@ function M.resolve(game)
   context.find('AI castle plan steps', aivStepSignature)
   assert(aivState > 0 and read(plan + 0x08) == aivState + 0x14,
     'AIC Tactics: inconsistent native AI castle plans')
-  local clearMove = context.find('group move flags', clearMoveSignature)
-  assert(read(clearMove + 0x09) == game.tribeStride and read(clearMove + 0x35) == game.unitRecords + 0x8C
-      and read(clearMove + 0x3F) == game.unitRecords + 0x2A0 and read(clearMove + 0x49) == game.unitRecords + 0x42C,
-    'AIC Tactics: inconsistent native group move flags')
-  return {allyAnswerHandler = handler, allyEnoughTest = enough, allyClearMoveFlags = clearMove,
+  return {allyAnswerHandler = handler, allyEnoughTest = enough,
     allyResourceGain = context.call(gift + 0x1E, 'resource gain'),
     allyResourceLoss = context.call(gift + 0x2D, 'resource loss'),
     allySellPrice = sellPrice, allyBuyPrice = context.call(buy + 0x52, 'goods buy price'),
@@ -136,7 +125,7 @@ end
 -- Order of AllyBindings in include/aic_tactics/allies.hpp.
 M.names = {'allyResourceGain', 'allyResourceLoss', 'allySellPrice', 'allyBuyPrice',
   'allyGoodsReceived', 'allyGoodsSent', 'allyEnoughTest', 'allyRequestGoods', 'allySentSpeech',
-  'allyLordAlive', 'allyAIState', 'allyAIVState', 'allySendToKeep', 'allyGateChange', 'allyClearMoveFlags'}
+  'allyLordAlive', 'allyAIState', 'allyAIVState', 'allySendToKeep', 'allyGateChange'}
 
 -- The player's gold request to an AI ally: the ally screen's test and the
 -- command handler. `hooks` is nil before install, else the installed stubs.

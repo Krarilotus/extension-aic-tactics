@@ -79,6 +79,7 @@ struct NativeBindings {
     unsigned int siegePlacementFail;
     unsigned int siegeResourceCheck;
     unsigned int siegeGroupMove;
+    unsigned int clearGroupMoveFlags;
     unsigned int siegePlaceTent;
     unsigned int popUnitFromTribe;
     unsigned int siegeAssaultBatch;

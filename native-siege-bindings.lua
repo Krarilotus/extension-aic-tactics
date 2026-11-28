@@ -157,6 +157,18 @@ function M.resolve(game)
     '89 4C 24 08 89 44 24 18')
   assert(context.call(siegeCommand + 0x22a, 'siege tribe movement') == groupMove,
     'AIC Tactics: incompatible native siege group movement owner')
+  -- TribesState clear(tribe): resets unit +0x42C of each living member. The
+  -- group move skips members with it set; the AI calls this before its own
+  -- group moves.
+  local clearMove = context.find('group move flags',
+    '53 8B 5C 24 08 8B C3 69 C0 ? ? ? ? 55 56 57 8B F9 33 F6 66 39 74 38 5C 8D 6C 38 5C '..
+    '7E 38 90 56 53 8B CF E8 ? ? ? ? 69 C0 90 04 00 00 83 C6 01 66 83 B8 ? ? ? ? 02 75 13 66 83 B8 ? ? ? ? 00 '..
+    '75 09 66 C7 80 ? ? ? ? 00 00 0F BF 4D 00 3B F1 7C C9 5F 5E 5D 5B C2 04 00')
+  assert(core.readInteger(clearMove + 0x09) == game.tribeStride
+      and core.readInteger(clearMove + 0x35) == game.unitRecords + 0x8C
+      and core.readInteger(clearMove + 0x3F) == game.unitRecords + 0x2A0
+      and core.readInteger(clearMove + 0x49) == game.unitRecords + 0x42C,
+    'AIC Tactics: inconsistent native group move flags')
   local assaultCall = context.find('native assault siege batch scheduler',
     'E8 ? ? ? ? 6A 01 56 8B CB E8 ? ? ? ? 56 8B CB E8 ? ? ? ? 56 8B CB E8 ? ? ? ?')
   local assault = context.call(assaultCall, 'native assault siege batch')
@@ -242,7 +254,7 @@ function M.resolve(game)
     siegeBuildingFailureExit = failureExit, siegeResourceCheck = resourceCheck,
     siegeGoldSub = goldSub, siegeGoldAddress = goldAddress,
     siegeDirectSpawn = direct, siegeDirectExit = directExit,
-    siegeGroupMove = groupMove, siegePlaceTent = placeTent,
+    siegeGroupMove = groupMove, clearGroupMoveFlags = clearMove, siegePlaceTent = placeTent,
     popUnitFromTribe = popUnit, siegeAssaultPlacementCall = assaultPlacementCall,
     siegeAssaultBatchCall = assaultCall, siegeAssaultBatch = assault,
     tribeAttackWave = tribeAttackWave, siegeUnitCount = unitCount, siegeGetUnitForIndex = getUnit,

@@ -36,6 +36,8 @@ int __fastcall path(void*, void*, int tribe, int tile)
     return tribe != blockedTribe && (blockedTribe != 4 || tribe == 1);
 }
 
+void __fastcall clearMoveFlags(void*, void*, int) {}
+
 int __fastcall move(void*, void*, int tribe, unsigned int x, unsigned int y,
     int rally, int store, int speed)
 {
@@ -81,6 +83,7 @@ int main()
     nativeBindings.gameTick = reinterpret_cast<unsigned int>(&tick);
     nativeBindings.tribePath = reinterpret_cast<unsigned int>(&path);
     nativeBindings.siegeGroupMove = reinterpret_cast<unsigned int>(&move);
+    nativeBindings.clearGroupMoveFlags = reinterpret_cast<unsigned int>(&clearMoveFlags);
     siegeCatapultRange = 73;
     nativeBindings.siegeFireRange = reinterpret_cast<unsigned int>(&fireRange);
     for (int row = 0; row < 400; ++row) rows[row * 3] = row * 400;

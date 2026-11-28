@@ -77,7 +77,6 @@ bool harassType(int type)
     return (type == 39 || type == 77) && approachRadius(type);
 }
 typedef int (__thiscall *Path)(void*, int, int);
-typedef int (__thiscall *Move)(void*, int, unsigned int, unsigned int, int, int, int);
 }
 
 void __cdecl resetSiegeHarassCensus()
@@ -241,9 +240,7 @@ void __cdecl updateSiegeHarassment(void* aic, int player)
     int issued = 0;
     for (int index = 0; index < count; ++index) {
         const SiegeHarassEngine& engine = census.engines[reachable[index]];
-        if (reinterpret_cast<Move>(nativeBindings.siegeGroupMove)(
-            reinterpret_cast<void*>(nativeBindings.tribes), engine.tribe,
-            destinationX[index], destinationY[index], 0, 0, 0)) ++issued;
+        if (moveGroup(engine.tribe, destinationX[index], destinationY[index])) ++issued;
     }
     if (issued) {
         plan.phase = 1;

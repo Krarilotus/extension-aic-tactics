@@ -103,6 +103,10 @@ void __fastcall relay(void* owner, void*, int id, int instruction, int target, u
     lastOrderTarget = target;
     lastOrderUID = uid;
 }
+void __fastcall clearMoveFlags(void* owner, void*, int)
+{
+    assert(owner == static_cast<void*>(tribes));
+}
 int __fastcall moveTribe(void* owner, void*, int id, int x, int y, int a, int b, int c)
 {
     assert(owner == static_cast<void*>(tribes) && a == 0 && b == 0 && c == 0);
@@ -209,6 +213,7 @@ void setup(unsigned int stride)
     nativeBindings.findAttackGroup = reinterpret_cast<unsigned int>(&find);
     nativeBindings.relayRaidOrder = reinterpret_cast<unsigned int>(&relay);
     nativeBindings.siegeGroupMove = reinterpret_cast<unsigned int>(&moveTribe);
+    nativeBindings.clearGroupMoveFlags = reinterpret_cast<unsigned int>(&clearMoveFlags);
     nativeBindings.returnAttack = reinterpret_cast<unsigned int>(&nativeReturn);
     teams[Human] = 1; teams[Attacker] = 2; teams[Ally] = 1; teams[4] = 3;
     put<int>(player(Attacker), 0x2300, 3);

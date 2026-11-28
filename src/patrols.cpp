@@ -162,7 +162,7 @@ void nativeDestination(int tribe)
 enum Attempt { Ordered, Rejected, OutOfBudget };
 
 // One candidate station: playable map, the group's own path query, then the
-// native group move.
+// group move.
 Attempt tryStation(void* owner, int tribe, TilePoint station, Budget& budget)
 {
     const int tile = stationTile(station);
@@ -171,10 +171,7 @@ Attempt tryStation(void* owner, int tribe, TilePoint station, Budget& budget)
     --budget.paths;
     if (!reinterpret_cast<TribeQuery>(nativeBindings.tribePath)(owner, tribe, tile)) return Rejected;
     --budget.orders;
-    if (!reinterpret_cast<TribeMove>(nativeBindings.siegeGroupMove)(
-            reinterpret_cast<void*>(nativeBindings.tribes), tribe, station.x, station.y, 0, 0, 0))
-        return Rejected;
-    return Ordered;
+    return moveGroup(tribe, station.x, station.y) ? Ordered : Rejected;
 }
 
 // Wing and Mirror stations. Group 1 takes the station beside slot 15 (Wing) or

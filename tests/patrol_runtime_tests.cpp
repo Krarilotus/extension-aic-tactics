@@ -70,6 +70,10 @@ int __fastcall path(void*, void*, int id, int tile)
     ++pathCalls;
     return tile != blockedTile;
 }
+void __fastcall clearMoveFlags(void* owner, void*, int)
+{
+    assert(owner == static_cast<void*>(tribes));
+}
 int __fastcall move(void* owner, void*, int id, int x, int y, int rally, int store, int speed)
 {
     assert(owner == static_cast<void*>(tribes) && !rally && !store && !speed);
@@ -201,6 +205,7 @@ void setup(unsigned int stride, unsigned int stance, int orders, int formation, 
     nativeBindings.troopValueState = reinterpret_cast<unsigned int>(TROOP_VALUES);
     nativeBindings.tribePath = reinterpret_cast<unsigned int>(&path);
     nativeBindings.siegeGroupMove = reinterpret_cast<unsigned int>(&move);
+    nativeBindings.clearGroupMoveFlags = reinterpret_cast<unsigned int>(&clearMoveFlags);
     nativeBindings.createTribe = reinterpret_cast<unsigned int>(&create);
     nativeBindings.addUnitToTribe = reinterpret_cast<unsigned int>(&add);
     nativeBindings.removeUnitFromTribe = reinterpret_cast<unsigned int>(&remove);

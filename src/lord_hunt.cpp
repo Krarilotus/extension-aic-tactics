@@ -49,7 +49,6 @@ const int ReturnAfterAttack = 0x100;
 template<class T> T& at(unsigned int address) { return *reinterpret_cast<T*>(address); }
 typedef int (__thiscall *AreaRoute)(void*, int, int, int, int);
 typedef void (__thiscall *Relay)(void*, int, int, int, unsigned int, int);
-typedef int (__thiscall *TribeMove)(void*, int, int, int, int, int, int);
 typedef void (__thiscall *PlayerAction)(void*, int);
 
 // Census scratch, rebuilt at every census reset.
@@ -153,12 +152,6 @@ void order(int tribe, int instruction, int target, unsigned int uid)
 {
     reinterpret_cast<Relay>(nativeBindings.relayRaidOrder)(reinterpret_cast<void*>(nativeBindings.units),
         tribe, instruction, target, uid, 0);
-}
-
-void move(int tribe, int x, int y)
-{
-    reinterpret_cast<TribeMove>(nativeBindings.siegeGroupMove)(reinterpret_cast<void*>(nativeBindings.tribes),
-        tribe, x, y, 0, 0, 0);
 }
 
 void aggressive(int tribe) { at<short>(tribeAddress(tribe) + nativeBindings.tribeStance) = AggressiveStance; }
@@ -506,7 +499,7 @@ void orderSplit(void* aic, int player, LordHuntState& state, Reach& memo)
         x = field(state.splitTo, 0x98);
         y = field(state.splitTo, 0x9C);
         if (melee) {
-            move(melee->tribe, x, y);
+            moveGroup(melee->tribe, x, y);
             melee->target = state.splitTo;
             melee->targetUID = 0;
             melee->x = x;
@@ -516,7 +509,7 @@ void orderSplit(void* aic, int player, LordHuntState& state, Reach& memo)
     }
     if (melee) aggressive(melee->tribe);
     if (shooters) {
-        move(shooters->tribe, x, y);
+        moveGroup(shooters->tribe, x, y);
         shooters->x = x;
         shooters->y = y;
         aggressive(shooters->tribe);

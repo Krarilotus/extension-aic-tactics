@@ -225,6 +225,7 @@ void setup(unsigned int stride)
     nativeBindings.mapRows = reinterpret_cast<unsigned int>(rows);
     nativeBindings.tribePath = reinterpret_cast<unsigned int>(&path);
     nativeBindings.siegeGroupMove = reinterpret_cast<unsigned int>(&move);
+    nativeBindings.clearGroupMoveFlags = reinterpret_cast<unsigned int>(&clearMoveFlags);
     nativeBindings.createTribe = reinterpret_cast<unsigned int>(&create);
     nativeBindings.addUnitToTribe = reinterpret_cast<unsigned int>(&addUnit);
     nativeBindings.removeUnitFromTribe = reinterpret_cast<unsigned int>(&removeUnit);
@@ -243,7 +244,6 @@ void setup(unsigned int stride)
     allyBindings.aivState = 0;
     allyBindings.sendToKeep = reinterpret_cast<unsigned int>(&toKeep);
     allyBindings.gateChange = reinterpret_cast<unsigned int>(&gateChange);
-    allyBindings.clearMoveFlags = reinterpret_cast<unsigned int>(&clearMoveFlags);
     // 1 human, 2 and 3 AI allies (characters 2 and 3), 4 an enemy AI (character 4).
     const int teamOf[9] = {0, 1, 1, 1, 2, 0, 0, 0, 0};
     for (int id = 0; id < 9; ++id) { teams[id] = teamOf[id]; lordAliveFlags[id] = id >= 1 && id <= 4; }

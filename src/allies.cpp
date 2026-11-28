@@ -65,9 +65,7 @@ typedef void (__thiscall *ThreeAction)(void*, int, int, int);
 typedef void (__thiscall *FourAction)(void*, int, int, int, int);
 typedef void (__thiscall *TwoAction)(void*, int, int);
 typedef int (__thiscall *OneQuery)(void*, int);
-typedef void (__thiscall *TribeAction)(void*, int);
 typedef int (__thiscall *TribeQuery)(void*, int, int);
-typedef int (__thiscall *TribeMove)(void*, int, int, int, int, int, int);
 
 unsigned int playerAddress(int player) { return nativeBindings.players + player * PlayerStride; }
 int& field(int player, unsigned int offset) { return at<int>(playerAddress(player) + offset); }
@@ -467,15 +465,10 @@ bool reachable(void* aic, int tribe, TilePoint point)
     return tile && reinterpret_cast<TribeQuery>(nativeBindings.tribePath)(aic, tribe, tile);
 }
 
-// Members keep the flag the native order to their former group left; the
-// group move skips flagged members, so it is cleared first, as the AI does.
 bool move(void* aic, int tribe, int x, int y)
 {
     TilePoint point = {x, y};
-    if (!reachable(aic, tribe, point)) return false;
-    void* tribes = reinterpret_cast<void*>(nativeBindings.tribes);
-    reinterpret_cast<TribeAction>(allyBindings.clearMoveFlags)(tribes, tribe);
-    return reinterpret_cast<TribeMove>(nativeBindings.siegeGroupMove)(tribes, tribe, x, y, 0, 0, 0) != 0;
+    return reachable(aic, tribe, point) && moveGroup(tribe, x, y);
 }
 
 unsigned int buildingAddress(int building) { return nativeBindings.buildings + 0x14 + building * BuildingStride; }
