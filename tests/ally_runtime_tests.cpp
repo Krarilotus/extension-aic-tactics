@@ -109,6 +109,10 @@ void __fastcall gateChange(void* owner, void*, int id, int open, int flag)
     ++gateChanges;
     gateBuilding = id;
 }
+void __fastcall clearMoveFlags(void* owner, void*, int)
+{
+    assert(owner == static_cast<void*>(tribes));
+}
 int __fastcall move(void* owner, void*, int id, int x, int y, int a, int b, int c)
 {
     assert(owner == static_cast<void*>(tribes) && !a && !b && !c);
@@ -239,6 +243,7 @@ void setup(unsigned int stride)
     allyBindings.aivState = 0;
     allyBindings.sendToKeep = reinterpret_cast<unsigned int>(&toKeep);
     allyBindings.gateChange = reinterpret_cast<unsigned int>(&gateChange);
+    allyBindings.clearMoveFlags = reinterpret_cast<unsigned int>(&clearMoveFlags);
     // 1 human, 2 and 3 AI allies (characters 2 and 3), 4 an enemy AI (character 4).
     const int teamOf[9] = {0, 1, 1, 1, 2, 0, 0, 0, 0};
     for (int id = 0; id < 9; ++id) { teams[id] = teamOf[id]; lordAliveFlags[id] = id >= 1 && id <= 4; }

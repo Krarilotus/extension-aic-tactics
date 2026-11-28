@@ -17,7 +17,7 @@ typedef char CombatCensusABI[sizeof(AicTactics::SHC141::PlayerCensus) == 48 ? 1 
 typedef char LordHuntABI[sizeof(AicTactics::SHC141::LordHuntState) == 68 ? 1 : -1];
 typedef char LordHuntCensusABI[sizeof(AicTactics::SHC141::LordHuntCensus) == 1544 ? 1 : -1];
 typedef char AllyStateABI[sizeof(AicTactics::SHC141::AllyState) == 260 ? 1 : -1];
-typedef char AllyBindingsABI[sizeof(AicTactics::SHC141::AllyBindings) == 56 ? 1 : -1];
+typedef char AllyBindingsABI[sizeof(AicTactics::SHC141::AllyBindings) == 60 ? 1 : -1];
 
 // The bridge only publishes addresses. These stable Lua C API calls use the
 // host's lua.dll; no Lua VM or allocator is embedded in the module.

@@ -90,7 +90,7 @@ for months in range(31):
 owner = lua.execute((a.loader/'addresses.lua').read_text())
 g.owner = owner
 g.native = lua.table_from({'nativeBindings': 0x3001000, 'nativeBindingsSize':364,
-                           'allyBindings': 0x3002000, 'allyBindingsSize': 56})
+                           'allyBindings': 0x3002000, 'allyBindingsSize': 60})
 lua.execute('''
   assert(owner.resolve())
   modules={aicloader={getNativeAICLayout=function()

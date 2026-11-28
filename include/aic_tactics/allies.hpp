@@ -26,6 +26,7 @@ struct AllyBindings {
     unsigned int aivState;         // AIVState instance (castle build plans)
     unsigned int sendToKeep;       // AICState: sendUnitsToKeep(tribe, player), onto the keep
     unsigned int gateChange;       // BuildingsState: apply a gate's open/close change(building, 1, 0)
+    unsigned int clearMoveFlags;   // TribesState: clear(tribe), the member flag that makes a group move skip a unit
 };
 extern AllyBindings allyBindings;
 

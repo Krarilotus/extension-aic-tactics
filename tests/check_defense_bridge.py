@@ -149,7 +149,7 @@ local bindings=require('native-bindings')
 preparedGame=bindings.resolve()
 bindings.requireBindings(preparedGame, {'AICLayout', 'Grace', 'Layout', 'Interval', 'Target'})
 package.loaded['aicTactics.dll']={configurationSize=352,configuration=0x3050000,
-  nativeBindings=0x3051000,nativeBindingsSize=364,allyBindings=0x3052000,allyBindingsSize=56,
+  nativeBindings=0x3051000,nativeBindingsSize=364,allyBindings=0x3052000,allyBindingsSize=60,
   resetDefenseCensus=0x3070000,countDefenseUnit=0x3070020}
 native=require('native').new(preparedGame)
 native.preflightCombat();native.preflightRaids()
